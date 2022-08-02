@@ -2,6 +2,7 @@ package handler
 
 import (
 	"example-project/model"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -46,5 +47,6 @@ func (handler Handler) GetEmployeeHandler(c *gin.Context) {
 	}
 
 	response := handler.ServiceInterface.GetEmployeeById(pathParam)
+	fmt.Println(response)
 	c.JSON(http.StatusOK, response)
 }

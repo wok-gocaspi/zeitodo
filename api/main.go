@@ -13,5 +13,7 @@ func main() {
 		Database: "office",
 	})
 	engine := middleware.SetupEngine([]gin.HandlerFunc{middleware.SetupService(databaseClient)})
+	//	engine.Use(cors.Default())
+	//	engine.Use(middleware.CORS)
 	engine.Run(":9090")
 }

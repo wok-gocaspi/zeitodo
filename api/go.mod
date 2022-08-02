@@ -3,8 +3,9 @@ module example-project
 go 1.15
 
 require (
-	github.com/gin-gonic/gin v1.7.2
+	github.com/gin-contrib/cors v1.4.0 // indirect
+	github.com/gin-gonic/gin v1.8.1
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.4.1 // indirect
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.8.0
 	go.mongodb.org/mongo-driver v1.5.3
 )
