@@ -11,6 +11,7 @@ import (
 type ServiceInterface interface {
 	CreateEmployees(employees []model.Employee) interface{}
 	GetEmployeeById(id string) model.Employee
+	GetTimeEntryByID(id string) model.Employee
 }
 
 type Handler struct {
@@ -50,3 +51,23 @@ func (handler Handler) GetEmployeeHandler(c *gin.Context) {
 	fmt.Println(response)
 	c.JSON(http.StatusOK, response)
 }
+
+/*func (handler Handler) GetTimeEntryByID (c *gin.Context) {
+	pathParam, ok := c.Params.Get("id")
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": "id is not given",
+		})
+		return
+	}
+
+	response := handler.ServiceInterface.GetEmployeeById(pathParam)
+	employee := model.EmployeeReturn{
+		ID:        response.ID,
+		FirstName: response.FirstName,
+		LastName:  response.LastName,
+		Email:     response.Email,
+		Admin:     response.Admin,
+	}
+	c.JSON(http.StatusOK, employee)
+}*/
