@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"time"
+)
 
 type Employee struct {
 	ID        string `json:"id"`
@@ -40,9 +43,10 @@ type TimeEntry struct {
 }
 
 type Proposal struct {
-	UserId    string    `json:"userId" bson:"userId"`
-	StartDate time.Time `json:"startDate" bson:"startDate"`
-	EndDate   time.Time `json:"endDate" bson:"endDate"`
-	Approved  bool      `json:"approved" bson:"approved"`
-	Type      string    `json:"type" bson:"type"`
+	UserId    string             `json:"userId" bson:"userId"`
+	StartDate time.Time          `json:"startDate" bson:"startDate"`
+	EndDate   time.Time          `json:"endDate" bson:"endDate"`
+	Approved  bool               `json:"approved" bson:"approved"`
+	Type      string             `json:"type" bson:"type"`
+	ID        primitive.ObjectID `bson:"_id" json:"id,omitempty"`
 }
