@@ -8,6 +8,7 @@ import (
 type DatabaseInterface interface {
 	UpdateMany(docs []interface{}) interface{}
 	GetByID(id string) model.Employee
+	GetProposals(id string) ([]model.Proposal, error)
 }
 
 type EmployeeService struct {

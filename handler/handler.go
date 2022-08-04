@@ -11,6 +11,7 @@ import (
 type ServiceInterface interface {
 	CreateEmployees(employees []model.Employee) interface{}
 	GetEmployeeById(id string) model.Employee
+	GetProposalsByID(id string) ([]model.Proposal, error)
 }
 
 type Handler struct {
@@ -49,4 +50,17 @@ func (handler Handler) GetEmployeeHandler(c *gin.Context) {
 	response := handler.ServiceInterface.GetEmployeeById(pathParam)
 	fmt.Println(response)
 	c.JSON(http.StatusOK, response)
+}
+
+func (handler Handler) GetProposalsById(c *gin.Context) {
+	pathParam, ok := c.Params.Get("id")
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": "id is not given",
+		})
+		return
+	}
+
+	response, _ := handler.ServiceInterface.GetProposalsByID(pathParam)
+	c.JSON(200, response)
 }
