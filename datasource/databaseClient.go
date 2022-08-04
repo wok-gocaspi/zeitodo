@@ -16,19 +16,23 @@ type MongoDBInterface interface {
 }
 
 type Client struct {
-	Employee MongoDBInterface
+	Users       MongoDBInterface
+	TimeEntries MongoDBInterface
+	Proposals   MongoDBInterface
 }
 
 func NewDbClient(d model.DbConfig) Client {
 	client, _ := mongo.Connect(context.TODO(), options.Client().ApplyURI(d.URL))
 	db := client.Database(d.Database)
 	return Client{
-		Employee: db.Collection("employee"),
+		Users:       db.Collection("Users"),
+		TimeEntries: db.Collection("TimeEntries"),
+		Proposals:   db.Collection("Proposals"),
 	}
 }
 
 func (c Client) UpdateMany(docs []interface{}) interface{} {
-	results, err := c.Employee.InsertMany(context.TODO(), docs)
+	results, err := c.Users.InsertMany(context.TODO(), docs)
 	if err != nil {
 		log.Println("database error")
 	}
@@ -37,7 +41,7 @@ func (c Client) UpdateMany(docs []interface{}) interface{} {
 
 func (c Client) GetByID(id string) model.Employee {
 	filter := bson.M{"id": id}
-	courser := c.Employee.FindOne(context.TODO(), filter)
+	courser := c.Users.FindOne(context.TODO(), filter)
 	var employee model.Employee
 	err := courser.Decode(&employee)
 	if err != nil {
