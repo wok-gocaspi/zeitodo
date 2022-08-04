@@ -19,6 +19,11 @@ type FakeHandlerInterface struct {
 	getEmployeeHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
+	GetProposalsByIdStub        func(*gin.Context)
+	getProposalsByIdMutex       sync.RWMutex
+	getProposalsByIdArgsForCall []struct {
+		arg1 *gin.Context
+	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
@@ -87,6 +92,38 @@ func (fake *FakeHandlerInterface) GetEmployeeHandlerArgsForCall(i int) *gin.Cont
 	return argsForCall.arg1
 }
 
+func (fake *FakeHandlerInterface) GetProposalsById(arg1 *gin.Context) {
+	fake.getProposalsByIdMutex.Lock()
+	fake.getProposalsByIdArgsForCall = append(fake.getProposalsByIdArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.GetProposalsByIdStub
+	fake.recordInvocation("GetProposalsById", []interface{}{arg1})
+	fake.getProposalsByIdMutex.Unlock()
+	if stub != nil {
+		fake.GetProposalsByIdStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) GetProposalsByIdCallCount() int {
+	fake.getProposalsByIdMutex.RLock()
+	defer fake.getProposalsByIdMutex.RUnlock()
+	return len(fake.getProposalsByIdArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) GetProposalsByIdCalls(stub func(*gin.Context)) {
+	fake.getProposalsByIdMutex.Lock()
+	defer fake.getProposalsByIdMutex.Unlock()
+	fake.GetProposalsByIdStub = stub
+}
+
+func (fake *FakeHandlerInterface) GetProposalsByIdArgsForCall(i int) *gin.Context {
+	fake.getProposalsByIdMutex.RLock()
+	defer fake.getProposalsByIdMutex.RUnlock()
+	argsForCall := fake.getProposalsByIdArgsForCall[i]
+	return argsForCall.arg1
+}
+
 func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
@@ -94,6 +131,8 @@ func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	defer fake.createEmployeeHandlerMutex.RUnlock()
 	fake.getEmployeeHandlerMutex.RLock()
 	defer fake.getEmployeeHandlerMutex.RUnlock()
+	fake.getProposalsByIdMutex.RLock()
+	defer fake.getProposalsByIdMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

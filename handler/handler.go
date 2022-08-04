@@ -52,15 +52,25 @@ func (handler Handler) GetEmployeeHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-func (handler Handler) GetProposalsById(c *gin.Context) {
-	pathParam, ok := c.Params.Get("id")
-	if !ok {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"errorMessage": "id is not given",
+func (handler Handler) GetProposalsById(context *gin.Context) {
+	id, idOk := context.Params.Get("id")
+	if !idOk {
+		noQueryError := "No department was given in the query parameter!"
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": noQueryError,
 		})
 		return
 	}
 
-	response, _ := handler.ServiceInterface.GetProposalsByID(pathParam)
-	c.JSON(200, response)
+	response, err := handler.ServiceInterface.GetProposalsByID(id)
+	if err != nil {
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+
+	context.JSON(200, response)
+	return
+
 }

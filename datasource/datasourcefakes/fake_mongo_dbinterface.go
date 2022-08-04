@@ -11,6 +11,21 @@ import (
 )
 
 type FakeMongoDBInterface struct {
+	FindStub        func(context.Context, interface{}, ...*options.FindOptions) (*mongo.Cursor, error)
+	findMutex       sync.RWMutex
+	findArgsForCall []struct {
+		arg1 context.Context
+		arg2 interface{}
+		arg3 []*options.FindOptions
+	}
+	findReturns struct {
+		result1 *mongo.Cursor
+		result2 error
+	}
+	findReturnsOnCall map[int]struct {
+		result1 *mongo.Cursor
+		result2 error
+	}
 	FindOneStub        func(context.Context, interface{}, ...*options.FindOneOptions) *mongo.SingleResult
 	findOneMutex       sync.RWMutex
 	findOneArgsForCall []struct {
@@ -41,6 +56,72 @@ type FakeMongoDBInterface struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *FakeMongoDBInterface) Find(arg1 context.Context, arg2 interface{}, arg3 ...*options.FindOptions) (*mongo.Cursor, error) {
+	fake.findMutex.Lock()
+	ret, specificReturn := fake.findReturnsOnCall[len(fake.findArgsForCall)]
+	fake.findArgsForCall = append(fake.findArgsForCall, struct {
+		arg1 context.Context
+		arg2 interface{}
+		arg3 []*options.FindOptions
+	}{arg1, arg2, arg3})
+	stub := fake.FindStub
+	fakeReturns := fake.findReturns
+	fake.recordInvocation("Find", []interface{}{arg1, arg2, arg3})
+	fake.findMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeMongoDBInterface) FindCallCount() int {
+	fake.findMutex.RLock()
+	defer fake.findMutex.RUnlock()
+	return len(fake.findArgsForCall)
+}
+
+func (fake *FakeMongoDBInterface) FindCalls(stub func(context.Context, interface{}, ...*options.FindOptions) (*mongo.Cursor, error)) {
+	fake.findMutex.Lock()
+	defer fake.findMutex.Unlock()
+	fake.FindStub = stub
+}
+
+func (fake *FakeMongoDBInterface) FindArgsForCall(i int) (context.Context, interface{}, []*options.FindOptions) {
+	fake.findMutex.RLock()
+	defer fake.findMutex.RUnlock()
+	argsForCall := fake.findArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeMongoDBInterface) FindReturns(result1 *mongo.Cursor, result2 error) {
+	fake.findMutex.Lock()
+	defer fake.findMutex.Unlock()
+	fake.FindStub = nil
+	fake.findReturns = struct {
+		result1 *mongo.Cursor
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeMongoDBInterface) FindReturnsOnCall(i int, result1 *mongo.Cursor, result2 error) {
+	fake.findMutex.Lock()
+	defer fake.findMutex.Unlock()
+	fake.FindStub = nil
+	if fake.findReturnsOnCall == nil {
+		fake.findReturnsOnCall = make(map[int]struct {
+			result1 *mongo.Cursor
+			result2 error
+		})
+	}
+	fake.findReturnsOnCall[i] = struct {
+		result1 *mongo.Cursor
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeMongoDBInterface) FindOne(arg1 context.Context, arg2 interface{}, arg3 ...*options.FindOneOptions) *mongo.SingleResult {
@@ -180,6 +261,8 @@ func (fake *FakeMongoDBInterface) InsertManyReturnsOnCall(i int, result1 *mongo.
 func (fake *FakeMongoDBInterface) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.findMutex.RLock()
+	defer fake.findMutex.RUnlock()
 	fake.findOneMutex.RLock()
 	defer fake.findOneMutex.RUnlock()
 	fake.insertManyMutex.RLock()
