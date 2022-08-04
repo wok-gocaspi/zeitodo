@@ -9,11 +9,6 @@ import (
 )
 
 type FakeHandlerInterface struct {
-	CreateEmployeeHandlerStub        func(*gin.Context)
-	createEmployeeHandlerMutex       sync.RWMutex
-	createEmployeeHandlerArgsForCall []struct {
-		arg1 *gin.Context
-	}
 	GetEmployeeHandlerStub        func(*gin.Context)
 	getEmployeeHandlerMutex       sync.RWMutex
 	getEmployeeHandlerArgsForCall []struct {
@@ -26,38 +21,6 @@ type FakeHandlerInterface struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
-}
-
-func (fake *FakeHandlerInterface) CreateEmployeeHandler(arg1 *gin.Context) {
-	fake.createEmployeeHandlerMutex.Lock()
-	fake.createEmployeeHandlerArgsForCall = append(fake.createEmployeeHandlerArgsForCall, struct {
-		arg1 *gin.Context
-	}{arg1})
-	stub := fake.CreateEmployeeHandlerStub
-	fake.recordInvocation("CreateEmployeeHandler", []interface{}{arg1})
-	fake.createEmployeeHandlerMutex.Unlock()
-	if stub != nil {
-		fake.CreateEmployeeHandlerStub(arg1)
-	}
-}
-
-func (fake *FakeHandlerInterface) CreateEmployeeHandlerCallCount() int {
-	fake.createEmployeeHandlerMutex.RLock()
-	defer fake.createEmployeeHandlerMutex.RUnlock()
-	return len(fake.createEmployeeHandlerArgsForCall)
-}
-
-func (fake *FakeHandlerInterface) CreateEmployeeHandlerCalls(stub func(*gin.Context)) {
-	fake.createEmployeeHandlerMutex.Lock()
-	defer fake.createEmployeeHandlerMutex.Unlock()
-	fake.CreateEmployeeHandlerStub = stub
-}
-
-func (fake *FakeHandlerInterface) CreateEmployeeHandlerArgsForCall(i int) *gin.Context {
-	fake.createEmployeeHandlerMutex.RLock()
-	defer fake.createEmployeeHandlerMutex.RUnlock()
-	argsForCall := fake.createEmployeeHandlerArgsForCall[i]
-	return argsForCall.arg1
 }
 
 func (fake *FakeHandlerInterface) GetEmployeeHandler(arg1 *gin.Context) {
@@ -127,8 +90,6 @@ func (fake *FakeHandlerInterface) GetProposalsByIdArgsForCall(i int) *gin.Contex
 func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.createEmployeeHandlerMutex.RLock()
-	defer fake.createEmployeeHandlerMutex.RUnlock()
 	fake.getEmployeeHandlerMutex.RLock()
 	defer fake.getEmployeeHandlerMutex.RUnlock()
 	fake.getProposalsByIdMutex.RLock()

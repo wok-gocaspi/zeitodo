@@ -7,7 +7,7 @@ import (
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . HandlerInterface
 type HandlerInterface interface {
-	CreateEmployeeHandler(c *gin.Context)
+	//	CreateEmployeeHandler(c *gin.Context)
 	GetEmployeeHandler(c *gin.Context)
 	GetProposalsById(c *gin.Context)
 }
@@ -18,7 +18,7 @@ func CreateRoutes(group *gin.RouterGroup) {
 	route := group.Group("/employee")
 	route.Use(CORS)
 	route.GET("/:id/get", Handler.GetEmployeeHandler)
-	route.POST("/create", Handler.CreateEmployeeHandler)
+	//	route.POST("/create", Handler.CreateEmployeeHandler)
 	route.GET("/:id/proposals", Handler.GetProposalsById)
 }
 func CORS(c *gin.Context) {

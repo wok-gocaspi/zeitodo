@@ -32,14 +32,6 @@ func NewDbClient(d model.DbConfig) Client {
 	}
 }
 
-func (c Client) UpdateMany(docs []interface{}) interface{} {
-	results, err := c.Users.InsertMany(context.TODO(), docs)
-	if err != nil {
-		log.Println("database error")
-	}
-	return results.InsertedIDs
-}
-
 func (c Client) GetByID(id string) model.Employee {
 	filter := bson.M{"id": id}
 	courser := c.Users.FindOne(context.TODO(), filter)
@@ -72,4 +64,13 @@ func (c Client) GetProposals(id string) ([]model.Proposal, error) {
 		return nil, err
 	}
 	return proposalArr, nil
+}
+
+func (c Client) SaveProposals(docs []interface{}) (interface{}, error) {
+	results, err := c.Proposals.InsertMany(context.TODO(), docs)
+	if err != nil {
+		log.Println("database error")
+		return nil, err
+	}
+	return results.InsertedIDs, nil
 }

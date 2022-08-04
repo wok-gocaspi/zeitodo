@@ -8,17 +8,6 @@ import (
 )
 
 type FakeServiceInterface struct {
-	CreateEmployeesStub        func([]model.Employee) interface{}
-	createEmployeesMutex       sync.RWMutex
-	createEmployeesArgsForCall []struct {
-		arg1 []model.Employee
-	}
-	createEmployeesReturns struct {
-		result1 interface{}
-	}
-	createEmployeesReturnsOnCall map[int]struct {
-		result1 interface{}
-	}
 	GetEmployeeByIdStub        func(string) model.Employee
 	getEmployeeByIdMutex       sync.RWMutex
 	getEmployeeByIdArgsForCall []struct {
@@ -45,72 +34,6 @@ type FakeServiceInterface struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
-}
-
-func (fake *FakeServiceInterface) CreateEmployees(arg1 []model.Employee) interface{} {
-	var arg1Copy []model.Employee
-	if arg1 != nil {
-		arg1Copy = make([]model.Employee, len(arg1))
-		copy(arg1Copy, arg1)
-	}
-	fake.createEmployeesMutex.Lock()
-	ret, specificReturn := fake.createEmployeesReturnsOnCall[len(fake.createEmployeesArgsForCall)]
-	fake.createEmployeesArgsForCall = append(fake.createEmployeesArgsForCall, struct {
-		arg1 []model.Employee
-	}{arg1Copy})
-	stub := fake.CreateEmployeesStub
-	fakeReturns := fake.createEmployeesReturns
-	fake.recordInvocation("CreateEmployees", []interface{}{arg1Copy})
-	fake.createEmployeesMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	return fakeReturns.result1
-}
-
-func (fake *FakeServiceInterface) CreateEmployeesCallCount() int {
-	fake.createEmployeesMutex.RLock()
-	defer fake.createEmployeesMutex.RUnlock()
-	return len(fake.createEmployeesArgsForCall)
-}
-
-func (fake *FakeServiceInterface) CreateEmployeesCalls(stub func([]model.Employee) interface{}) {
-	fake.createEmployeesMutex.Lock()
-	defer fake.createEmployeesMutex.Unlock()
-	fake.CreateEmployeesStub = stub
-}
-
-func (fake *FakeServiceInterface) CreateEmployeesArgsForCall(i int) []model.Employee {
-	fake.createEmployeesMutex.RLock()
-	defer fake.createEmployeesMutex.RUnlock()
-	argsForCall := fake.createEmployeesArgsForCall[i]
-	return argsForCall.arg1
-}
-
-func (fake *FakeServiceInterface) CreateEmployeesReturns(result1 interface{}) {
-	fake.createEmployeesMutex.Lock()
-	defer fake.createEmployeesMutex.Unlock()
-	fake.CreateEmployeesStub = nil
-	fake.createEmployeesReturns = struct {
-		result1 interface{}
-	}{result1}
-}
-
-func (fake *FakeServiceInterface) CreateEmployeesReturnsOnCall(i int, result1 interface{}) {
-	fake.createEmployeesMutex.Lock()
-	defer fake.createEmployeesMutex.Unlock()
-	fake.CreateEmployeesStub = nil
-	if fake.createEmployeesReturnsOnCall == nil {
-		fake.createEmployeesReturnsOnCall = make(map[int]struct {
-			result1 interface{}
-		})
-	}
-	fake.createEmployeesReturnsOnCall[i] = struct {
-		result1 interface{}
-	}{result1}
 }
 
 func (fake *FakeServiceInterface) GetEmployeeById(arg1 string) model.Employee {
@@ -241,8 +164,6 @@ func (fake *FakeServiceInterface) GetProposalsByIDReturnsOnCall(i int, result1 [
 func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.createEmployeesMutex.RLock()
-	defer fake.createEmployeesMutex.RUnlock()
 	fake.getEmployeeByIdMutex.RLock()
 	defer fake.getEmployeeByIdMutex.RUnlock()
 	fake.getProposalsByIDMutex.RLock()
