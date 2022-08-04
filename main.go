@@ -11,9 +11,16 @@ import (
 )
 
 func main() {
+	var port string
 	err := godotenv.Load()
 	if err != nil {
 		log.Println("Error loading .env file")
+	}
+	env := os.Getenv("environment")
+	if env == "production" {
+		port = "80"
+	} else {
+		port = "9090"
 	}
 	databaseClient := datasource.NewDbClient(model.DbConfig{
 
@@ -22,5 +29,5 @@ func main() {
 		Database: "zeitodo",
 	})
 	engine := middleware.SetupEngine([]gin.HandlerFunc{middleware.SetupService(databaseClient)})
-	engine.Run(":9090")
+	engine.Run(":" + port)
 }
