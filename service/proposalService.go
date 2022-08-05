@@ -24,6 +24,12 @@ func (s EmployeeService) CreateProposals(proposalPayloadArr []model.ProposalPayl
 	if err != nil {
 		return nil, err
 	}
+
+	if StartDateExceedsEndDate(proposalArr) {
+		startExceedsEndErrMsg := errors.New("The startdate must be before the enddate")
+		return nil, startExceedsEndErrMsg
+	}
+
 	overlappingErrMsg := errors.New("There cant be overlapping proposals.")
 	actualProposals, err := s.GetProposalsByID(id)
 
@@ -95,6 +101,16 @@ func ProposalTimeIntersectsProposals(proposal model.Proposal, Arr []model.Propos
 			return true
 		}
 
+	}
+	return false
+}
+
+func StartDateExceedsEndDate(Arr []model.Proposal) bool {
+	for _, p := range Arr {
+		p.TimeObject, _ = CreateTimeObject(p.StartDate, p.EndDate)
+		if p.EndDate.Before(p.StartDate) {
+			return true
+		}
 	}
 	return false
 }
