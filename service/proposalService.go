@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"example-project/model"
-	"fmt"
 	"github.com/retailify/go-interval"
 	"time"
 )
@@ -52,15 +51,6 @@ func CreateTimeObject(start, end time.Time) (model.ProposalTimeObject, error) {
 	return obj, err
 }
 
-func OverlappingProposals(proposal model.Proposal, Arr []model.Proposal) bool {
-	for _, p := range Arr {
-		if p.TimeObject.Interval != nil && !(proposal.TimeObject.Interval.During(p.TimeObject.Interval) || p.TimeObject.Interval.During(proposal.TimeObject.Interval)) {
-			return true
-		}
-	}
-	return false
-}
-
 func CraftProposalFromPayload(payload []model.ProposalPayload) ([]model.Proposal, error) {
 	var proposals []model.Proposal
 	for _, p := range payload {
@@ -81,21 +71,6 @@ func CraftProposalFromPayload(payload []model.ProposalPayload) ([]model.Proposal
 	}
 
 	return proposals, nil
-}
-
-func OverlappingProposalsTest(proposal model.Proposal, Arr []model.Proposal) bool {
-	for _, p := range Arr {
-		p.TimeObject, _ = CreateTimeObject(p.StartDate, p.EndDate)
-		if p.TimeObject.Interval != nil {
-			intervalP := p.TimeObject.Interval
-			intervalProposal := proposal.TimeObject.Interval
-			fmt.Println(intervalP, intervalProposal)
-			statment := p.TimeObject.Interval.Overlaps(proposal.TimeObject.Interval)
-			fmt.Println(statment)
-			return true
-		}
-	}
-	return false
 }
 
 func ProposalTimeIntersectsProposals(proposal model.Proposal, Arr []model.Proposal) bool {

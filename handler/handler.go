@@ -45,7 +45,7 @@ func (handler Handler) CreateEmployeeHandler(c *gin.Context) {
 func (handler Handler) CreateProposalsHandler(c *gin.Context) {
 	pathParam, ok := c.Params.Get("id")
 	if !ok {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+		c.AbortWithStatusJSON(404, gin.H{
 			"errorMessage": "id is not given",
 		})
 		return
