@@ -76,12 +76,15 @@ func CraftProposalFromPayload(payload []model.ProposalPayload) ([]model.Proposal
 func ProposalTimeIntersectsProposals(proposal model.Proposal, Arr []model.Proposal) bool {
 	for _, p := range Arr {
 		p.TimeObject, _ = CreateTimeObject(p.StartDate, p.EndDate)
-		if p.TimeObject.Interval.Overlaps(proposal.TimeObject.Interval) {
-			return true
-		}
-		if proposal.TimeObject.Interval.Overlaps(p.TimeObject.Interval) {
-			return true
-		}
+		/*
+			if p.TimeObject.Interval.Overlaps(proposal.TimeObject.Interval) {
+				return true
+			}
+			if proposal.TimeObject.Interval.Overlaps(p.TimeObject.Interval) {
+				return true
+			}
+
+		*/
 		if proposal.TimeObject.Interval.During(p.TimeObject.Interval) {
 			return true
 		}
