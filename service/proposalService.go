@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"example-project/model"
+	"fmt"
 	"github.com/retailify/go-interval"
 	"time"
 )
@@ -29,7 +30,7 @@ func (s EmployeeService) CreateProposals(proposalPayloadArr []model.ProposalPayl
 
 	var proposals []interface{}
 	for _, p := range proposalArr {
-		if !OverlappingProposals(p, actualProposals) {
+		if !ProposalTimeIntersectsProposals(p, actualProposals) {
 			proposals = append(proposals, p)
 		} else {
 			return nil, overlappingErrMsg
@@ -40,20 +41,20 @@ func (s EmployeeService) CreateProposals(proposalPayloadArr []model.ProposalPayl
 	return result, err
 }
 
-func CreateTimeObject(start, end time.Time) model.ProposalTimeObject {
+func CreateTimeObject(start, end time.Time) (model.ProposalTimeObject, error) {
 
 	Interval, err := interval.MakeTimeInterval(&start, &end)
 	obj := model.ProposalTimeObject{
 		Duration: Interval.Duration(),
 		Interval: Interval,
-		Err:      err,
+		//		Err:      err,
 	}
-	return obj
+	return obj, err
 }
 
 func OverlappingProposals(proposal model.Proposal, Arr []model.Proposal) bool {
 	for _, p := range Arr {
-		if p.TimeObject.Interval != nil && (proposal.TimeObject.Interval.During(p.TimeObject.Interval) || p.TimeObject.Interval.During(proposal.TimeObject.Interval)) {
+		if p.TimeObject.Interval != nil && !(proposal.TimeObject.Interval.During(p.TimeObject.Interval) || p.TimeObject.Interval.During(proposal.TimeObject.Interval)) {
 			return true
 		}
 	}
@@ -63,15 +64,16 @@ func OverlappingProposals(proposal model.Proposal, Arr []model.Proposal) bool {
 func CraftProposalFromPayload(payload []model.ProposalPayload) ([]model.Proposal, error) {
 	var proposals []model.Proposal
 	for _, p := range payload {
+		obj, err := CreateTimeObject(p.StartDate, p.EndDate)
 		newProposal := model.Proposal{
 			UserId:     p.UserId,
 			StartDate:  p.StartDate,
 			EndDate:    p.EndDate,
 			Approved:   false,
 			Type:       p.Type,
-			TimeObject: CreateTimeObject(p.StartDate, p.EndDate),
+			TimeObject: obj,
 		}
-		if newProposal.TimeObject.Err != nil {
+		if err != nil {
 			timeIntervalErrMsg := errors.New("Error occured in building the time interval for a new proposal")
 			return nil, timeIntervalErrMsg
 		}
@@ -79,4 +81,42 @@ func CraftProposalFromPayload(payload []model.ProposalPayload) ([]model.Proposal
 	}
 
 	return proposals, nil
+}
+
+func OverlappingProposalsTest(proposal model.Proposal, Arr []model.Proposal) bool {
+	for _, p := range Arr {
+		p.TimeObject, _ = CreateTimeObject(p.StartDate, p.EndDate)
+		if p.TimeObject.Interval != nil {
+			intervalP := p.TimeObject.Interval
+			intervalProposal := proposal.TimeObject.Interval
+			fmt.Println(intervalP, intervalProposal)
+			statment := p.TimeObject.Interval.Overlaps(proposal.TimeObject.Interval)
+			fmt.Println(statment)
+			return true
+		}
+	}
+	return false
+}
+
+func ProposalTimeIntersectsProposals(proposal model.Proposal, Arr []model.Proposal) bool {
+	for _, p := range Arr {
+		p.TimeObject, _ = CreateTimeObject(p.StartDate, p.EndDate)
+		if p.TimeObject.Interval.Overlaps(proposal.TimeObject.Interval) {
+			return true
+		}
+		if proposal.TimeObject.Interval.Overlaps(p.TimeObject.Interval) {
+			return true
+		}
+		if proposal.TimeObject.Interval.During(p.TimeObject.Interval) {
+			return true
+		}
+		if p.TimeObject.Interval.During(proposal.TimeObject.Interval) {
+			return true
+		}
+		if p.TimeObject.Interval.Equals(proposal.TimeObject.Interval) {
+			return true
+		}
+
+	}
+	return false
 }

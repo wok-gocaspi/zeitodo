@@ -60,7 +60,13 @@ func (handler Handler) CreateProposalsHandler(c *gin.Context) {
 		return
 	}
 
-	response, _ := handler.ServiceInterface.CreateProposals(payLoad, pathParam)
+	response, err := handler.ServiceInterface.CreateProposals(payLoad, pathParam)
+	if err != nil {
+		c.AbortWithStatusJSON(400, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
 	c.JSON(200, response)
 }
 
