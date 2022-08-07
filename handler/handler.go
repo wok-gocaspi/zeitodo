@@ -12,7 +12,8 @@ type ServiceInterface interface {
 	//	CreateEmployees(employees []model.Employee) interface{}
 	GetEmployeeById(id string) model.Employee
 	GetProposalsByID(id string) ([]model.Proposal, error)
-	CreateProposals(proposalPayloadArr []model.ProposalPayload, id string) (interface{}, error)
+	//	CreateProposals(proposalPayloadArr []model.ProposalPayload, id string) (interface{}, error)
+	CreateProposalsString(proposalPayloadArr []model.ProposalStringPayload, id string) (interface{}, error)
 }
 
 type Handler struct {
@@ -42,6 +43,7 @@ func (handler Handler) CreateEmployeeHandler(c *gin.Context) {
 
 */
 
+/*
 func (handler Handler) CreateProposalsHandler(c *gin.Context) {
 	pathParam, ok := c.Params.Get("id")
 	if !ok {
@@ -69,6 +71,8 @@ func (handler Handler) CreateProposalsHandler(c *gin.Context) {
 	}
 	c.JSON(200, response)
 }
+
+*/
 
 func (handler Handler) GetEmployeeHandler(c *gin.Context) {
 	pathParam, ok := c.Params.Get("id")
@@ -105,4 +109,32 @@ func (handler Handler) GetProposalsById(context *gin.Context) {
 	context.JSON(200, response)
 	return
 
+}
+
+func (handler Handler) CreateProposalsStringHandler(c *gin.Context) {
+	pathParam, ok := c.Params.Get("id")
+	if !ok {
+		c.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": "id is not given",
+		})
+		return
+	}
+
+	var payLoad []model.ProposalStringPayload
+	err := c.BindJSON(&payLoad)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": "invalid payload",
+		})
+		return
+	}
+
+	response, err := handler.ServiceInterface.CreateProposalsString(payLoad, pathParam)
+	if err != nil {
+		c.AbortWithStatusJSON(400, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+	c.JSON(200, response)
 }

@@ -10,7 +10,8 @@ type HandlerInterface interface {
 	//	CreateEmployeeHandler(c *gin.Context)
 	GetEmployeeHandler(c *gin.Context)
 	GetProposalsById(c *gin.Context)
-	CreateProposalsHandler(c *gin.Context)
+	//	CreateProposalsHandler(c *gin.Context)
+	CreateProposalsStringHandler(c *gin.Context)
 }
 
 var Handler HandlerInterface
@@ -21,7 +22,7 @@ func CreateRoutes(group *gin.RouterGroup) {
 	route.GET("/:id/get", Handler.GetEmployeeHandler)
 	//	route.POST("/create", Handler.CreateEmployeeHandler)
 	route.GET("/:id/proposals", Handler.GetProposalsById)
-	route.POST("/:id/proposals/create", Handler.CreateProposalsHandler)
+	route.POST("/:id/proposals/create", Handler.CreateProposalsStringHandler)
 }
 func CORS(c *gin.Context) {
 
