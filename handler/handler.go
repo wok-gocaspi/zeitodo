@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"encoding/json"
 	"example-project/model"
 	"github.com/gin-gonic/gin"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -12,7 +14,7 @@ type ServiceInterface interface {
 	GetAllUser() ([]model.UserPayload, error)
 	CreateUser([]model.UserSignupPayload) (interface{}, error)
 	GetTeamMembersByUserID(id string) (interface{}, error)
-	UpdateUsers(users []model.User) interface{}
+	UpdateUsers(users []model.User) (interface{}, error)
 	GetTeamMembersByName(name string) (interface{}, error)
 	DeleteUsers(id string) (interface{}, error)
 }
@@ -60,7 +62,7 @@ func (handler Handler) GetAllUserHandler(c *gin.Context) {
 
 }
 
-func (handler Handler) GetTeamMemberByUserIDHandler(c *gin.Context) {
+func (handler Handler) GetTeamMemberHandler(c *gin.Context) {
 	idParam, idOK := c.GetQuery("id")
 	nameParam, nameOK := c.GetQuery("name")
 	if !idOK && !nameOK {
@@ -92,12 +94,14 @@ func (handler Handler) GetTeamMemberByUserIDHandler(c *gin.Context) {
 
 }
 
-func (handler Handler) CreateUser(c *gin.Context) {
+func (handler Handler) CreateUserHandler(c *gin.Context) {
 	var users []model.UserSignupPayload
 	var user model.UserSignupPayload
-	err := c.ShouldBindJSON(&user)
+	body := c.Copy().Request.Body
+	jsonString, _ := ioutil.ReadAll(body)
+	err := json.Unmarshal(jsonString, &user)
 	if err != nil {
-		err := c.ShouldBindJSON(&users)
+		err := json.Unmarshal(jsonString, &users)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 				"errorMessage": err.Error(),
@@ -105,7 +109,13 @@ func (handler Handler) CreateUser(c *gin.Context) {
 			return
 		}
 		result, err := handler.ServiceInterface.CreateUser(users)
-		if err != nil {
+		if err != nil && err.Error() == "insufficent user data" {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"errorMessage": err.Error(),
+				"errorUser":    result,
+			})
+			return
+		} else if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"errorMessage": err.Error(),
 			})
@@ -126,25 +136,42 @@ func (handler Handler) CreateUser(c *gin.Context) {
 	return
 }
 
-func (handler Handler) UpdateUser(c *gin.Context) {
+func (handler Handler) UpdateUserHandler(c *gin.Context) {
 	var user model.User
 	var users []model.User
-	err := c.ShouldBindJSON(&user)
+	body := c.Copy().Request.Body
+	jsonString, _ := ioutil.ReadAll(body)
+	err := json.Unmarshal(jsonString, &user)
 	if err != nil {
-		err := c.ShouldBindJSON(&users)
+		err := json.Unmarshal(jsonString, &users)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 				"errorMessage": err.Error(),
 			})
 			return
 		}
-		result := handler.ServiceInterface.UpdateUsers(users)
+		result, err := handler.ServiceInterface.UpdateUsers(users)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"errorMessage": err.Error(),
+				"errorUser":    result,
+			})
+			return
+		}
 		c.JSON(http.StatusOK, result)
 		return
 	}
 	users = append(users, user)
-	result := handler.ServiceInterface.UpdateUsers(users)
+	result, err := handler.ServiceInterface.UpdateUsers(users)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"errorMessage": err.Error(),
+			"errorUser":    result,
+		})
+		return
+	}
 	c.JSON(http.StatusOK, result)
+	return
 }
 
 func (handler Handler) DeleteUserHandler(c *gin.Context) {
@@ -157,7 +184,7 @@ func (handler Handler) DeleteUserHandler(c *gin.Context) {
 	}
 	result, err := handler.ServiceInterface.DeleteUsers(pathParam)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"errorMessage": err.Error(),
 		})
 		return

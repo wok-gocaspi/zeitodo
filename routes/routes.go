@@ -9,9 +9,9 @@ import (
 type HandlerInterface interface {
 	GetUserHandler(c *gin.Context)
 	GetAllUserHandler(c *gin.Context)
-	CreateUser(c *gin.Context)
-	GetTeamMemberByUserIDHandler(c *gin.Context)
-	UpdateUser(c *gin.Context)
+	CreateUserHandler(c *gin.Context)
+	GetTeamMemberHandler(c *gin.Context)
+	UpdateUserHandler(c *gin.Context)
 	DeleteUserHandler(c *gin.Context)
 }
 
@@ -22,9 +22,9 @@ func CreateRoutes(group *gin.RouterGroup) {
 	user := group.Group("/user")
 	user.GET("/:id/get", Handler.GetUserHandler)
 	user.GET("/get", Handler.GetAllUserHandler)
-	user.POST("/create", Handler.CreateUser)
-	user.GET("/team/get", Handler.GetTeamMemberByUserIDHandler)
-	user.PUT("/update", Handler.UpdateUser)
+	user.POST("/create", Handler.CreateUserHandler)
+	user.GET("/team/get", Handler.GetTeamMemberHandler)
+	user.PUT("/update", Handler.UpdateUserHandler)
 	user.DELETE("/:id/delete", Handler.DeleteUserHandler)
 }
 func CORS(c *gin.Context) {

@@ -9,91 +9,247 @@ import (
 )
 
 type FakeHandlerInterface struct {
-	CreateEmployeeHandlerStub        func(*gin.Context)
-	createEmployeeHandlerMutex       sync.RWMutex
-	createEmployeeHandlerArgsForCall []struct {
+	CreateUserHandlerStub        func(*gin.Context)
+	createUserHandlerMutex       sync.RWMutex
+	createUserHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
-	GetEmployeeHandlerStub        func(*gin.Context)
-	getEmployeeHandlerMutex       sync.RWMutex
-	getEmployeeHandlerArgsForCall []struct {
+	DeleteUserHandlerStub        func(*gin.Context)
+	deleteUserHandlerMutex       sync.RWMutex
+	deleteUserHandlerArgsForCall []struct {
+		arg1 *gin.Context
+	}
+	GetAllUserHandlerStub        func(*gin.Context)
+	getAllUserHandlerMutex       sync.RWMutex
+	getAllUserHandlerArgsForCall []struct {
+		arg1 *gin.Context
+	}
+	GetTeamMemberHandlerStub        func(*gin.Context)
+	getTeamMemberHandlerMutex       sync.RWMutex
+	getTeamMemberHandlerArgsForCall []struct {
+		arg1 *gin.Context
+	}
+	GetUserHandlerStub        func(*gin.Context)
+	getUserHandlerMutex       sync.RWMutex
+	getUserHandlerArgsForCall []struct {
+		arg1 *gin.Context
+	}
+	UpdateUserHandlerStub        func(*gin.Context)
+	updateUserHandlerMutex       sync.RWMutex
+	updateUserHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeHandlerInterface) CreateEmployeeHandler(arg1 *gin.Context) {
-	fake.createEmployeeHandlerMutex.Lock()
-	fake.createEmployeeHandlerArgsForCall = append(fake.createEmployeeHandlerArgsForCall, struct {
+func (fake *FakeHandlerInterface) CreateUserHandler(arg1 *gin.Context) {
+	fake.createUserHandlerMutex.Lock()
+	fake.createUserHandlerArgsForCall = append(fake.createUserHandlerArgsForCall, struct {
 		arg1 *gin.Context
 	}{arg1})
-	stub := fake.CreateEmployeeHandlerStub
-	fake.recordInvocation("CreateEmployeeHandler", []interface{}{arg1})
-	fake.createEmployeeHandlerMutex.Unlock()
+	stub := fake.CreateUserHandlerStub
+	fake.recordInvocation("CreateUserHandler", []interface{}{arg1})
+	fake.createUserHandlerMutex.Unlock()
 	if stub != nil {
-		fake.CreateEmployeeHandlerStub(arg1)
+		fake.CreateUserHandlerStub(arg1)
 	}
 }
 
-func (fake *FakeHandlerInterface) CreateEmployeeHandlerCallCount() int {
-	fake.createEmployeeHandlerMutex.RLock()
-	defer fake.createEmployeeHandlerMutex.RUnlock()
-	return len(fake.createEmployeeHandlerArgsForCall)
+func (fake *FakeHandlerInterface) CreateUserHandlerCallCount() int {
+	fake.createUserHandlerMutex.RLock()
+	defer fake.createUserHandlerMutex.RUnlock()
+	return len(fake.createUserHandlerArgsForCall)
 }
 
-func (fake *FakeHandlerInterface) CreateEmployeeHandlerCalls(stub func(*gin.Context)) {
-	fake.createEmployeeHandlerMutex.Lock()
-	defer fake.createEmployeeHandlerMutex.Unlock()
-	fake.CreateEmployeeHandlerStub = stub
+func (fake *FakeHandlerInterface) CreateUserHandlerCalls(stub func(*gin.Context)) {
+	fake.createUserHandlerMutex.Lock()
+	defer fake.createUserHandlerMutex.Unlock()
+	fake.CreateUserHandlerStub = stub
 }
 
-func (fake *FakeHandlerInterface) CreateEmployeeHandlerArgsForCall(i int) *gin.Context {
-	fake.createEmployeeHandlerMutex.RLock()
-	defer fake.createEmployeeHandlerMutex.RUnlock()
-	argsForCall := fake.createEmployeeHandlerArgsForCall[i]
+func (fake *FakeHandlerInterface) CreateUserHandlerArgsForCall(i int) *gin.Context {
+	fake.createUserHandlerMutex.RLock()
+	defer fake.createUserHandlerMutex.RUnlock()
+	argsForCall := fake.createUserHandlerArgsForCall[i]
 	return argsForCall.arg1
 }
 
-func (fake *FakeHandlerInterface) GetEmployeeHandler(arg1 *gin.Context) {
-	fake.getEmployeeHandlerMutex.Lock()
-	fake.getEmployeeHandlerArgsForCall = append(fake.getEmployeeHandlerArgsForCall, struct {
+func (fake *FakeHandlerInterface) DeleteUserHandler(arg1 *gin.Context) {
+	fake.deleteUserHandlerMutex.Lock()
+	fake.deleteUserHandlerArgsForCall = append(fake.deleteUserHandlerArgsForCall, struct {
 		arg1 *gin.Context
 	}{arg1})
-	stub := fake.GetEmployeeHandlerStub
-	fake.recordInvocation("GetEmployeeHandler", []interface{}{arg1})
-	fake.getEmployeeHandlerMutex.Unlock()
+	stub := fake.DeleteUserHandlerStub
+	fake.recordInvocation("DeleteUserHandler", []interface{}{arg1})
+	fake.deleteUserHandlerMutex.Unlock()
 	if stub != nil {
-		fake.GetEmployeeHandlerStub(arg1)
+		fake.DeleteUserHandlerStub(arg1)
 	}
 }
 
-func (fake *FakeHandlerInterface) GetEmployeeHandlerCallCount() int {
-	fake.getEmployeeHandlerMutex.RLock()
-	defer fake.getEmployeeHandlerMutex.RUnlock()
-	return len(fake.getEmployeeHandlerArgsForCall)
+func (fake *FakeHandlerInterface) DeleteUserHandlerCallCount() int {
+	fake.deleteUserHandlerMutex.RLock()
+	defer fake.deleteUserHandlerMutex.RUnlock()
+	return len(fake.deleteUserHandlerArgsForCall)
 }
 
-func (fake *FakeHandlerInterface) GetEmployeeHandlerCalls(stub func(*gin.Context)) {
-	fake.getEmployeeHandlerMutex.Lock()
-	defer fake.getEmployeeHandlerMutex.Unlock()
-	fake.GetEmployeeHandlerStub = stub
+func (fake *FakeHandlerInterface) DeleteUserHandlerCalls(stub func(*gin.Context)) {
+	fake.deleteUserHandlerMutex.Lock()
+	defer fake.deleteUserHandlerMutex.Unlock()
+	fake.DeleteUserHandlerStub = stub
 }
 
-func (fake *FakeHandlerInterface) GetEmployeeHandlerArgsForCall(i int) *gin.Context {
-	fake.getEmployeeHandlerMutex.RLock()
-	defer fake.getEmployeeHandlerMutex.RUnlock()
-	argsForCall := fake.getEmployeeHandlerArgsForCall[i]
+func (fake *FakeHandlerInterface) DeleteUserHandlerArgsForCall(i int) *gin.Context {
+	fake.deleteUserHandlerMutex.RLock()
+	defer fake.deleteUserHandlerMutex.RUnlock()
+	argsForCall := fake.deleteUserHandlerArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeHandlerInterface) GetAllUserHandler(arg1 *gin.Context) {
+	fake.getAllUserHandlerMutex.Lock()
+	fake.getAllUserHandlerArgsForCall = append(fake.getAllUserHandlerArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.GetAllUserHandlerStub
+	fake.recordInvocation("GetAllUserHandler", []interface{}{arg1})
+	fake.getAllUserHandlerMutex.Unlock()
+	if stub != nil {
+		fake.GetAllUserHandlerStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) GetAllUserHandlerCallCount() int {
+	fake.getAllUserHandlerMutex.RLock()
+	defer fake.getAllUserHandlerMutex.RUnlock()
+	return len(fake.getAllUserHandlerArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) GetAllUserHandlerCalls(stub func(*gin.Context)) {
+	fake.getAllUserHandlerMutex.Lock()
+	defer fake.getAllUserHandlerMutex.Unlock()
+	fake.GetAllUserHandlerStub = stub
+}
+
+func (fake *FakeHandlerInterface) GetAllUserHandlerArgsForCall(i int) *gin.Context {
+	fake.getAllUserHandlerMutex.RLock()
+	defer fake.getAllUserHandlerMutex.RUnlock()
+	argsForCall := fake.getAllUserHandlerArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeHandlerInterface) GetTeamMemberHandler(arg1 *gin.Context) {
+	fake.getTeamMemberHandlerMutex.Lock()
+	fake.getTeamMemberHandlerArgsForCall = append(fake.getTeamMemberHandlerArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.GetTeamMemberHandlerStub
+	fake.recordInvocation("GetTeamMemberHandler", []interface{}{arg1})
+	fake.getTeamMemberHandlerMutex.Unlock()
+	if stub != nil {
+		fake.GetTeamMemberHandlerStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) GetTeamMemberHandlerCallCount() int {
+	fake.getTeamMemberHandlerMutex.RLock()
+	defer fake.getTeamMemberHandlerMutex.RUnlock()
+	return len(fake.getTeamMemberHandlerArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) GetTeamMemberHandlerCalls(stub func(*gin.Context)) {
+	fake.getTeamMemberHandlerMutex.Lock()
+	defer fake.getTeamMemberHandlerMutex.Unlock()
+	fake.GetTeamMemberHandlerStub = stub
+}
+
+func (fake *FakeHandlerInterface) GetTeamMemberHandlerArgsForCall(i int) *gin.Context {
+	fake.getTeamMemberHandlerMutex.RLock()
+	defer fake.getTeamMemberHandlerMutex.RUnlock()
+	argsForCall := fake.getTeamMemberHandlerArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeHandlerInterface) GetUserHandler(arg1 *gin.Context) {
+	fake.getUserHandlerMutex.Lock()
+	fake.getUserHandlerArgsForCall = append(fake.getUserHandlerArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.GetUserHandlerStub
+	fake.recordInvocation("GetUserHandler", []interface{}{arg1})
+	fake.getUserHandlerMutex.Unlock()
+	if stub != nil {
+		fake.GetUserHandlerStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) GetUserHandlerCallCount() int {
+	fake.getUserHandlerMutex.RLock()
+	defer fake.getUserHandlerMutex.RUnlock()
+	return len(fake.getUserHandlerArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) GetUserHandlerCalls(stub func(*gin.Context)) {
+	fake.getUserHandlerMutex.Lock()
+	defer fake.getUserHandlerMutex.Unlock()
+	fake.GetUserHandlerStub = stub
+}
+
+func (fake *FakeHandlerInterface) GetUserHandlerArgsForCall(i int) *gin.Context {
+	fake.getUserHandlerMutex.RLock()
+	defer fake.getUserHandlerMutex.RUnlock()
+	argsForCall := fake.getUserHandlerArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeHandlerInterface) UpdateUserHandler(arg1 *gin.Context) {
+	fake.updateUserHandlerMutex.Lock()
+	fake.updateUserHandlerArgsForCall = append(fake.updateUserHandlerArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.UpdateUserHandlerStub
+	fake.recordInvocation("UpdateUserHandler", []interface{}{arg1})
+	fake.updateUserHandlerMutex.Unlock()
+	if stub != nil {
+		fake.UpdateUserHandlerStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) UpdateUserHandlerCallCount() int {
+	fake.updateUserHandlerMutex.RLock()
+	defer fake.updateUserHandlerMutex.RUnlock()
+	return len(fake.updateUserHandlerArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) UpdateUserHandlerCalls(stub func(*gin.Context)) {
+	fake.updateUserHandlerMutex.Lock()
+	defer fake.updateUserHandlerMutex.Unlock()
+	fake.UpdateUserHandlerStub = stub
+}
+
+func (fake *FakeHandlerInterface) UpdateUserHandlerArgsForCall(i int) *gin.Context {
+	fake.updateUserHandlerMutex.RLock()
+	defer fake.updateUserHandlerMutex.RUnlock()
+	argsForCall := fake.updateUserHandlerArgsForCall[i]
 	return argsForCall.arg1
 }
 
 func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.createEmployeeHandlerMutex.RLock()
-	defer fake.createEmployeeHandlerMutex.RUnlock()
-	fake.getEmployeeHandlerMutex.RLock()
-	defer fake.getEmployeeHandlerMutex.RUnlock()
+	fake.createUserHandlerMutex.RLock()
+	defer fake.createUserHandlerMutex.RUnlock()
+	fake.deleteUserHandlerMutex.RLock()
+	defer fake.deleteUserHandlerMutex.RUnlock()
+	fake.getAllUserHandlerMutex.RLock()
+	defer fake.getAllUserHandlerMutex.RUnlock()
+	fake.getTeamMemberHandlerMutex.RLock()
+	defer fake.getTeamMemberHandlerMutex.RUnlock()
+	fake.getUserHandlerMutex.RLock()
+	defer fake.getUserHandlerMutex.RUnlock()
+	fake.updateUserHandlerMutex.RLock()
+	defer fake.updateUserHandlerMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

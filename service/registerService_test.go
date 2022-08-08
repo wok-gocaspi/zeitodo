@@ -25,7 +25,3 @@ func TestGetEmployeeById(t *testing.T) {
 	assert.Equal(t, data, actual)
 
 }
-
-func TestCreateEmployees(t *testing.T) {
-	//here comes your first unit test which should cover the function CreateEmployees
-}

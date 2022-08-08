@@ -124,7 +124,7 @@ func (c Client) CreateUser(docs []interface{}) (interface{}, error) {
 	return results.InsertedIDs, nil
 }
 
-func (c Client) UpdateManyUserByID(docs []model.User) interface{} {
+func (c Client) UpdateManyUserByID(docs []model.User) []model.UserUpdateResult {
 	var UMR []model.UserUpdateResult
 	for _, user := range docs {
 		var UpdateResult model.UserUpdateResult
@@ -148,10 +148,10 @@ func (c Client) UpdateManyUserByID(docs []model.User) interface{} {
 		var setElements bson.D
 		if user.FirstName != "" {
 			fmt.Println(user.FirstName)
-			setElements = append(setElements, bson.E{Key: "first_name", Value: user.FirstName})
+			setElements = append(setElements, bson.E{Key: "firstname", Value: user.FirstName})
 		}
 		if user.LastName != "" {
-			setElements = append(setElements, bson.E{Key: "lastName", Value: user.LastName})
+			setElements = append(setElements, bson.E{Key: "lastname", Value: user.LastName})
 		}
 		if user.Email != "" {
 			setElements = append(setElements, bson.E{Key: "email", Value: user.Email})
