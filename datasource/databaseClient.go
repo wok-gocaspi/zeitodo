@@ -2,6 +2,7 @@ package datasource
 
 import (
 	"context"
+	"errors"
 	"example-project/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -14,6 +15,7 @@ type MongoDBInterface interface {
 	FindOne(ctx context.Context, filter interface{}, opts ...*options.FindOneOptions) *mongo.SingleResult
 	InsertMany(ctx context.Context, documents []interface{}, opts ...*options.InsertManyOptions) (*mongo.InsertManyResult, error)
 	Find(ctx context.Context, filter interface{}, opts ...*options.FindOptions) (cur *mongo.Cursor, err error)
+	DeleteOne(ctx context.Context, filter interface{}, opts ...*options.DeleteOptions) (*mongo.DeleteResult, error)
 }
 
 type Client struct {
@@ -73,4 +75,21 @@ func (c Client) SaveProposals(docs []interface{}) (interface{}, error) {
 		return nil, err
 	}
 	return results.InsertedIDs, nil
+}
+
+func (c Client) DeleteProposalByIdAndDate(id string, date string) (*mongo.DeleteResult, error) {
+
+	filter := bson.M{"startDate": date, "userId": id}
+
+	results, err := c.Proposals.DeleteOne(context.TODO(), filter)
+
+	if err != nil {
+
+		return nil, err
+	}
+	if results.DeletedCount == 0 {
+		deleterror := errors.New("the Employee id is not existing")
+		return nil, deleterror
+	}
+	return results, nil
 }

@@ -20,6 +20,20 @@ func (s EmployeeService) GetProposalsByID(id string) ([]model.Proposal, error) {
 	return result, err
 }
 
+func (s EmployeeService) DeleteProposalsByID(id string, date string) error {
+	result, err := s.DbService.DeleteProposalByIdAndDate(id, date)
+	if err != nil {
+		return err
+	}
+
+	if result.DeletedCount == 0 {
+		deleterror := errors.New("the Employee id is not existing")
+		return deleterror
+	}
+
+	return nil
+}
+
 func (s EmployeeService) CreateProposals(proposalPayloadArr []model.ProposalPayload, id string) (interface{}, error) {
 	const shortForm = "2006-Jan-02"
 	proposalArr, err := CraftProposalFromPayload(proposalPayloadArr)
