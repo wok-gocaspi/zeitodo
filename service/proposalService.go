@@ -20,7 +20,7 @@ func (s EmployeeService) GetProposalsByID(id string) ([]model.Proposal, error) {
 	return result, err
 }
 
-func (s EmployeeService) CreateProposalsString(proposalPayloadArr []model.ProposalPayload, id string) (interface{}, error) {
+func (s EmployeeService) CreateProposals(proposalPayloadArr []model.ProposalPayload, id string) (interface{}, error) {
 	const shortForm = "2006-Jan-02"
 	proposalArr, err := CraftProposalFromPayload(proposalPayloadArr)
 	if err != nil {

@@ -13,7 +13,7 @@ type ServiceInterface interface {
 	GetEmployeeById(id string) model.Employee
 	GetProposalsByID(id string) ([]model.Proposal, error)
 	//	CreateProposals(proposalPayloadArr []model.ProposalPayload, id string) (interface{}, error)
-	CreateProposalsString(proposalPayloadArr []model.ProposalStringPayload, id string) (interface{}, error)
+	CreateProposals(proposalPayloadArr []model.ProposalPayload, id string) (interface{}, error)
 }
 
 type Handler struct {
@@ -111,7 +111,7 @@ func (handler Handler) GetProposalsById(context *gin.Context) {
 
 }
 
-func (handler Handler) CreateProposalsStringHandler(c *gin.Context) {
+func (handler Handler) CreateProposalsHandler(c *gin.Context) {
 	pathParam, ok := c.Params.Get("id")
 	if !ok {
 		c.AbortWithStatusJSON(404, gin.H{
@@ -120,7 +120,7 @@ func (handler Handler) CreateProposalsStringHandler(c *gin.Context) {
 		return
 	}
 
-	var payLoad []model.ProposalStringPayload
+	var payLoad []model.ProposalPayload
 	err := c.BindJSON(&payLoad)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -129,7 +129,7 @@ func (handler Handler) CreateProposalsStringHandler(c *gin.Context) {
 		return
 	}
 
-	response, err := handler.ServiceInterface.CreateProposalsString(payLoad, pathParam)
+	response, err := handler.ServiceInterface.CreateProposals(payLoad, pathParam)
 	if err != nil {
 		c.AbortWithStatusJSON(400, gin.H{
 			"errorMessage": err.Error(),

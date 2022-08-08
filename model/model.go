@@ -58,16 +58,6 @@ type ProposalTimeObject struct {
 	//	Err      error
 }
 
-/*
-type ProposalPayload struct {
-	UserId    string    `json:"userId" bson:"userId"`
-	StartDate time.Time `json:"startDate" bson:"startDate"`
-	EndDate   time.Time `json:"endDate" bson:"endDate"`
-	Type      string    `json:"type" bson:"type"`
-}
-
-*/
-
 type ProposalPayload struct {
 	UserId    string `json:"userId" bson:"userId"`
 	StartDate string `json:"startDate" bson:"startDate"`
