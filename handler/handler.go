@@ -52,7 +52,7 @@ func (handler Handler) DeleteProposalHandler(c *gin.Context) {
 
 	date, dateOk := c.GetQuery("date")
 	if !dateOk {
-		noQueryError := "No department was given in the query parameter!"
+		noQueryError := "No date was given in the query parameter!"
 		c.AbortWithStatusJSON(404, gin.H{
 			"errorMessage": noQueryError,
 		})
