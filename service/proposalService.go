@@ -58,13 +58,11 @@ func (s EmployeeService) CreateProposalsString(proposalPayloadArr []model.Propos
 	if err != nil {
 		return nil, err
 	}
-	/*
-		if StartDateExceedsEndDate(proposalArr) {
-			startExceedsEndErrMsg := errors.New("The startdate must be before the enddate")
-			return nil, startExceedsEndErrMsg
-		}
 
-	*/
+	if StartDateExceedsEndDate(proposalArr) {
+		startExceedsEndErrMsg := errors.New("The startdate must be before the enddate")
+		return nil, startExceedsEndErrMsg
+	}
 
 	overlappingErrMsg := errors.New("There cant be overlapping proposals.")
 	actualProposals, err := s.GetProposalsByID(id)
@@ -176,12 +174,15 @@ func ProposalTimeIntersectsProposals(proposal model.Proposal, Arr []model.Propos
 			return true
 		}
 
-		if p.TimeObject.Interval.Overlaps(proposal.TimeObject.Interval) {
+		if customOverlaps(p, proposal) {
 			return true
 		}
-		if proposal.TimeObject.Interval.Overlaps(p.TimeObject.Interval) {
-			return true
-		}
+		/*
+			if proposal.TimeObject.Interval.customOverlaps(p.TimeObject.Interval) {
+				return true
+			}
+
+		*/
 
 		if proposal.TimeObject.Interval.During(p.TimeObject.Interval) {
 			return true
@@ -248,3 +249,25 @@ func CheckOverlappingManually(proposal model.Proposal, Arr []model.Proposal) boo
 }
 
 */
+
+func StartDateExceedsEndDate(Arr []model.Proposal) bool {
+	for _, p := range Arr {
+		p.TimeObject, _ = CreateTimeStringObject(p.StartDate, p.EndDate)
+		if p.TimeObject.Interval.End().Before(*p.TimeObject.Interval.Start()) {
+			return true
+		}
+	}
+	return false
+}
+
+func customOverlaps(p1 model.Proposal, p2 model.Proposal) bool {
+	if (*p1.TimeObject.Interval.Start() == *p2.TimeObject.Interval.Start()) && (p1.TimeObject.Interval.End().Before(*p2.TimeObject.Interval.End())) {
+		return true
+	}
+
+	if (*p2.TimeObject.Interval.Start() == *p1.TimeObject.Interval.Start()) && (p2.TimeObject.Interval.End().Before(*p1.TimeObject.Interval.End())) {
+		return true
+	}
+
+	return false
+}
