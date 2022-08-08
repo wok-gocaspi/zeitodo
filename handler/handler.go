@@ -4,6 +4,7 @@ import (
 	"example-project/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 )
 
@@ -15,6 +16,7 @@ type ServiceInterface interface {
 	//	CreateProposals(proposalPayloadArr []model.ProposalPayload, id string) (interface{}, error)
 	CreateProposals(proposalPayloadArr []model.ProposalPayload, id string) (interface{}, error)
 	DeleteProposalsByID(id string, date string) error
+	UpdateProposalByDate(update model.Proposal, date string) (*mongo.UpdateResult, error)
 }
 
 type Handler struct {
@@ -111,6 +113,46 @@ func (handler Handler) CreateProposalsHandler(c *gin.Context) {
 	}
 
 	response, err := handler.ServiceInterface.CreateProposals(payLoad, pathParam)
+	if err != nil {
+		c.AbortWithStatusJSON(400, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+	c.JSON(200, response)
+}
+
+func (handler Handler) UpdateProposalsHandler(c *gin.Context) {
+	/*
+		pathParam, ok := c.Params.Get("id")
+		if !ok {
+			c.AbortWithStatusJSON(404, gin.H{
+				"errorMessage": "id is not given",
+			})
+			return
+		}
+
+	*/
+
+	date, dateOk := c.GetQuery("date")
+	if !dateOk {
+		noQueryError := "No date was given in the query parameter!"
+		c.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": noQueryError,
+		})
+		return
+	}
+
+	var payLoad model.Proposal
+	err := c.BindJSON(&payLoad)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": "invalid payload",
+		})
+		return
+	}
+
+	response, err := handler.ServiceInterface.UpdateProposalByDate(payLoad, date)
 	if err != nil {
 		c.AbortWithStatusJSON(400, gin.H{
 			"errorMessage": err.Error(),

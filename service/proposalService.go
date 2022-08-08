@@ -4,6 +4,7 @@ import (
 	"errors"
 	"example-project/model"
 	"github.com/retailify/go-interval"
+	"go.mongodb.org/mongo-driver/mongo"
 	"strings"
 )
 
@@ -156,4 +157,9 @@ func customOverlaps(p1 model.Proposal, p2 model.Proposal) bool {
 	}
 
 	return false
+}
+
+func (s EmployeeService) UpdateProposalByDate(update model.Proposal, date string) (*mongo.UpdateResult, error) {
+	result, err := s.DbService.UpdateProposal(update, date)
+	return result, err
 }

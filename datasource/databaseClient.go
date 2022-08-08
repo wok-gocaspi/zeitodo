@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"example-project/model"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -16,6 +17,7 @@ type MongoDBInterface interface {
 	InsertMany(ctx context.Context, documents []interface{}, opts ...*options.InsertManyOptions) (*mongo.InsertManyResult, error)
 	Find(ctx context.Context, filter interface{}, opts ...*options.FindOptions) (cur *mongo.Cursor, err error)
 	DeleteOne(ctx context.Context, filter interface{}, opts ...*options.DeleteOptions) (*mongo.DeleteResult, error)
+	UpdateOne(ctx context.Context, filter interface{}, update interface{}, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error)
 }
 
 type Client struct {
@@ -92,4 +94,43 @@ func (c Client) DeleteProposalByIdAndDate(id string, date string) (*mongo.Delete
 		return nil, deleterror
 	}
 	return results, nil
+}
+
+func (c Client) UpdateProposal(update model.Proposal, date string) (*mongo.UpdateResult, error) {
+	filter := bson.M{"userId": update.UserId, "startDate": date}
+	// datensatz zur id auslesen
+	// check doc geschnitten datensatzen
+	// change update
+	if update.UserId == "" {
+		IdMissing := fmt.Sprintf("User %v got no ID", update.UserId)
+		return nil, errors.New(IdMissing)
+	}
+	courser := c.Proposals.FindOne(context.TODO(), filter)
+	var proposal model.Proposal
+	err := courser.Decode(&proposal)
+	if proposal.UserId == "" {
+		IdWrong := fmt.Sprintf("User %v dosent exist", update.UserId)
+		return nil, errors.New(IdWrong)
+	}
+	fmt.Println(update)
+	var setElements bson.D
+	if update.StartDate != "" {
+		setElements = append(setElements, bson.E{Key: "startDate", Value: update.StartDate})
+	}
+	if update.EndDate != "" {
+		setElements = append(setElements, bson.E{Key: "endDate", Value: update.EndDate})
+	}
+	if update.Type != "" {
+		setElements = append(setElements, bson.E{Key: "type", Value: update.Type})
+	}
+
+	setMap := bson.D{
+		{"$set", setElements},
+	}
+	result, err := c.Proposals.UpdateOne(context.TODO(), filter, setMap)
+	if err != nil {
+		return nil, err
+
+	}
+	return result, nil
 }
