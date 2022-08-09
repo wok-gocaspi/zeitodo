@@ -109,7 +109,7 @@ func (c Client) UpdateProposal(update model.Proposal, date string) (*mongo.Updat
 	var proposal model.Proposal
 	err := courser.Decode(&proposal)
 	if proposal.UserId == "" {
-		IdWrong := fmt.Sprintf("User %v dosent exist", update.UserId)
+		IdWrong := "an userId has to be provided"
 		return nil, errors.New(IdWrong)
 	}
 	fmt.Println(update)
