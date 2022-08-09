@@ -10,10 +10,8 @@ import (
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . ServiceInterface
 type ServiceInterface interface {
-	//	CreateEmployees(employees []model.Employee) interface{}
 	GetEmployeeById(id string) model.Employee
 	GetProposalsByID(id string) ([]model.Proposal, error)
-	//	CreateProposals(proposalPayloadArr []model.ProposalPayload, id string) (interface{}, error)
 	CreateProposals(proposalPayloadArr []model.ProposalPayload, id string) (interface{}, error)
 	DeleteProposalsByID(id string, date string) error
 	UpdateProposalByDate(update model.Proposal, date string) (*mongo.UpdateResult, error)

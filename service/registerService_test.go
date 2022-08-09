@@ -31,7 +31,7 @@ func TestCreateEmployees(t *testing.T) {
 	//here comes your first unit test which should cover the function CreateEmployees
 }
 
-func TestEmployeeService_GetEmployeesDepartmentFilter(t *testing.T) {
+func TestProposalService_GetProposalsByID(t *testing.T) {
 	fakeDb := &servicefakes.FakeDatabaseInterface{}
 	fakePayload := []model.Proposal{
 		model.Proposal{UserId: "1", Approved: false},

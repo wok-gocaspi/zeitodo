@@ -36,7 +36,6 @@ func (s EmployeeService) DeleteProposalsByID(id string, date string) error {
 }
 
 func (s EmployeeService) CreateProposals(proposalPayloadArr []model.ProposalPayload, id string) (interface{}, error) {
-	const shortForm = "2006-Jan-02"
 	proposalArr, err := CraftProposalFromPayload(proposalPayloadArr)
 	if err != nil {
 		return nil, err
@@ -88,7 +87,6 @@ func CreateTimeObject(start, end string) (model.ProposalTimeObject, error) {
 }
 
 func CraftProposalFromPayload(payload []model.ProposalPayload) ([]model.Proposal, error) {
-	const shortForm = "2006-Jan-02"
 
 	var proposals []model.Proposal
 	for _, p := range payload {

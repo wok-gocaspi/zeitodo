@@ -7,7 +7,6 @@ import (
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . DatabaseInterface
 type DatabaseInterface interface {
-	//	UpdateMany(docs []interface{}) interface{}
 	GetByID(id string) model.Employee
 	GetProposals(id string) ([]model.Proposal, error)
 	SaveProposals(docs []interface{}) (interface{}, error)
