@@ -8,10 +8,11 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"testing"
 )
 
-func TestGetUserByID_Return_valid(t *testing.T) {
+func TestGetUserByID_Success_ReturnsUser(t *testing.T) {
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
 	dbReturn := model.UserPayload{}
 	fakeDB.GetUserByIDReturns(dbReturn, nil)
@@ -22,7 +23,7 @@ func TestGetUserByID_Return_valid(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestGetUserByID_Return_invalid_id(t *testing.T) {
+func TestGetUserByID_InvalidID_ReturnsError(t *testing.T) {
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
 	dbReturn := model.UserPayload{}
 	fakeDB.GetUserByIDReturns(dbReturn, nil)
@@ -181,7 +182,24 @@ func TestUpdateUser_Return_Unsuccessful(t *testing.T) {
 	fakeDB.UpdateManyUserByIDReturns(fakeUserUpdateResults)
 	serviceInstance := service.NewEmployeeService(fakeDB)
 	result, err := serviceInstance.UpdateUsers(fakeUserArray)
-	fmt.Println(result)
+	assert.Error(t, err, "a few users couldn't be updated")
+	assert.Equal(t, []model.UserUpdateResult{{User: fakeUserUpdateResults[0].User, Success: false}}, result)
+}
+
+func TestDeleteUser_Return_Success(t *testing.T) {
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	fakeDB.DeleteUserReturns(&mongo.DeleteResult{DeletedCount: 1}, nil)
+	serviceInstance := service.NewEmployeeService(fakeDB)
+	result, err := serviceInstance.DeleteUsers(primitive.NewObjectID().Hex())
 	assert.Nil(t, err)
-	assert.Equal(t, model.UserUpdateResult{User: fakeUserUpdateResults[0].User, Success: false}, result)
+	assert.Equal(t, &mongo.DeleteResult{DeletedCount: 1}, result)
+}
+
+func TestDeleteUser_Invalid_ID(t *testing.T) {
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	fakeDB.DeleteUserReturns(&mongo.DeleteResult{DeletedCount: 0}, nil)
+	serviceInstance := service.NewEmployeeService(fakeDB)
+	result, err := serviceInstance.DeleteUsers("1")
+	assert.Nil(t, result)
+	assert.Error(t, err, "encoding/hex: odd length hex string")
 }
