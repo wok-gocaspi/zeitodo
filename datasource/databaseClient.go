@@ -102,7 +102,7 @@ func (c Client) UpdateProposal(update model.Proposal, date string) (*mongo.Updat
 	// check doc geschnitten datensatzen
 	// change update
 	if update.UserId == "" {
-		IdMissing := fmt.Sprintf("User %v got no ID", update.UserId)
+		IdMissing := "an userId has to be provided"
 		return nil, errors.New(IdMissing)
 	}
 	courser := c.Proposals.FindOne(context.TODO(), filter)
