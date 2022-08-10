@@ -79,3 +79,66 @@ func TestHandler_GetProposalsById(t *testing.T) {
 		assert.Equal(t, tt.expectedCode, fakeRecorder.Code)
 	}
 }
+
+func TestHandler_DeleteProposalHandler(t *testing.T) {
+	fakeServiceErr := errors.New("error in Service")
+
+	var tests = []struct {
+		hasID         bool
+		hasDate       bool
+		hasServiceErr bool
+		date          string
+		expectedCode  int
+	}{
+		{false, false, false, "", 400},
+		{true, false, false, "", 404},
+		{true, true, true, "banana", 404},
+		{true, true, false, "banana", 200},
+	}
+
+	for _, tt := range tests {
+		fakeRecorder := httptest.NewRecorder()
+		fakeContext, _ := gin.CreateTestContext(fakeRecorder)
+
+		url := "http://localhost:9090/employee/1/proposals/delete"
+
+		fakeContext.Request = httptest.NewRequest("DELETE", url, nil)
+		if tt.hasID {
+			fakeContext.Params = append(fakeContext.Params, gin.Param{Key: "id", Value: "1"})
+		}
+
+		if tt.hasDate {
+			fakeContext.Request.URL.RawQuery = "date=" + tt.date
+		}
+
+		fakeService := &handlerfakes.FakeServiceInterface{}
+		if tt.hasServiceErr {
+			fakeService.DeleteProposalsByIDReturns(fakeServiceErr)
+		} else {
+			fakeService.DeleteProposalsByIDReturns(nil)
+		}
+
+		handlerInstance := handler.NewHandler(fakeService)
+		handlerInstance.DeleteProposalHandler(fakeContext)
+
+		if !tt.hasID {
+			assert.Equal(t, tt.expectedCode, fakeRecorder.Code)
+			assert.Contains(t, fakeRecorder.Body.String(), "id is not given")
+		}
+		if tt.hasID && !tt.hasDate {
+			assert.Equal(t, tt.expectedCode, fakeRecorder.Code)
+			assert.Contains(t, fakeRecorder.Body.String(), "No date was given in the query parameter!")
+		}
+
+		if tt.hasID && tt.hasDate && tt.hasServiceErr {
+			assert.Equal(t, tt.expectedCode, fakeRecorder.Code)
+			assert.Contains(t, fakeRecorder.Body.String(), "error in Service")
+		}
+
+		if tt.hasID && tt.hasDate && !tt.hasServiceErr {
+			assert.Equal(t, tt.expectedCode, fakeRecorder.Code)
+			assert.Equal(t, fakeRecorder.Body.String(), "\"\"")
+		}
+	}
+
+}
