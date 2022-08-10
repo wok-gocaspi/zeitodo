@@ -1,6 +1,7 @@
 package utilities
 
 import (
+	"errors"
 	"example-project/model"
 	"github.com/retailify/go-interval"
 	"strings"
@@ -66,4 +67,27 @@ func CreateTimeObject(start, end string) (model.ProposalTimeObject, error) {
 		//		Err:      err,
 	}
 	return obj, err
+}
+
+func CraftProposalFromPayload(payload []model.ProposalPayload) ([]model.Proposal, error) {
+
+	var proposals []model.Proposal
+	for _, p := range payload {
+		obj, err := CreateTimeObject(p.StartDate, p.EndDate)
+		newProposal := model.Proposal{
+			UserId:     p.UserId,
+			StartDate:  p.StartDate,
+			EndDate:    p.EndDate,
+			Approved:   false,
+			Type:       p.Type,
+			TimeObject: obj,
+		}
+		if err != nil {
+			timeIntervalErrMsg := errors.New("Error occured in building the time interval for a new proposal")
+			return nil, timeIntervalErrMsg
+		}
+		proposals = append(proposals, newProposal)
+	}
+
+	return proposals, nil
 }

@@ -36,7 +36,7 @@ func (s EmployeeService) DeleteProposalsByID(id string, date string) error {
 }
 
 func (s EmployeeService) CreateProposals(proposalPayloadArr []model.ProposalPayload, id string) (interface{}, error) {
-	proposalArr, err := CraftProposalFromPayload(proposalPayloadArr)
+	proposalArr, err := utilities.CraftProposalFromPayload(proposalPayloadArr)
 	if err != nil {
 		return nil, err
 	}
@@ -70,29 +70,6 @@ func (s EmployeeService) CreateProposals(proposalPayloadArr []model.ProposalPayl
 
 	result, err := s.DbService.SaveProposals(proposals)
 	return result, err
-}
-
-func CraftProposalFromPayload(payload []model.ProposalPayload) ([]model.Proposal, error) {
-
-	var proposals []model.Proposal
-	for _, p := range payload {
-		obj, err := utilities.CreateTimeObject(p.StartDate, p.EndDate)
-		newProposal := model.Proposal{
-			UserId:     p.UserId,
-			StartDate:  p.StartDate,
-			EndDate:    p.EndDate,
-			Approved:   false,
-			Type:       p.Type,
-			TimeObject: obj,
-		}
-		if err != nil {
-			timeIntervalErrMsg := errors.New("Error occured in building the time interval for a new proposal")
-			return nil, timeIntervalErrMsg
-		}
-		proposals = append(proposals, newProposal)
-	}
-
-	return proposals, nil
 }
 
 func (s EmployeeService) UpdateProposalByDate(update model.Proposal, date string) (*mongo.UpdateResult, error) {
