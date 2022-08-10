@@ -6,6 +6,7 @@ import (
 	"example-project/service"
 	"example-project/service/servicefakes"
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/mongo"
 	"testing"
 )
 
@@ -71,5 +72,95 @@ func TestProposalService_GetProposalsByID(t *testing.T) {
 			assert.Equal(t, tt.payload, actualResult)
 			assert.Equal(t, fakeNoResultErr, actualErr)
 		}
+	}
+}
+
+func TestEmployeeService_UpdateEmployee(t *testing.T) {
+
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+
+	mockProposal := model.Proposal{
+		UserId: "1", StartDate: "2006-Nov-06", EndDate: "2006-Nov-02", Approved: false}
+	mockError := errors.New("fake error")
+	result := &mongo.UpdateResult{}
+
+	var tests = []struct {
+		Proposal  model.Proposal
+		Date      string
+		hasError  bool
+		mockError error
+		Result    *mongo.UpdateResult
+	}{
+		{mockProposal, mockProposal.StartDate, false, nil, result},
+		{mockProposal, mockProposal.StartDate, true, mockError, result},
+	}
+
+	for _, tt := range tests {
+		fakeDB.UpdateProposalReturns(tt.Result, tt.mockError)
+		serviceInstance := service.NewEmployeeService(fakeDB)
+
+		actual, err := serviceInstance.UpdateProposalByDate(mockProposal, mockProposal.StartDate)
+
+		assert.Equal(t, actual, tt.Result)
+		assert.Equal(t, tt.mockError, err)
+
+	}
+
+}
+
+func TestEmployeeService_CreateProposals(t *testing.T) {
+	StartExceedsEnd := []model.ProposalPayload{
+		model.ProposalPayload{UserId: "1", StartDate: "2006-Nov-08", EndDate: "2005-Nov-07"},
+	}
+	okPayload := []model.ProposalPayload{
+		model.ProposalPayload{UserId: "1", StartDate: "2006-Nov-04", EndDate: "2006-Nov-10"},
+	}
+	GetByIdReturn := []model.Proposal{
+		model.Proposal{UserId: "1", StartDate: "2006-Nov-06", EndDate: "2006-Nov-07"},
+	}
+	GetByIdReturnOverlapp := []model.Proposal{
+		model.Proposal{UserId: "1", StartDate: "2006-Nov-07", EndDate: "2006-Nov-08"},
+		model.Proposal{UserId: "1", StartDate: "2006-Nov-06", EndDate: "2006-Nov-09"},
+	}
+
+	StartExceedsEndMsg := "The startdate must be before the enddate"
+	overlappingErrorMsg := "There cant be overlapping proposals."
+	var tests = []struct {
+		Payload                 []model.ProposalPayload
+		GetProposalsReturn      []model.Proposal
+		startDateExceedsEndDate bool
+		overlappingErr          bool
+		expectedError           string
+	}{
+		{StartExceedsEnd, GetByIdReturn, true, false, StartExceedsEndMsg},
+		{okPayload, GetByIdReturnOverlapp, false, true, overlappingErrorMsg},
+		{okPayload, GetByIdReturn, false, false, overlappingErrorMsg},
+	}
+
+	for _, tt := range tests {
+		fakeDb := &servicefakes.FakeDatabaseInterface{}
+		serviceInstance := service.NewEmployeeService(fakeDb)
+
+		if tt.startDateExceedsEndDate {
+			actual, err := serviceInstance.CreateProposals(tt.Payload, "2006-Nov-07")
+			assert.Equal(t, nil, actual)
+			assert.Equal(t, errors.New(tt.expectedError), err)
+		}
+
+		if tt.overlappingErr {
+			fakeDb.GetProposalsReturns(tt.GetProposalsReturn, nil)
+
+			actual, err := serviceInstance.CreateProposals(tt.Payload, "2006-Nov-07")
+			assert.Equal(t, nil, actual)
+			assert.Equal(t, errors.New(tt.expectedError), err)
+		}
+		if !tt.overlappingErr && !tt.startDateExceedsEndDate {
+			fakeDb.GetProposalsReturns(tt.GetProposalsReturn, nil)
+
+			actual, err := serviceInstance.CreateProposals(tt.Payload, "2010-Jan-07")
+			assert.Equal(t, nil, actual)
+			assert.Equal(t, errors.New(tt.expectedError), err)
+		}
+
 	}
 }
