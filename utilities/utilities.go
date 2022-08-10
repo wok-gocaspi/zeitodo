@@ -15,7 +15,7 @@ func ProposalTimeIntersectsProposals(proposal model.Proposal, Arr []model.Propos
 			return true
 		}
 
-		if customOverlaps(p, proposal) {
+		if CustomOverlaps(p, proposal) {
 			return true
 		}
 
@@ -43,7 +43,7 @@ func StartDateExceedsEndDate(Arr []model.Proposal) bool {
 	return false
 }
 
-func customOverlaps(p1 model.Proposal, p2 model.Proposal) bool {
+func CustomOverlaps(p1 model.Proposal, p2 model.Proposal) bool {
 	if (*p1.TimeObject.Interval.Start() == *p2.TimeObject.Interval.Start()) && (p1.TimeObject.Interval.End().Before(*p2.TimeObject.Interval.End())) {
 		return true
 	}
