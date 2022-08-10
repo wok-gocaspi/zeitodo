@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 	"example-project/model"
-	"github.com/retailify/go-interval"
+	"example-project/utilities"
 	"go.mongodb.org/mongo-driver/mongo"
 	"strings"
 )
@@ -41,7 +41,7 @@ func (s EmployeeService) CreateProposals(proposalPayloadArr []model.ProposalPayl
 		return nil, err
 	}
 
-	if StartDateExceedsEndDate(proposalArr) {
+	if utilities.StartDateExceedsEndDate(proposalArr) {
 		startExceedsEndErrMsg := errors.New("The startdate must be before the enddate")
 		return nil, startExceedsEndErrMsg
 	}
@@ -54,14 +54,14 @@ func (s EmployeeService) CreateProposals(proposalPayloadArr []model.ProposalPayl
 
 		Start := strings.Split(ps.StartDate, " ")
 		End := strings.Split(ps.EndDate, " ")
-		newTIme, _ := CreateTimeObject(Start[0], End[0])
+		newTIme, _ := utilities.CreateTimeObject(Start[0], End[0])
 		newP.TimeObject = newTIme
 		actualProposalsString = append(actualProposalsString, newP)
 	}
 
 	var proposals []interface{}
 	for _, p := range proposalArr {
-		if !ProposalTimeIntersectsProposals(p, actualProposalsString) {
+		if !utilities.ProposalTimeIntersectsProposals(p, actualProposalsString) {
 			proposals = append(proposals, p)
 		} else {
 			return nil, overlappingErrMsg
@@ -72,25 +72,11 @@ func (s EmployeeService) CreateProposals(proposalPayloadArr []model.ProposalPayl
 	return result, err
 }
 
-func CreateTimeObject(start, end string) (model.ProposalTimeObject, error) {
-	const shortForm = "2006-Jan-02"
-	Start := strings.Split(start, " ")
-	End := strings.Split(end, " ")
-
-	Interval, err := interval.MakeTimeIntervalFromStrings(Start[0], End[0], shortForm)
-	obj := model.ProposalTimeObject{
-		Duration: Interval.Duration(),
-		Interval: Interval,
-		//		Err:      err,
-	}
-	return obj, err
-}
-
 func CraftProposalFromPayload(payload []model.ProposalPayload) ([]model.Proposal, error) {
 
 	var proposals []model.Proposal
 	for _, p := range payload {
-		obj, err := CreateTimeObject(p.StartDate, p.EndDate)
+		obj, err := utilities.CreateTimeObject(p.StartDate, p.EndDate)
 		newProposal := model.Proposal{
 			UserId:     p.UserId,
 			StartDate:  p.StartDate,
@@ -107,54 +93,6 @@ func CraftProposalFromPayload(payload []model.ProposalPayload) ([]model.Proposal
 	}
 
 	return proposals, nil
-}
-
-func ProposalTimeIntersectsProposals(proposal model.Proposal, Arr []model.Proposal) bool {
-	for _, p := range Arr {
-		p.TimeObject, _ = CreateTimeObject(p.StartDate, p.EndDate)
-
-		if (*p.TimeObject.Interval.Start() == *proposal.TimeObject.Interval.Start()) || (*p.TimeObject.Interval.End() == *proposal.TimeObject.Interval.End()) {
-			return true
-		}
-
-		if customOverlaps(p, proposal) {
-			return true
-		}
-
-		if proposal.TimeObject.Interval.During(p.TimeObject.Interval) {
-			return true
-		}
-		if p.TimeObject.Interval.During(proposal.TimeObject.Interval) {
-			return true
-		}
-		if p.TimeObject.Interval.Equals(proposal.TimeObject.Interval) {
-			return true
-		}
-
-	}
-	return false
-}
-
-func StartDateExceedsEndDate(Arr []model.Proposal) bool {
-	for _, p := range Arr {
-		p.TimeObject, _ = CreateTimeObject(p.StartDate, p.EndDate)
-		if p.TimeObject.Interval.End().Before(*p.TimeObject.Interval.Start()) {
-			return true
-		}
-	}
-	return false
-}
-
-func customOverlaps(p1 model.Proposal, p2 model.Proposal) bool {
-	if (*p1.TimeObject.Interval.Start() == *p2.TimeObject.Interval.Start()) && (p1.TimeObject.Interval.End().Before(*p2.TimeObject.Interval.End())) {
-		return true
-	}
-
-	if (*p2.TimeObject.Interval.Start() == *p1.TimeObject.Interval.Start()) && (p2.TimeObject.Interval.End().Before(*p1.TimeObject.Interval.End())) {
-		return true
-	}
-
-	return false
 }
 
 func (s EmployeeService) UpdateProposalByDate(update model.Proposal, date string) (*mongo.UpdateResult, error) {
