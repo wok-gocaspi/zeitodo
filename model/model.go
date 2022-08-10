@@ -33,6 +33,7 @@ type User struct {
 	Projects          []string           `json:"projects" bson:"projects"`
 	TotalWorkingHours float32            `json:"totalWorkingHours" bson:"totalWorkingHours"`
 	VacationDays      int                `json:"vacationDays" bson:"vacationDays"`
+	Permission        string             `json:"permission" bson:"permission"`
 }
 
 type UserSignupPayload struct {
@@ -44,11 +45,12 @@ type UserSignupPayload struct {
 }
 
 type UserSignup struct {
-	Username  string   `json:"username" bson:"username"`
-	Password  [32]byte `json:"password" bson:"password"`
-	FirstName string   `json:"firstname" bson:"firstname"`
-	LastName  string   `json:"lastname" bson:"lastname"`
-	Email     string   `json:"email" bson:"email"`
+	Username   string   `json:"username" bson:"username"`
+	Password   [32]byte `json:"password" bson:"password"`
+	FirstName  string   `json:"firstname" bson:"firstname"`
+	LastName   string   `json:"lastname" bson:"lastname"`
+	Email      string   `json:"email" bson:"email"`
+	Permission string   `json:"permission" bson:"permission"`
 }
 
 type UserPayload struct {
@@ -60,12 +62,18 @@ type UserPayload struct {
 	Projects          []string `json:"projects" bson:"projects"`
 	TotalWorkingHours float32  `json:"totalWorkingHours" bson:"totalWorkingHours"`
 	VacationDays      int      `json:"vacationDays" bson:"vacationDays"`
+	Permission        string   `json:"permission" bson:"permission"`
 }
 
 type UserUpdateResult struct {
 	UpdateResult *mongo.UpdateResult `json:"result"`
 	User         User                `json:"user"`
 	Success      bool                `json:"success"`
+}
+
+type UserAuthPayload struct {
+	Username string `json:"username"`
+	Password string `json:"password" key:"required"`
 }
 
 type TeamMember struct {

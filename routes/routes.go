@@ -13,6 +13,7 @@ type HandlerInterface interface {
 	GetTeamMemberHandler(c *gin.Context)
 	UpdateUserHandler(c *gin.Context)
 	DeleteUserHandler(c *gin.Context)
+	PermissionMiddleware(c *gin.Context)
 }
 
 var Handler HandlerInterface
@@ -20,7 +21,7 @@ var Handler HandlerInterface
 func CreateRoutes(group *gin.RouterGroup) {
 	group.Use(CORS)
 	user := group.Group("/user")
-	user.GET("/:id/get", Handler.GetUserHandler)
+	user.GET("/:id/get", Handler.PermissionMiddleware, Handler.GetUserHandler)
 	user.GET("/get", Handler.GetAllUserHandler)
 	user.POST("/create", Handler.CreateUserHandler)
 	user.GET("/team/get", Handler.GetTeamMemberHandler)

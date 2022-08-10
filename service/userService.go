@@ -4,8 +4,12 @@ import (
 	"crypto/sha256"
 	"errors"
 	"example-project/model"
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+var SessionMap = make(map[string]string)
 
 func (s EmployeeService) GetUserByID(id string) (model.UserPayload, error) {
 	objectID, err := primitive.ObjectIDFromHex(id)
@@ -54,11 +58,12 @@ func (s EmployeeService) CreateUser(usersSignupPayload []model.UserSignupPayload
 	var errorArray []model.UserSignupPayload
 	for _, user := range usersSignupPayload {
 		newUser := model.UserSignup{
-			FirstName: user.FirstName,
-			LastName:  user.LastName,
-			Email:     user.Email,
-			Username:  user.Username,
-			Password:  sha256.Sum256([]byte(user.Password)),
+			FirstName:  user.FirstName,
+			LastName:   user.LastName,
+			Email:      user.Email,
+			Username:   user.Username,
+			Password:   sha256.Sum256([]byte(user.Password)),
+			Permission: "user",
 		}
 		if user.FirstName == "" || user.LastName == "" || user.Email == "" || user.Username == "" || user.Password == "" {
 			errorArray = append(errorArray, user)
@@ -100,5 +105,40 @@ func (s EmployeeService) DeleteUsers(id string) (interface{}, error) {
 }
 
 func (s EmployeeService) LoginUser(username string, password string) (interface{}, error) {
+	userObj, err := s.DbService.GetUserByUsername(username)
+	if err != nil {
+		return nil, errors.New("invalid login")
+	}
+	hashedPassword := sha256.Sum256([]byte(password))
+	if hashedPassword != userObj.Password {
+		return nil, errors.New("invalid login")
+	}
+	token := AddUserSession(userObj.ID)
+	tokenPayload := gin.H{
+		"userid": userObj.ID.Hex(),
+		"token":  token,
+	}
+	var tokenInterface interface{} = tokenPayload
+	return tokenInterface, nil
+}
 
+func (s EmployeeService) LogoutUser(userid string) bool {
+	for key, _ := range SessionMap {
+		if key == userid {
+			delete(SessionMap, key)
+			return true
+		}
+	}
+	return false
+}
+
+func AddUserSession(userObjectID primitive.ObjectID) string {
+	for key, _ := range SessionMap {
+		if key == userObjectID.Hex() {
+			delete(SessionMap, key)
+		}
+	}
+	randomString := (uuid.New()).String()
+	SessionMap[userObjectID.Hex()] = randomString
+	return randomString
 }

@@ -47,6 +47,17 @@ func (c Client) GetUserByID(id primitive.ObjectID) (model.UserPayload, error) {
 	return user, nil
 }
 
+func (c Client) GetUserByUsername(username string) (model.User, error) {
+	filter := bson.M{"username": username}
+	courser := c.Users.FindOne(context.TODO(), filter)
+	var user model.User
+	err := courser.Decode(&user)
+	if err != nil {
+		return user, err
+	}
+	return user, nil
+}
+
 func (c Client) GetAllUser() ([]model.UserPayload, error) {
 	filter := bson.M{}
 	coursor, err := c.Users.Find(context.TODO(), filter)

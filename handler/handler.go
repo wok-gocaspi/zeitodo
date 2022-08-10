@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"example-project/model"
+	"example-project/service"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
@@ -17,6 +18,8 @@ type ServiceInterface interface {
 	UpdateUsers(users []model.User) (interface{}, error)
 	GetTeamMembersByName(name string) (interface{}, error)
 	DeleteUsers(id string) (interface{}, error)
+	LoginUser(username string, password string) (interface{}, error)
+	LogoutUser(userid string) bool
 }
 
 type Handler struct {
@@ -190,4 +193,78 @@ func (handler Handler) DeleteUserHandler(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, result)
+}
+
+func (handler Handler) LoginUserHandler(c *gin.Context) {
+	var authObj model.UserAuthPayload
+	body := c.Copy().Request.Body
+	jsonString, _ := ioutil.ReadAll(body)
+	err := json.Unmarshal(jsonString, &authObj)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": "invalid data",
+		})
+		return
+	}
+	response, err := handler.ServiceInterface.LoginUser(authObj.Username, authObj.Password)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"errorMessage": err.Error(),
+		})
+	}
+	c.JSON(http.StatusOK, response)
+	return
+}
+
+func (handler Handler) LogoutUserHandler(c *gin.Context) {
+	userID, ok := c.GetQuery("userid")
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": "no user id delivered",
+		})
+		return
+	}
+	logoutOK := handler.ServiceInterface.LogoutUser(userID)
+	if !logoutOK {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"errorMessage": "user already logged out",
+		})
+		return
+	}
+	c.Status(http.StatusOK)
+	return
+}
+
+func (handler Handler) PermissionMiddleware(c *gin.Context, permissionLevel string) {
+	authHeader := c.GetHeader("Authorization")
+	var userID string
+	if len(authHeader) < 0 {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"errorMessage": "no authorization header provided. please check if user is logged in",
+		})
+	}
+	for key, value := range service.SessionMap {
+		if value == authHeader {
+			userID = key
+		}
+	}
+	if len(userID) < 0 {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"errorMessage": "user is currently not logged in, please log in again",
+		})
+	}
+	userObj, err := handler.ServiceInterface.GetUserByID(userID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"errorMessage": "user dosent exist",
+		})
+	}
+	if userObj.Permission == permissionLevel {
+		c.Next()
+		return
+	} else {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"errorMessage": "user does not have permission to access this endpoint",
+		})
+	}
 }
