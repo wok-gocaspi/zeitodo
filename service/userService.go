@@ -98,3 +98,7 @@ func (s EmployeeService) DeleteUsers(id string) (interface{}, error) {
 	result, err := s.DbService.DeleteUser(idObject)
 	return result, err
 }
+
+func (s EmployeeService) LoginUser(username string, password string) (interface{}, error) {
+
+}
