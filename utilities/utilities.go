@@ -11,11 +11,10 @@ func ProposalTimeIntersectsProposals(proposal model.Proposal, Arr []model.Propos
 	for _, p := range Arr {
 		p.TimeObject, _ = CreateTimeObject(p.StartDate, p.EndDate)
 
-		if (*p.TimeObject.Interval.Start() == *proposal.TimeObject.Interval.Start()) || (*p.TimeObject.Interval.End() == *proposal.TimeObject.Interval.End()) {
+		if CustomOverlaps(p, proposal) {
 			return true
 		}
-
-		if CustomOverlaps(p, proposal) {
+		if (*p.TimeObject.Interval.Start() == *proposal.TimeObject.Interval.Start()) || (*p.TimeObject.Interval.End() == *proposal.TimeObject.Interval.End()) {
 			return true
 		}
 
