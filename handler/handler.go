@@ -27,6 +27,8 @@ func NewHandler(serviceInterface ServiceInterface) Handler {
 	}
 }
 
+const idNotFoundMsg = "id is not given"
+
 func (handler Handler) GetEmployeeHandler(c *gin.Context) {
 	pathParam, ok := c.Params.Get("id")
 	if !ok {
@@ -45,7 +47,7 @@ func (handler Handler) DeleteProposalHandler(c *gin.Context) {
 	id, idOk := c.Params.Get("id")
 	if !idOk {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"errorMessage": "id is not given",
+			"errorMessage": idNotFoundMsg,
 		})
 		return
 	}
@@ -96,7 +98,7 @@ func (handler Handler) CreateProposalsHandler(c *gin.Context) {
 	pathParam, ok := c.Params.Get("id")
 	if !ok {
 		c.AbortWithStatusJSON(404, gin.H{
-			"errorMessage": "id is not given",
+			"errorMessage": idNotFoundMsg,
 		})
 		return
 	}
