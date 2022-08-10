@@ -164,3 +164,48 @@ func TestEmployeeService_CreateProposals(t *testing.T) {
 
 	}
 }
+
+func TestProposalService_DeleteProposalsByID(t *testing.T) {
+	fakeDb := &servicefakes.FakeDatabaseInterface{}
+
+	fakeDeletedCount0 := mongo.DeleteResult{
+		DeletedCount: 0,
+	}
+	fakeDeletedCount1 := mongo.DeleteResult{
+		DeletedCount: 1,
+	}
+	fakeDBErr := errors.New("Error in Database")
+	fakeDeleterror := errors.New("the Employee id is not existing")
+
+	var tests = []struct {
+		hasValidID   bool
+		hasValidDate bool
+		hasDBErr     bool
+		id           string
+		date         string
+		deletedCount *mongo.DeleteResult
+		err          error
+	}{
+		{true, true, false, "1", "TODO", &fakeDeletedCount1, nil},
+		{false, false, true, "1", "TODO", &fakeDeletedCount0, fakeDBErr},
+		{true, true, true, "1", "TODO", &fakeDeletedCount1, fakeDBErr},
+		{false, true, false, "1", "TODO", &fakeDeletedCount0, nil},
+	}
+
+	for _, tt := range tests {
+		fakeDb.DeleteProposalByIdAndDateReturns(tt.deletedCount, tt.err)
+		serviceInstance := service.NewEmployeeService(fakeDb)
+		actualErr := serviceInstance.DeleteProposalsByID(tt.id, tt.date)
+
+		if !tt.hasDBErr && tt.hasValidID && tt.hasValidDate {
+			assert.Equal(t, nil, actualErr)
+		}
+		if tt.hasDBErr {
+			assert.Equal(t, fakeDBErr, actualErr)
+		}
+		if !tt.hasDBErr && !tt.hasValidID {
+			assert.Equal(t, fakeDeleterror, actualErr)
+		}
+
+	}
+}
