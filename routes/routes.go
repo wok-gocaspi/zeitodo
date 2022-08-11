@@ -24,19 +24,20 @@ var Handler HandlerInterface
 var PermissionList model.PermissionList
 
 func CreateRoutes(group *gin.RouterGroup) {
-	PermissionList.AddPermission(model.Permission{Uri: "/user/", Methods: []string{"GET", "POST", "PUT", "DELETE"}, Group: "user"})
-	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "POST", "PUT", "DELETE"}, Group: "user"})
+	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET"}, GetSameUser: true, Group: "user"})
+
+	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "POST", "PUT", "DELETE"}, GetSameUser: false, Group: "admin"})
 	group.Use(CORS)
 	group.POST("/login", Handler.LoginUserHandler)
 	group.POST("/logout", Handler.LogoutUserHandler)
 	group.POST("/refresh", Handler.RefreshTokenHandler)
 	user := group.Group("/user")
 	user.GET("/:id", Handler.PermissionMiddleware, Handler.GetUserHandler)
-	user.GET("/all", Handler.GetAllUserHandler)
+	user.GET("/all", Handler.PermissionMiddleware, Handler.GetAllUserHandler)
 	user.POST("/", Handler.CreateUserHandler)
-	user.GET("/team", Handler.GetTeamMemberHandler)
-	user.PUT("/", Handler.UpdateUserHandler)
-	user.DELETE("/:id", Handler.DeleteUserHandler)
+	user.GET("/team", Handler.PermissionMiddleware, Handler.GetTeamMemberHandler)
+	user.PUT("/", Handler.PermissionMiddleware, Handler.UpdateUserHandler)
+	user.DELETE("/:id", Handler.PermissionMiddleware, Handler.DeleteUserHandler)
 }
 func CORS(c *gin.Context) {
 

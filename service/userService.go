@@ -161,7 +161,6 @@ func (s EmployeeService) RefreshToken(token string) (string, error) {
 }
 
 func (s EmployeeService) AuthenticateUser(requestedURI string, requestMethod string, token string) (bool, error) {
-
 	_, claims, err := utils.ValidateToken(token)
 	if err != nil {
 		return false, err
@@ -177,7 +176,7 @@ func (s EmployeeService) AuthenticateUser(requestedURI string, requestMethod str
 	if err != nil {
 		return false, err
 	}
-	ok, err := routes.PermissionList.CheckPolicy(requestedURI, requestMethod, userObj.Group)
+	ok, err := routes.PermissionList.CheckPolicy(requestedURI, requestMethod, userObj.Group, userID)
 	if err != nil {
 		return false, err
 	}
