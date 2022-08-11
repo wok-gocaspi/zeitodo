@@ -1,8 +1,11 @@
 package model
 
 import (
+	"errors"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"strings"
 	"time"
 )
 
@@ -33,7 +36,6 @@ type User struct {
 	Projects          []string           `json:"projects" bson:"projects"`
 	TotalWorkingHours float32            `json:"totalWorkingHours" bson:"totalWorkingHours"`
 	VacationDays      int                `json:"vacationDays" bson:"vacationDays"`
-	Permission        string             `json:"permission" bson:"permission"`
 }
 
 type UserSignupPayload struct {
@@ -45,12 +47,12 @@ type UserSignupPayload struct {
 }
 
 type UserSignup struct {
-	Username   string   `json:"username" bson:"username"`
-	Password   [32]byte `json:"password" bson:"password"`
-	FirstName  string   `json:"firstname" bson:"firstname"`
-	LastName   string   `json:"lastname" bson:"lastname"`
-	Email      string   `json:"email" bson:"email"`
-	Permission string   `json:"permission" bson:"permission"`
+	Username  string   `json:"username" bson:"username"`
+	Password  [32]byte `json:"password" bson:"password"`
+	FirstName string   `json:"firstname" bson:"firstname"`
+	LastName  string   `json:"lastname" bson:"lastname"`
+	Email     string   `json:"email" bson:"email"`
+	Group     string   `json:"group" bson:"group"`
 }
 
 type UserPayload struct {
@@ -62,7 +64,7 @@ type UserPayload struct {
 	Projects          []string `json:"projects" bson:"projects"`
 	TotalWorkingHours float32  `json:"totalWorkingHours" bson:"totalWorkingHours"`
 	VacationDays      int      `json:"vacationDays" bson:"vacationDays"`
-	Permission        string   `json:"permission" bson:"permission"`
+	Group             string   `json:"group" bson:"group"`
 }
 
 type UserUpdateResult struct {
@@ -99,4 +101,33 @@ type Proposal struct {
 	EndDate   time.Time `json:"endDate" bson:"endDate"`
 	Approved  bool      `json:"approved" bson:"approved"`
 	Type      string    `json:"type" bson:"type"`
+}
+
+type Permission struct {
+	Uri     string
+	Methods []string
+	Group   string
+}
+
+type PermissionList struct {
+	Permissions []Permission
+}
+
+func (pl PermissionList) AddPermission(permission Permission) {
+	pl.Permissions = append(pl.Permissions, permission)
+}
+
+func (pl PermissionList) CheckPolicy(url string, method string, group string) (bool, error) {
+	fmt.Println(pl)
+	for _, p := range pl.Permissions {
+		if strings.HasPrefix(url, p.Uri) {
+			fmt.Println("prefic trigger")
+			for _, pmethod := range p.Methods {
+				if method == pmethod {
+					return true, nil
+				}
+			}
+		}
+	}
+	return false, errors.New("url dosent match to any permission, deny request...")
 }
