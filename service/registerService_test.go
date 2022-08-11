@@ -28,4 +28,13 @@ func TestGetEmployeeById(t *testing.T) {
 
 func TestCreateEmployees(t *testing.T) {
 	//here comes your first unit test which should cover the function CreateEmployees
+	mockEmployees := []model.Employee{
+		model.Employee{ID: "1", FirstName: "Joe", LastName: "Schmo", Email: "Joeschmo@mail.com"},
+	}
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+
+	serviceInstance := service.NewEmployeeService(fakeDB)
+	actualError := serviceInstance.CreateEmployees(mockEmployees)
+
+	assert.NotNil(t, actualError)
 }

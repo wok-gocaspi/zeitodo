@@ -9,6 +9,11 @@ import (
 type HandlerInterface interface {
 	CreateEmployeeHandler(c *gin.Context)
 	GetEmployeeHandler(c *gin.Context)
+	DeleteTimeEntry(c *gin.Context)
+	UpdateTimeEntry(c *gin.Context)
+	CreatTimeEntry(c *gin.Context)
+	GetTimeEntry(c *gin.Context)
+	GetAllTimeEntry(c *gin.Context)
 }
 
 var Handler HandlerInterface
@@ -18,6 +23,12 @@ func CreateRoutes(group *gin.RouterGroup) {
 	route.Use(CORS)
 	route.GET("/:id/get", Handler.GetEmployeeHandler)
 	route.POST("/create", Handler.CreateEmployeeHandler)
+	route.DELETE("/:id/delete", Handler.DeleteTimeEntry)
+	route.PUT("/:id/update", Handler.UpdateTimeEntry)
+	route.POST("/:id/createtime", Handler.CreatTimeEntry)
+	route.GET("/:id/gettime", Handler.GetTimeEntry)
+	route.GET("/:id/getalltime", Handler.GetAllTimeEntry)
+
 }
 func CORS(c *gin.Context) {
 
