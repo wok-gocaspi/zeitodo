@@ -30,34 +30,6 @@ func NewHandler(serviceInterface ServiceInterface) Handler {
 	}
 }
 
-func (handler Handler) CreateEmployeeHandler(c *gin.Context) {
-	var payLoad model.Payload
-	err := c.BindJSON(&payLoad)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"errorMessage": "invalid payload",
-		})
-		return
-	}
-
-	response := handler.ServiceInterface.CreateEmployees(payLoad.Employees)
-	c.JSON(200, response)
-}
-
-func (handler Handler) GetEmployeeHandler(c *gin.Context) {
-	pathParam, ok := c.Params.Get("id")
-	if !ok {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"errorMessage": "id is not given",
-		})
-		return
-	}
-
-	response := handler.ServiceInterface.GetEmployeeById(pathParam)
-	fmt.Println(response)
-	c.JSON(http.StatusOK, response)
-}
-
 func (handler Handler) DeleteTimeEntry(c *gin.Context) {
 	pathParam, ok := c.Params.Get("id")
 

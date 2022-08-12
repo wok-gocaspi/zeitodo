@@ -37,25 +37,6 @@ func NewDbClient(d model.DbConfig) Client {
 	}
 }
 
-func (c Client) UpdateMany(docs []interface{}) interface{} {
-	results, err := c.Users.InsertMany(context.TODO(), docs)
-	if err != nil {
-		log.Println("database error")
-	}
-	return results.InsertedIDs
-}
-
-func (c Client) GetByID(id string) model.Employee {
-	filter := bson.M{"id": id}
-	courser := c.Users.FindOne(context.TODO(), filter)
-	var employee model.Employee
-	err := courser.Decode(&employee)
-	if err != nil {
-		log.Println("error during data marshalling")
-	}
-	return employee
-}
-
 func (c Client) DeleteTimeEntryById(id string) (interface{}, error) {
 	filter := bson.M{"id": id}
 
