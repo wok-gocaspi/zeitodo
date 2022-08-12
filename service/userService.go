@@ -4,8 +4,15 @@ import (
 	"crypto/sha256"
 	"errors"
 	"example-project/model"
+	"example-project/routes"
+	"example-project/utils"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"net/http"
+	"time"
 )
+
+var SessionMap = make(map[string]string)
 
 func (s EmployeeService) GetUserByID(id string) (model.UserPayload, error) {
 	objectID, err := primitive.ObjectIDFromHex(id)
@@ -49,27 +56,25 @@ func (s EmployeeService) GetTeamMembersByName(team string) (interface{}, error) 
 	return result, nil
 }
 
-func (s EmployeeService) CreateUser(usersSignupPayload []model.UserSignupPayload) (interface{}, error) {
-	var userList []interface{}
-	var errorArray []model.UserSignupPayload
-	for _, user := range usersSignupPayload {
-		newUser := model.UserSignup{
-			FirstName: user.FirstName,
-			LastName:  user.LastName,
-			Email:     user.Email,
-			Username:  user.Username,
-			Password:  sha256.Sum256([]byte(user.Password)),
-		}
-		if user.FirstName == "" || user.LastName == "" || user.Email == "" || user.Username == "" || user.Password == "" {
-			errorArray = append(errorArray, user)
-		}
-		userList = append(userList, newUser)
-	}
-	if len(errorArray) > 0 {
-		return errorArray, errors.New("insufficent user data")
+func (s EmployeeService) CreateUser(user model.UserSignupPayload) (interface{}, error) {
+	result, _ := s.DbService.GetUserByUsername(user.Username)
+	if len(result.ID) < 0 {
+		return nil, errors.New("user already exists with this username")
 	}
 
-	results, err := s.DbService.CreateUser(userList)
+	newUser := model.UserSignup{
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Email:     user.Email,
+		Username:  user.Username,
+		Password:  sha256.Sum256([]byte(user.Password)),
+		Group:     "user",
+	}
+	if user.FirstName == "" || user.LastName == "" || user.Email == "" || user.Username == "" || user.Password == "" {
+		return nil, errors.New("invalid register form")
+	}
+
+	results, err := s.DbService.CreateUser(newUser)
 	if err != nil {
 		return nil, err
 	}
@@ -97,4 +102,86 @@ func (s EmployeeService) DeleteUsers(id string) (interface{}, error) {
 	}
 	result, err := s.DbService.DeleteUser(idObject)
 	return result, err
+}
+
+func (s EmployeeService) LoginUser(username string, password string) (http.Cookie, error) {
+	userObj, err := s.DbService.GetUserByUsername(username)
+	if err != nil {
+		return http.Cookie{}, errors.New("invalid login")
+	}
+	hashedPassword := sha256.Sum256([]byte(password))
+	if hashedPassword != userObj.Password {
+		return http.Cookie{}, errors.New("invalid login")
+	}
+	token := utils.GenerateToken(userObj.ID)
+	expDate := time.Now().Add(time.Minute * 5)
+	tokenPayload := http.Cookie{
+		Name:     "token",
+		Value:    token,
+		Expires:  expDate,
+		Path:     "/",
+		Domain:   "localhost",
+		Secure:   false,
+		HttpOnly: true,
+	}
+
+	return tokenPayload, nil
+}
+
+func (s EmployeeService) LogoutUser(userid string) bool {
+	for key, _ := range SessionMap {
+		if key == userid {
+			delete(SessionMap, key)
+			return true
+		}
+	}
+	return false
+}
+
+func (s EmployeeService) RefreshToken(token string) (string, error) {
+	tkn, claims, err := utils.ValidateToken(token)
+	if err != nil {
+		return "", err
+	}
+	var userID string
+	for key, val := range claims {
+		if key == "userID" {
+			userID = fmt.Sprint(val)
+		}
+	}
+	if !tkn.Valid {
+		return "", errors.New("invalid token")
+	}
+	tokenObj, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return "", err
+	}
+	tokenString := utils.GenerateToken(tokenObj)
+	return tokenString, nil
+}
+
+func (s EmployeeService) AuthenticateUser(requestedURI string, requestMethod string, token string) (bool, error) {
+	_, claims, err := utils.ValidateToken(token)
+	if err != nil {
+		return false, err
+	}
+	var userID string
+	for key, val := range claims {
+		if key == "userID" {
+			userID = fmt.Sprint(val)
+		}
+	}
+
+	userObj, err := s.GetUserByID(userID)
+	if err != nil {
+		return false, err
+	}
+	ok, err := routes.PermissionList.CheckPolicy(requestedURI, requestMethod, userObj.Group, userID)
+	if err != nil {
+		return false, err
+	}
+	if !ok {
+		return false, err
+	}
+	return true, nil
 }
