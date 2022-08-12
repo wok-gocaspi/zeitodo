@@ -94,7 +94,7 @@ jobs:
           resource-group: ${{ env.AZURERG }}
           dns-name-label: ${{ env.CONTAINER_NAME }}
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
-          environment-variables: environment=production
+          environment-variables: environment=production MONGO_URL=${{ secrets.MONGO_URL }} JWT_SECRET=${{ secrets.JWT_SECRET }}
           registry-login-server: ${{ env.REGISTRY }}
           registry-username: ${{ env.DOCKER_USER }}
           registry-password: ${{ secrets.DOCKER_TOKEN }}
