@@ -8,7 +8,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -22,7 +21,6 @@ type ServiceInterface interface {
 	UpdateTimeEntries(update model.TimeEntry) (interface{}, error)
 	GetTimeEntryByUserID(id string) []model.TimeEntry
 	CreatTimeEntries(te model.TimeEntry) (interface{}, error)
-	GetAllTimeEntries(id string) model.TimeEntry
 	GetUserByID(id string) (model.UserPayload, error)
 	GetAllUser() ([]model.UserPayload, error)
 	CreateUser(model.UserSignupPayload) (interface{}, error)
@@ -206,6 +204,7 @@ func (handler Handler) LoginUserHandler(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"errorMessage": err.Error(),
 		})
+		return
 	}
 	c.SetCookie(response.Name, response.Value, 3600, response.Path, response.Domain, response.Secure, response.HttpOnly)
 	c.Status(200)
@@ -250,6 +249,7 @@ func (handler Handler) PermissionMiddleware(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"errorMessage": err.Error(),
 		})
+		return
 	}
 	ok, err := handler.ServiceInterface.AuthenticateUser(c.Request.RequestURI, c.Request.Method, tokenCookie.Value)
 	if !ok {
@@ -477,41 +477,5 @@ func (handler Handler) GetTimeEntryByUserID(c *gin.Context) {
 		fmt.Println("Current date and time is : ", dt.String())
 	}
 	c.JSON(http.StatusOK, response)
-
-}
-
-func (handler Handler) GetAllTimeEntry(c *gin.Context) {
-	pathParam, ok := c.Params.Get("time")
-	pages, pageOk := c.GetQuery("page")
-	limit, limitOk := c.GetQuery("limit")
-	_, pageErr := strconv.Atoi(pages)
-	_, limitErr := strconv.Atoi(limit)
-
-	if pageOk && limitOk {
-		if pageOk && limitOk && pageErr == nil && limitErr == nil {
-
-			response := handler.ServiceInterface.GetAllTimeEntries(pathParam)
-			if !ok {
-				c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-					"errorMessage": "Alltime not given",
-				})
-				return
-			}
-			c.JSON(http.StatusOK, response)
-		} else {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"errorMessage": "queries are invalid, please check or remove them",
-			})
-			return
-		}
-	} else {
-
-		_ = 1
-		_ = 1000000 * 100000
-
-		response := handler.ServiceInterface.GetAllTimeEntries(pathParam)
-
-		c.JSON(http.StatusOK, response)
-	}
 
 }

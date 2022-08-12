@@ -8,8 +8,6 @@ import (
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . HandlerInterface
 type HandlerInterface interface {
-	CreateEmployeeHandler(c *gin.Context)
-	GetEmployeeHandler(c *gin.Context)
 	GetProposalsById(c *gin.Context)
 	//	CreateProposalsHandler(c *gin.Context)
 	CreateProposalsHandler(c *gin.Context)
@@ -18,7 +16,6 @@ type HandlerInterface interface {
 	DeleteTimeEntry(c *gin.Context)
 	CreatTimeEntry(c *gin.Context)
 	GetTimeEntryByUserID(c *gin.Context)
-	GetAllTimeEntry(c *gin.Context)
 	GetUserHandler(c *gin.Context)
 	GetAllUserHandler(c *gin.Context)
 	CreateUserHandler(c *gin.Context)
@@ -54,7 +51,6 @@ func CreateRoutes(group *gin.RouterGroup) {
 	timeentry.DELETE("/:id", Handler.DeleteTimeEntry)
 	timeentry.POST("/", Handler.CreatTimeEntry)
 	timeentry.GET("/:id", Handler.GetTimeEntryByUserID)
-	timeentry.GET("/:id/getalltime", Handler.GetAllTimeEntry)
 
 	proposal := group.Group("/proposals")
 	proposal.GET("/:id", Handler.GetProposalsById)

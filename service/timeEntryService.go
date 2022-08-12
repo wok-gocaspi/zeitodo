@@ -19,7 +19,3 @@ func (s EmployeeService) CreatTimeEntries(te model.TimeEntry) (interface{}, erro
 func (s EmployeeService) GetTimeEntryByUserID(id string) []model.TimeEntry {
 	return s.DbService.GetTimeEntryByUserID(id)
 }
-
-func (s EmployeeService) GetAllTimeEntries(id string) model.TimeEntry {
-	return s.DbService.GetAllTimeEntriesById(id)
-}
