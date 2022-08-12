@@ -58,10 +58,9 @@ func (s EmployeeService) GetTeamMembersByName(team string) (interface{}, error) 
 
 func (s EmployeeService) CreateUser(user model.UserSignupPayload) (interface{}, error) {
 	result, _ := s.DbService.GetUserByUsername(user.Username)
-	if len(result.ID) < 0 {
+	if len(result.ID) > 0 {
 		return nil, errors.New("user already exists with this username")
 	}
-
 	newUser := model.UserSignup{
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
