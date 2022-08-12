@@ -18,11 +18,25 @@ type HandlerInterface interface {
 	CreatTimeEntry(c *gin.Context)
 	GetTimeEntryByUserID(c *gin.Context)
 	GetAllTimeEntry(c *gin.Context)
+	GetUserHandler(c *gin.Context)
+	GetAllUserHandler(c *gin.Context)
+	CreateUserHandler(c *gin.Context)
+	GetTeamMemberHandler(c *gin.Context)
+	UpdateUserHandler(c *gin.Context)
+	DeleteUserHandler(c *gin.Context)
 }
 
 var Handler HandlerInterface
 
 func CreateRoutes(group *gin.RouterGroup) {
+	group.Use(CORS)
+	user := group.Group("/user")
+	user.GET("/:id/get", Handler.GetUserHandler)
+	user.GET("/get", Handler.GetAllUserHandler)
+	user.POST("/create", Handler.CreateUserHandler)
+	user.GET("/team/get", Handler.GetTeamMemberHandler)
+	user.PUT("/update", Handler.UpdateUserHandler)
+	user.DELETE("/:id/delete", Handler.DeleteUserHandler)
 	group.Use(CORS)
 	timeentry := group.Group("/timeentry")
 	timeentry.DELETE("/:id", Handler.DeleteTimeEntry)
