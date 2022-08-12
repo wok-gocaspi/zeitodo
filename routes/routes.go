@@ -10,9 +10,8 @@ type HandlerInterface interface {
 	CreateEmployeeHandler(c *gin.Context)
 	GetEmployeeHandler(c *gin.Context)
 	DeleteTimeEntry(c *gin.Context)
-	UpdateTimeEntry(c *gin.Context)
 	CreatTimeEntry(c *gin.Context)
-	GetTimeEntry(c *gin.Context)
+	GetTimeEntryByUserID(c *gin.Context)
 	GetAllTimeEntry(c *gin.Context)
 }
 
@@ -22,9 +21,8 @@ func CreateRoutes(group *gin.RouterGroup) {
 	group.Use(CORS)
 	timeentry := group.Group("/timeentry")
 	timeentry.DELETE("/:id/delete", Handler.DeleteTimeEntry)
-	timeentry.PUT("/:id/update", Handler.UpdateTimeEntry)
-	timeentry.POST("/:id/createtime", Handler.CreatTimeEntry)
-	timeentry.GET("/:id/gettime", Handler.GetTimeEntry)
+	timeentry.POST("/createtime", Handler.CreatTimeEntry)
+	timeentry.GET("/:id/gettime", Handler.GetTimeEntryByUserID)
 	timeentry.GET("/:id/getalltime", Handler.GetAllTimeEntry)
 }
 func CORS(c *gin.Context) {

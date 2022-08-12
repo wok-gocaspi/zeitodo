@@ -11,13 +11,13 @@ func (s EmployeeService) UpdateTimeEntries(update model.TimeEntry) (interface{},
 	return result, err
 }
 
-func (s EmployeeService) CreatTimeEntries(id string) (interface{}, error) {
-	return s.DbService.CreatTimeEntryById(id)
+func (s EmployeeService) CreatTimeEntries(te model.TimeEntry) (interface{}, error) {
+	return s.DbService.CreatTimeEntryById(te)
 
 }
 
-func (s EmployeeService) GetTimeEntries(id string) model.TimeEntry {
-	return s.DbService.GetTimeEntryById(id)
+func (s EmployeeService) GetTimeEntryByUserID(id string) []model.TimeEntry {
+	return s.DbService.GetTimeEntryByUserID(id)
 }
 
 func (s EmployeeService) GetAllTimeEntries(id string) model.TimeEntry {

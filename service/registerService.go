@@ -11,8 +11,8 @@ type DatabaseInterface interface {
 	GetByID(id string) model.Employee
 	DeleteTimeEntryById(id string) (interface{}, error)
 	UpdateTimeEntryById(update model.TimeEntry) (*mongo.UpdateResult, error)
-	CreatTimeEntryById(id string) (interface{}, error)
-	GetTimeEntryById(id string) model.TimeEntry
+	CreatTimeEntryById(te model.TimeEntry) (interface{}, error)
+	GetTimeEntryByUserID(id string) []model.TimeEntry
 	GetAllTimeEntriesById(id string) model.TimeEntry
 }
 

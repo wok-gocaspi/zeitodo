@@ -15,8 +15,8 @@ type ServiceInterface interface {
 	GetEmployeeById(id string) model.Employee
 	DeleteTimeEntries(id string) (interface{}, error)
 	UpdateTimeEntries(update model.TimeEntry) (interface{}, error)
-	GetTimeEntries(id string) model.TimeEntry
-	CreatTimeEntries(id string) (interface{}, error)
+	GetTimeEntryByUserID(id string) []model.TimeEntry
+	CreatTimeEntries(te model.TimeEntry) (interface{}, error)
 	GetAllTimeEntries(id string) model.TimeEntry
 }
 
@@ -79,6 +79,7 @@ func (handler Handler) DeleteTimeEntry(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+/*
 func (handler Handler) UpdateTimeEntry(context *gin.Context) {
 	id, ok := context.Params.Get("id")
 
@@ -88,7 +89,7 @@ func (handler Handler) UpdateTimeEntry(context *gin.Context) {
 		return
 	}
 
-	response := handler.ServiceInterface.GetTimeEntries(id)
+	response := handler.ServiceInterface.GetTimeEntryByUserID(id)
 
 	if response.UserId == "" {
 		context.AbortWithStatusJSON(400, "Time user ist not existing ")
@@ -115,18 +116,19 @@ func (handler Handler) UpdateTimeEntry(context *gin.Context) {
 
 	context.JSON(200, result)
 }
+*/
 
 func (handler Handler) CreatTimeEntry(c *gin.Context) {
-	pathParam, ok := c.Params.Get("time")
+	var timeEntry model.TimeEntry
+	err := c.BindJSON(&timeEntry)
 
-	if !ok {
+	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-
 			"errorMessage": "Time is not created ",
 		})
 		return
 	}
-	response, err := handler.ServiceInterface.CreatTimeEntries(pathParam)
+	response, err := handler.ServiceInterface.CreatTimeEntries(timeEntry)
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -137,8 +139,8 @@ func (handler Handler) CreatTimeEntry(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-func (handler Handler) GetTimeEntry(c *gin.Context) {
-	pathParam, ok := c.Params.Get("time")
+func (handler Handler) GetTimeEntryByUserID(c *gin.Context) {
+	pathParam, ok := c.Params.Get("id")
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"errorMessage": "time is not given",
@@ -146,7 +148,7 @@ func (handler Handler) GetTimeEntry(c *gin.Context) {
 		return
 	}
 
-	response := handler.ServiceInterface.GetTimeEntries(pathParam)
+	response := handler.ServiceInterface.GetTimeEntryByUserID(pathParam)
 	dt := time.Now()
 	{
 		fmt.Println("Current date and time is : ", dt.String())

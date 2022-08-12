@@ -31,12 +31,12 @@ type User struct {
 }
 
 type TimeEntry struct {
-	UserId     string    `json:"userId" bson:"userId"`
-	Start      time.Time `json:"start" bson:"start"`
-	End        time.Time `json:"end" bson:"end"`
-	BreakStart time.Time `json:"breakStart" bson:"breakStart"`
-	BreakEnd   time.Time `json:"breakEnd" bson:"breakEnd"`
-	Project    string    `json:"project" bson:"project"`
+	UserId     string `json:"userId" bson:"userId"`
+	Start      string `json:"start" bson:"start"`
+	End        string `json:"end" bson:"end"`
+	BreakStart string `json:"breakStart" bson:"breakStart"`
+	BreakEnd   string `json:"breakEnd" bson:"breakEnd"`
+	Project    string `json:"project" bson:"project"`
 }
 
 type Proposal struct {
