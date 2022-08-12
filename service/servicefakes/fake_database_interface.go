@@ -5,9 +5,48 @@ import (
 	"example-project/model"
 	"example-project/service"
 	"sync"
+
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type FakeDatabaseInterface struct {
+	CreatTimeEntryByIdStub        func(string) (interface{}, error)
+	creatTimeEntryByIdMutex       sync.RWMutex
+	creatTimeEntryByIdArgsForCall []struct {
+		arg1 string
+	}
+	creatTimeEntryByIdReturns struct {
+		result1 interface{}
+		result2 error
+	}
+	creatTimeEntryByIdReturnsOnCall map[int]struct {
+		result1 interface{}
+		result2 error
+	}
+	DeleteTimeEntryByIdStub        func(string) (interface{}, error)
+	deleteTimeEntryByIdMutex       sync.RWMutex
+	deleteTimeEntryByIdArgsForCall []struct {
+		arg1 string
+	}
+	deleteTimeEntryByIdReturns struct {
+		result1 interface{}
+		result2 error
+	}
+	deleteTimeEntryByIdReturnsOnCall map[int]struct {
+		result1 interface{}
+		result2 error
+	}
+	GetAllTimeEntriesByIdStub        func(string) model.TimeEntry
+	getAllTimeEntriesByIdMutex       sync.RWMutex
+	getAllTimeEntriesByIdArgsForCall []struct {
+		arg1 string
+	}
+	getAllTimeEntriesByIdReturns struct {
+		result1 model.TimeEntry
+	}
+	getAllTimeEntriesByIdReturnsOnCall map[int]struct {
+		result1 model.TimeEntry
+	}
 	GetByIDStub        func(string) model.Employee
 	getByIDMutex       sync.RWMutex
 	getByIDArgsForCall []struct {
@@ -18,6 +57,17 @@ type FakeDatabaseInterface struct {
 	}
 	getByIDReturnsOnCall map[int]struct {
 		result1 model.Employee
+	}
+	GetTimeEntryByIdStub        func(string) model.TimeEntry
+	getTimeEntryByIdMutex       sync.RWMutex
+	getTimeEntryByIdArgsForCall []struct {
+		arg1 string
+	}
+	getTimeEntryByIdReturns struct {
+		result1 model.TimeEntry
+	}
+	getTimeEntryByIdReturnsOnCall map[int]struct {
+		result1 model.TimeEntry
 	}
 	UpdateManyStub        func([]interface{}) interface{}
 	updateManyMutex       sync.RWMutex
@@ -30,8 +80,210 @@ type FakeDatabaseInterface struct {
 	updateManyReturnsOnCall map[int]struct {
 		result1 interface{}
 	}
+	UpdateTimeEntryByIdStub        func(model.TimeEntry) (*mongo.UpdateResult, error)
+	updateTimeEntryByIdMutex       sync.RWMutex
+	updateTimeEntryByIdArgsForCall []struct {
+		arg1 model.TimeEntry
+	}
+	updateTimeEntryByIdReturns struct {
+		result1 *mongo.UpdateResult
+		result2 error
+	}
+	updateTimeEntryByIdReturnsOnCall map[int]struct {
+		result1 *mongo.UpdateResult
+		result2 error
+	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *FakeDatabaseInterface) CreatTimeEntryById(arg1 string) (interface{}, error) {
+	fake.creatTimeEntryByIdMutex.Lock()
+	ret, specificReturn := fake.creatTimeEntryByIdReturnsOnCall[len(fake.creatTimeEntryByIdArgsForCall)]
+	fake.creatTimeEntryByIdArgsForCall = append(fake.creatTimeEntryByIdArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.CreatTimeEntryByIdStub
+	fakeReturns := fake.creatTimeEntryByIdReturns
+	fake.recordInvocation("CreatTimeEntryById", []interface{}{arg1})
+	fake.creatTimeEntryByIdMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeDatabaseInterface) CreatTimeEntryByIdCallCount() int {
+	fake.creatTimeEntryByIdMutex.RLock()
+	defer fake.creatTimeEntryByIdMutex.RUnlock()
+	return len(fake.creatTimeEntryByIdArgsForCall)
+}
+
+func (fake *FakeDatabaseInterface) CreatTimeEntryByIdCalls(stub func(string) (interface{}, error)) {
+	fake.creatTimeEntryByIdMutex.Lock()
+	defer fake.creatTimeEntryByIdMutex.Unlock()
+	fake.CreatTimeEntryByIdStub = stub
+}
+
+func (fake *FakeDatabaseInterface) CreatTimeEntryByIdArgsForCall(i int) string {
+	fake.creatTimeEntryByIdMutex.RLock()
+	defer fake.creatTimeEntryByIdMutex.RUnlock()
+	argsForCall := fake.creatTimeEntryByIdArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeDatabaseInterface) CreatTimeEntryByIdReturns(result1 interface{}, result2 error) {
+	fake.creatTimeEntryByIdMutex.Lock()
+	defer fake.creatTimeEntryByIdMutex.Unlock()
+	fake.CreatTimeEntryByIdStub = nil
+	fake.creatTimeEntryByIdReturns = struct {
+		result1 interface{}
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeDatabaseInterface) CreatTimeEntryByIdReturnsOnCall(i int, result1 interface{}, result2 error) {
+	fake.creatTimeEntryByIdMutex.Lock()
+	defer fake.creatTimeEntryByIdMutex.Unlock()
+	fake.CreatTimeEntryByIdStub = nil
+	if fake.creatTimeEntryByIdReturnsOnCall == nil {
+		fake.creatTimeEntryByIdReturnsOnCall = make(map[int]struct {
+			result1 interface{}
+			result2 error
+		})
+	}
+	fake.creatTimeEntryByIdReturnsOnCall[i] = struct {
+		result1 interface{}
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeDatabaseInterface) DeleteTimeEntryById(arg1 string) (interface{}, error) {
+	fake.deleteTimeEntryByIdMutex.Lock()
+	ret, specificReturn := fake.deleteTimeEntryByIdReturnsOnCall[len(fake.deleteTimeEntryByIdArgsForCall)]
+	fake.deleteTimeEntryByIdArgsForCall = append(fake.deleteTimeEntryByIdArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.DeleteTimeEntryByIdStub
+	fakeReturns := fake.deleteTimeEntryByIdReturns
+	fake.recordInvocation("DeleteTimeEntryById", []interface{}{arg1})
+	fake.deleteTimeEntryByIdMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeDatabaseInterface) DeleteTimeEntryByIdCallCount() int {
+	fake.deleteTimeEntryByIdMutex.RLock()
+	defer fake.deleteTimeEntryByIdMutex.RUnlock()
+	return len(fake.deleteTimeEntryByIdArgsForCall)
+}
+
+func (fake *FakeDatabaseInterface) DeleteTimeEntryByIdCalls(stub func(string) (interface{}, error)) {
+	fake.deleteTimeEntryByIdMutex.Lock()
+	defer fake.deleteTimeEntryByIdMutex.Unlock()
+	fake.DeleteTimeEntryByIdStub = stub
+}
+
+func (fake *FakeDatabaseInterface) DeleteTimeEntryByIdArgsForCall(i int) string {
+	fake.deleteTimeEntryByIdMutex.RLock()
+	defer fake.deleteTimeEntryByIdMutex.RUnlock()
+	argsForCall := fake.deleteTimeEntryByIdArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeDatabaseInterface) DeleteTimeEntryByIdReturns(result1 interface{}, result2 error) {
+	fake.deleteTimeEntryByIdMutex.Lock()
+	defer fake.deleteTimeEntryByIdMutex.Unlock()
+	fake.DeleteTimeEntryByIdStub = nil
+	fake.deleteTimeEntryByIdReturns = struct {
+		result1 interface{}
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeDatabaseInterface) DeleteTimeEntryByIdReturnsOnCall(i int, result1 interface{}, result2 error) {
+	fake.deleteTimeEntryByIdMutex.Lock()
+	defer fake.deleteTimeEntryByIdMutex.Unlock()
+	fake.DeleteTimeEntryByIdStub = nil
+	if fake.deleteTimeEntryByIdReturnsOnCall == nil {
+		fake.deleteTimeEntryByIdReturnsOnCall = make(map[int]struct {
+			result1 interface{}
+			result2 error
+		})
+	}
+	fake.deleteTimeEntryByIdReturnsOnCall[i] = struct {
+		result1 interface{}
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeDatabaseInterface) GetAllTimeEntriesById(arg1 string) model.TimeEntry {
+	fake.getAllTimeEntriesByIdMutex.Lock()
+	ret, specificReturn := fake.getAllTimeEntriesByIdReturnsOnCall[len(fake.getAllTimeEntriesByIdArgsForCall)]
+	fake.getAllTimeEntriesByIdArgsForCall = append(fake.getAllTimeEntriesByIdArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.GetAllTimeEntriesByIdStub
+	fakeReturns := fake.getAllTimeEntriesByIdReturns
+	fake.recordInvocation("GetAllTimeEntriesById", []interface{}{arg1})
+	fake.getAllTimeEntriesByIdMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeDatabaseInterface) GetAllTimeEntriesByIdCallCount() int {
+	fake.getAllTimeEntriesByIdMutex.RLock()
+	defer fake.getAllTimeEntriesByIdMutex.RUnlock()
+	return len(fake.getAllTimeEntriesByIdArgsForCall)
+}
+
+func (fake *FakeDatabaseInterface) GetAllTimeEntriesByIdCalls(stub func(string) model.TimeEntry) {
+	fake.getAllTimeEntriesByIdMutex.Lock()
+	defer fake.getAllTimeEntriesByIdMutex.Unlock()
+	fake.GetAllTimeEntriesByIdStub = stub
+}
+
+func (fake *FakeDatabaseInterface) GetAllTimeEntriesByIdArgsForCall(i int) string {
+	fake.getAllTimeEntriesByIdMutex.RLock()
+	defer fake.getAllTimeEntriesByIdMutex.RUnlock()
+	argsForCall := fake.getAllTimeEntriesByIdArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeDatabaseInterface) GetAllTimeEntriesByIdReturns(result1 model.TimeEntry) {
+	fake.getAllTimeEntriesByIdMutex.Lock()
+	defer fake.getAllTimeEntriesByIdMutex.Unlock()
+	fake.GetAllTimeEntriesByIdStub = nil
+	fake.getAllTimeEntriesByIdReturns = struct {
+		result1 model.TimeEntry
+	}{result1}
+}
+
+func (fake *FakeDatabaseInterface) GetAllTimeEntriesByIdReturnsOnCall(i int, result1 model.TimeEntry) {
+	fake.getAllTimeEntriesByIdMutex.Lock()
+	defer fake.getAllTimeEntriesByIdMutex.Unlock()
+	fake.GetAllTimeEntriesByIdStub = nil
+	if fake.getAllTimeEntriesByIdReturnsOnCall == nil {
+		fake.getAllTimeEntriesByIdReturnsOnCall = make(map[int]struct {
+			result1 model.TimeEntry
+		})
+	}
+	fake.getAllTimeEntriesByIdReturnsOnCall[i] = struct {
+		result1 model.TimeEntry
+	}{result1}
 }
 
 func (fake *FakeDatabaseInterface) GetByID(arg1 string) model.Employee {
@@ -92,6 +344,67 @@ func (fake *FakeDatabaseInterface) GetByIDReturnsOnCall(i int, result1 model.Emp
 	}
 	fake.getByIDReturnsOnCall[i] = struct {
 		result1 model.Employee
+	}{result1}
+}
+
+func (fake *FakeDatabaseInterface) GetTimeEntryById(arg1 string) model.TimeEntry {
+	fake.getTimeEntryByIdMutex.Lock()
+	ret, specificReturn := fake.getTimeEntryByIdReturnsOnCall[len(fake.getTimeEntryByIdArgsForCall)]
+	fake.getTimeEntryByIdArgsForCall = append(fake.getTimeEntryByIdArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.GetTimeEntryByIdStub
+	fakeReturns := fake.getTimeEntryByIdReturns
+	fake.recordInvocation("GetTimeEntryById", []interface{}{arg1})
+	fake.getTimeEntryByIdMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeDatabaseInterface) GetTimeEntryByIdCallCount() int {
+	fake.getTimeEntryByIdMutex.RLock()
+	defer fake.getTimeEntryByIdMutex.RUnlock()
+	return len(fake.getTimeEntryByIdArgsForCall)
+}
+
+func (fake *FakeDatabaseInterface) GetTimeEntryByIdCalls(stub func(string) model.TimeEntry) {
+	fake.getTimeEntryByIdMutex.Lock()
+	defer fake.getTimeEntryByIdMutex.Unlock()
+	fake.GetTimeEntryByIdStub = stub
+}
+
+func (fake *FakeDatabaseInterface) GetTimeEntryByIdArgsForCall(i int) string {
+	fake.getTimeEntryByIdMutex.RLock()
+	defer fake.getTimeEntryByIdMutex.RUnlock()
+	argsForCall := fake.getTimeEntryByIdArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeDatabaseInterface) GetTimeEntryByIdReturns(result1 model.TimeEntry) {
+	fake.getTimeEntryByIdMutex.Lock()
+	defer fake.getTimeEntryByIdMutex.Unlock()
+	fake.GetTimeEntryByIdStub = nil
+	fake.getTimeEntryByIdReturns = struct {
+		result1 model.TimeEntry
+	}{result1}
+}
+
+func (fake *FakeDatabaseInterface) GetTimeEntryByIdReturnsOnCall(i int, result1 model.TimeEntry) {
+	fake.getTimeEntryByIdMutex.Lock()
+	defer fake.getTimeEntryByIdMutex.Unlock()
+	fake.GetTimeEntryByIdStub = nil
+	if fake.getTimeEntryByIdReturnsOnCall == nil {
+		fake.getTimeEntryByIdReturnsOnCall = make(map[int]struct {
+			result1 model.TimeEntry
+		})
+	}
+	fake.getTimeEntryByIdReturnsOnCall[i] = struct {
+		result1 model.TimeEntry
 	}{result1}
 }
 
@@ -161,13 +474,87 @@ func (fake *FakeDatabaseInterface) UpdateManyReturnsOnCall(i int, result1 interf
 	}{result1}
 }
 
+func (fake *FakeDatabaseInterface) UpdateTimeEntryById(arg1 model.TimeEntry) (*mongo.UpdateResult, error) {
+	fake.updateTimeEntryByIdMutex.Lock()
+	ret, specificReturn := fake.updateTimeEntryByIdReturnsOnCall[len(fake.updateTimeEntryByIdArgsForCall)]
+	fake.updateTimeEntryByIdArgsForCall = append(fake.updateTimeEntryByIdArgsForCall, struct {
+		arg1 model.TimeEntry
+	}{arg1})
+	stub := fake.UpdateTimeEntryByIdStub
+	fakeReturns := fake.updateTimeEntryByIdReturns
+	fake.recordInvocation("UpdateTimeEntryById", []interface{}{arg1})
+	fake.updateTimeEntryByIdMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeDatabaseInterface) UpdateTimeEntryByIdCallCount() int {
+	fake.updateTimeEntryByIdMutex.RLock()
+	defer fake.updateTimeEntryByIdMutex.RUnlock()
+	return len(fake.updateTimeEntryByIdArgsForCall)
+}
+
+func (fake *FakeDatabaseInterface) UpdateTimeEntryByIdCalls(stub func(model.TimeEntry) (*mongo.UpdateResult, error)) {
+	fake.updateTimeEntryByIdMutex.Lock()
+	defer fake.updateTimeEntryByIdMutex.Unlock()
+	fake.UpdateTimeEntryByIdStub = stub
+}
+
+func (fake *FakeDatabaseInterface) UpdateTimeEntryByIdArgsForCall(i int) model.TimeEntry {
+	fake.updateTimeEntryByIdMutex.RLock()
+	defer fake.updateTimeEntryByIdMutex.RUnlock()
+	argsForCall := fake.updateTimeEntryByIdArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeDatabaseInterface) UpdateTimeEntryByIdReturns(result1 *mongo.UpdateResult, result2 error) {
+	fake.updateTimeEntryByIdMutex.Lock()
+	defer fake.updateTimeEntryByIdMutex.Unlock()
+	fake.UpdateTimeEntryByIdStub = nil
+	fake.updateTimeEntryByIdReturns = struct {
+		result1 *mongo.UpdateResult
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeDatabaseInterface) UpdateTimeEntryByIdReturnsOnCall(i int, result1 *mongo.UpdateResult, result2 error) {
+	fake.updateTimeEntryByIdMutex.Lock()
+	defer fake.updateTimeEntryByIdMutex.Unlock()
+	fake.UpdateTimeEntryByIdStub = nil
+	if fake.updateTimeEntryByIdReturnsOnCall == nil {
+		fake.updateTimeEntryByIdReturnsOnCall = make(map[int]struct {
+			result1 *mongo.UpdateResult
+			result2 error
+		})
+	}
+	fake.updateTimeEntryByIdReturnsOnCall[i] = struct {
+		result1 *mongo.UpdateResult
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeDatabaseInterface) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.creatTimeEntryByIdMutex.RLock()
+	defer fake.creatTimeEntryByIdMutex.RUnlock()
+	fake.deleteTimeEntryByIdMutex.RLock()
+	defer fake.deleteTimeEntryByIdMutex.RUnlock()
+	fake.getAllTimeEntriesByIdMutex.RLock()
+	defer fake.getAllTimeEntriesByIdMutex.RUnlock()
 	fake.getByIDMutex.RLock()
 	defer fake.getByIDMutex.RUnlock()
+	fake.getTimeEntryByIdMutex.RLock()
+	defer fake.getTimeEntryByIdMutex.RUnlock()
 	fake.updateManyMutex.RLock()
 	defer fake.updateManyMutex.RUnlock()
+	fake.updateTimeEntryByIdMutex.RLock()
+	defer fake.updateTimeEntryByIdMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

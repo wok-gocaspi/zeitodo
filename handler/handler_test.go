@@ -29,3 +29,18 @@ func TestGetEmployeeHandler_Return_valid_status_code(t *testing.T) {
 	assert.Equal(t, http.StatusOK, responseRecoder.Code)
 
 }
+
+/*func Test_DeleteTimeEntry(t *testing.T) {
+	ResponseRecorder := httptest.NewRecorder()
+
+	fakeContest, _ := gin.CreateTestContext(ResponseRecorder)
+	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "id", Value: "1"})
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakeService.DeleteTimeEntriesReturns(&mongo.DeleteResult{DeletedCount: 1}, nil)
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.DeleteTimeEntry(fakeContest)
+
+	assert.Equal(t, 200, ResponseRecorder.Code)
+}*/
