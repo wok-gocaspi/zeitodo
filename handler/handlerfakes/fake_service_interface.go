@@ -5,56 +5,36 @@ import (
 	"example-project/handler"
 	"example-project/model"
 	"sync"
+
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type FakeServiceInterface struct {
-	CreatTimeEntriesStub        func(string) (interface{}, error)
-	creatTimeEntriesMutex       sync.RWMutex
-	creatTimeEntriesArgsForCall []struct {
+	CreateProposalsStub        func([]model.ProposalPayload, string) (interface{}, error)
+	createProposalsMutex       sync.RWMutex
+	createProposalsArgsForCall []struct {
+		arg1 []model.ProposalPayload
+		arg2 string
+	}
+	createProposalsReturns struct {
+		result1 interface{}
+		result2 error
+	}
+	createProposalsReturnsOnCall map[int]struct {
+		result1 interface{}
+		result2 error
+	}
+	DeleteProposalsByIDStub        func(string, string) error
+	deleteProposalsByIDMutex       sync.RWMutex
+	deleteProposalsByIDArgsForCall []struct {
 		arg1 string
+		arg2 string
 	}
-	creatTimeEntriesReturns struct {
-		result1 interface{}
-		result2 error
+	deleteProposalsByIDReturns struct {
+		result1 error
 	}
-	creatTimeEntriesReturnsOnCall map[int]struct {
-		result1 interface{}
-		result2 error
-	}
-	CreateEmployeesStub        func([]model.Employee) interface{}
-	createEmployeesMutex       sync.RWMutex
-	createEmployeesArgsForCall []struct {
-		arg1 []model.Employee
-	}
-	createEmployeesReturns struct {
-		result1 interface{}
-	}
-	createEmployeesReturnsOnCall map[int]struct {
-		result1 interface{}
-	}
-	DeleteTimeEntriesStub        func(string) (interface{}, error)
-	deleteTimeEntriesMutex       sync.RWMutex
-	deleteTimeEntriesArgsForCall []struct {
-		arg1 string
-	}
-	deleteTimeEntriesReturns struct {
-		result1 interface{}
-		result2 error
-	}
-	deleteTimeEntriesReturnsOnCall map[int]struct {
-		result1 interface{}
-		result2 error
-	}
-	GetAllTimeEntriesStub        func(string) model.TimeEntry
-	getAllTimeEntriesMutex       sync.RWMutex
-	getAllTimeEntriesArgsForCall []struct {
-		arg1 string
-	}
-	getAllTimeEntriesReturns struct {
-		result1 model.TimeEntry
-	}
-	getAllTimeEntriesReturnsOnCall map[int]struct {
-		result1 model.TimeEntry
+	deleteProposalsByIDReturnsOnCall map[int]struct {
+		result1 error
 	}
 	GetEmployeeByIdStub        func(string) model.Employee
 	getEmployeeByIdMutex       sync.RWMutex
@@ -67,176 +47,55 @@ type FakeServiceInterface struct {
 	getEmployeeByIdReturnsOnCall map[int]struct {
 		result1 model.Employee
 	}
-	GetTimeEntriesStub        func(string) model.TimeEntry
-	getTimeEntriesMutex       sync.RWMutex
-	getTimeEntriesArgsForCall []struct {
+	GetProposalsByIDStub        func(string) ([]model.Proposal, error)
+	getProposalsByIDMutex       sync.RWMutex
+	getProposalsByIDArgsForCall []struct {
 		arg1 string
 	}
-	getTimeEntriesReturns struct {
-		result1 model.TimeEntry
-	}
-	getTimeEntriesReturnsOnCall map[int]struct {
-		result1 model.TimeEntry
-	}
-	UpdateTimeEntriesStub        func(model.TimeEntry) (interface{}, error)
-	updateTimeEntriesMutex       sync.RWMutex
-	updateTimeEntriesArgsForCall []struct {
-		arg1 model.TimeEntry
-	}
-	updateTimeEntriesReturns struct {
-		result1 interface{}
+	getProposalsByIDReturns struct {
+		result1 []model.Proposal
 		result2 error
 	}
-	updateTimeEntriesReturnsOnCall map[int]struct {
-		result1 interface{}
+	getProposalsByIDReturnsOnCall map[int]struct {
+		result1 []model.Proposal
+		result2 error
+	}
+	UpdateProposalByDateStub        func(model.Proposal, string) (*mongo.UpdateResult, error)
+	updateProposalByDateMutex       sync.RWMutex
+	updateProposalByDateArgsForCall []struct {
+		arg1 model.Proposal
+		arg2 string
+	}
+	updateProposalByDateReturns struct {
+		result1 *mongo.UpdateResult
+		result2 error
+	}
+	updateProposalByDateReturnsOnCall map[int]struct {
+		result1 *mongo.UpdateResult
 		result2 error
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeServiceInterface) CreatTimeEntries(arg1 string) (interface{}, error) {
-	fake.creatTimeEntriesMutex.Lock()
-	ret, specificReturn := fake.creatTimeEntriesReturnsOnCall[len(fake.creatTimeEntriesArgsForCall)]
-	fake.creatTimeEntriesArgsForCall = append(fake.creatTimeEntriesArgsForCall, struct {
-		arg1 string
-	}{arg1})
-	stub := fake.CreatTimeEntriesStub
-	fakeReturns := fake.creatTimeEntriesReturns
-	fake.recordInvocation("CreatTimeEntries", []interface{}{arg1})
-	fake.creatTimeEntriesMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fakeReturns.result1, fakeReturns.result2
-}
-
-func (fake *FakeServiceInterface) CreatTimeEntriesCallCount() int {
-	fake.creatTimeEntriesMutex.RLock()
-	defer fake.creatTimeEntriesMutex.RUnlock()
-	return len(fake.creatTimeEntriesArgsForCall)
-}
-
-func (fake *FakeServiceInterface) CreatTimeEntriesCalls(stub func(string) (interface{}, error)) {
-	fake.creatTimeEntriesMutex.Lock()
-	defer fake.creatTimeEntriesMutex.Unlock()
-	fake.CreatTimeEntriesStub = stub
-}
-
-func (fake *FakeServiceInterface) CreatTimeEntriesArgsForCall(i int) string {
-	fake.creatTimeEntriesMutex.RLock()
-	defer fake.creatTimeEntriesMutex.RUnlock()
-	argsForCall := fake.creatTimeEntriesArgsForCall[i]
-	return argsForCall.arg1
-}
-
-func (fake *FakeServiceInterface) CreatTimeEntriesReturns(result1 interface{}, result2 error) {
-	fake.creatTimeEntriesMutex.Lock()
-	defer fake.creatTimeEntriesMutex.Unlock()
-	fake.CreatTimeEntriesStub = nil
-	fake.creatTimeEntriesReturns = struct {
-		result1 interface{}
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeServiceInterface) CreatTimeEntriesReturnsOnCall(i int, result1 interface{}, result2 error) {
-	fake.creatTimeEntriesMutex.Lock()
-	defer fake.creatTimeEntriesMutex.Unlock()
-	fake.CreatTimeEntriesStub = nil
-	if fake.creatTimeEntriesReturnsOnCall == nil {
-		fake.creatTimeEntriesReturnsOnCall = make(map[int]struct {
-			result1 interface{}
-			result2 error
-		})
-	}
-	fake.creatTimeEntriesReturnsOnCall[i] = struct {
-		result1 interface{}
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeServiceInterface) CreateEmployees(arg1 []model.Employee) interface{} {
-	var arg1Copy []model.Employee
+func (fake *FakeServiceInterface) CreateProposals(arg1 []model.ProposalPayload, arg2 string) (interface{}, error) {
+	var arg1Copy []model.ProposalPayload
 	if arg1 != nil {
-		arg1Copy = make([]model.Employee, len(arg1))
+		arg1Copy = make([]model.ProposalPayload, len(arg1))
 		copy(arg1Copy, arg1)
 	}
-	fake.createEmployeesMutex.Lock()
-	ret, specificReturn := fake.createEmployeesReturnsOnCall[len(fake.createEmployeesArgsForCall)]
-	fake.createEmployeesArgsForCall = append(fake.createEmployeesArgsForCall, struct {
-		arg1 []model.Employee
-	}{arg1Copy})
-	stub := fake.CreateEmployeesStub
-	fakeReturns := fake.createEmployeesReturns
-	fake.recordInvocation("CreateEmployees", []interface{}{arg1Copy})
-	fake.createEmployeesMutex.Unlock()
+	fake.createProposalsMutex.Lock()
+	ret, specificReturn := fake.createProposalsReturnsOnCall[len(fake.createProposalsArgsForCall)]
+	fake.createProposalsArgsForCall = append(fake.createProposalsArgsForCall, struct {
+		arg1 []model.ProposalPayload
+		arg2 string
+	}{arg1Copy, arg2})
+	stub := fake.CreateProposalsStub
+	fakeReturns := fake.createProposalsReturns
+	fake.recordInvocation("CreateProposals", []interface{}{arg1Copy, arg2})
+	fake.createProposalsMutex.Unlock()
 	if stub != nil {
-		return stub(arg1)
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	return fakeReturns.result1
-}
-
-func (fake *FakeServiceInterface) CreateEmployeesCallCount() int {
-	fake.createEmployeesMutex.RLock()
-	defer fake.createEmployeesMutex.RUnlock()
-	return len(fake.createEmployeesArgsForCall)
-}
-
-func (fake *FakeServiceInterface) CreateEmployeesCalls(stub func([]model.Employee) interface{}) {
-	fake.createEmployeesMutex.Lock()
-	defer fake.createEmployeesMutex.Unlock()
-	fake.CreateEmployeesStub = stub
-}
-
-func (fake *FakeServiceInterface) CreateEmployeesArgsForCall(i int) []model.Employee {
-	fake.createEmployeesMutex.RLock()
-	defer fake.createEmployeesMutex.RUnlock()
-	argsForCall := fake.createEmployeesArgsForCall[i]
-	return argsForCall.arg1
-}
-
-func (fake *FakeServiceInterface) CreateEmployeesReturns(result1 interface{}) {
-	fake.createEmployeesMutex.Lock()
-	defer fake.createEmployeesMutex.Unlock()
-	fake.CreateEmployeesStub = nil
-	fake.createEmployeesReturns = struct {
-		result1 interface{}
-	}{result1}
-}
-
-func (fake *FakeServiceInterface) CreateEmployeesReturnsOnCall(i int, result1 interface{}) {
-	fake.createEmployeesMutex.Lock()
-	defer fake.createEmployeesMutex.Unlock()
-	fake.CreateEmployeesStub = nil
-	if fake.createEmployeesReturnsOnCall == nil {
-		fake.createEmployeesReturnsOnCall = make(map[int]struct {
-			result1 interface{}
-		})
-	}
-	fake.createEmployeesReturnsOnCall[i] = struct {
-		result1 interface{}
-	}{result1}
-}
-
-func (fake *FakeServiceInterface) DeleteTimeEntries(arg1 string) (interface{}, error) {
-	fake.deleteTimeEntriesMutex.Lock()
-	ret, specificReturn := fake.deleteTimeEntriesReturnsOnCall[len(fake.deleteTimeEntriesArgsForCall)]
-	fake.deleteTimeEntriesArgsForCall = append(fake.deleteTimeEntriesArgsForCall, struct {
-		arg1 string
-	}{arg1})
-	stub := fake.DeleteTimeEntriesStub
-	fakeReturns := fake.deleteTimeEntriesReturns
-	fake.recordInvocation("DeleteTimeEntries", []interface{}{arg1})
-	fake.deleteTimeEntriesMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -244,63 +103,64 @@ func (fake *FakeServiceInterface) DeleteTimeEntries(arg1 string) (interface{}, e
 	return fakeReturns.result1, fakeReturns.result2
 }
 
-func (fake *FakeServiceInterface) DeleteTimeEntriesCallCount() int {
-	fake.deleteTimeEntriesMutex.RLock()
-	defer fake.deleteTimeEntriesMutex.RUnlock()
-	return len(fake.deleteTimeEntriesArgsForCall)
+func (fake *FakeServiceInterface) CreateProposalsCallCount() int {
+	fake.createProposalsMutex.RLock()
+	defer fake.createProposalsMutex.RUnlock()
+	return len(fake.createProposalsArgsForCall)
 }
 
-func (fake *FakeServiceInterface) DeleteTimeEntriesCalls(stub func(string) (interface{}, error)) {
-	fake.deleteTimeEntriesMutex.Lock()
-	defer fake.deleteTimeEntriesMutex.Unlock()
-	fake.DeleteTimeEntriesStub = stub
+func (fake *FakeServiceInterface) CreateProposalsCalls(stub func([]model.ProposalPayload, string) (interface{}, error)) {
+	fake.createProposalsMutex.Lock()
+	defer fake.createProposalsMutex.Unlock()
+	fake.CreateProposalsStub = stub
 }
 
-func (fake *FakeServiceInterface) DeleteTimeEntriesArgsForCall(i int) string {
-	fake.deleteTimeEntriesMutex.RLock()
-	defer fake.deleteTimeEntriesMutex.RUnlock()
-	argsForCall := fake.deleteTimeEntriesArgsForCall[i]
-	return argsForCall.arg1
+func (fake *FakeServiceInterface) CreateProposalsArgsForCall(i int) ([]model.ProposalPayload, string) {
+	fake.createProposalsMutex.RLock()
+	defer fake.createProposalsMutex.RUnlock()
+	argsForCall := fake.createProposalsArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *FakeServiceInterface) DeleteTimeEntriesReturns(result1 interface{}, result2 error) {
-	fake.deleteTimeEntriesMutex.Lock()
-	defer fake.deleteTimeEntriesMutex.Unlock()
-	fake.DeleteTimeEntriesStub = nil
-	fake.deleteTimeEntriesReturns = struct {
+func (fake *FakeServiceInterface) CreateProposalsReturns(result1 interface{}, result2 error) {
+	fake.createProposalsMutex.Lock()
+	defer fake.createProposalsMutex.Unlock()
+	fake.CreateProposalsStub = nil
+	fake.createProposalsReturns = struct {
 		result1 interface{}
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeServiceInterface) DeleteTimeEntriesReturnsOnCall(i int, result1 interface{}, result2 error) {
-	fake.deleteTimeEntriesMutex.Lock()
-	defer fake.deleteTimeEntriesMutex.Unlock()
-	fake.DeleteTimeEntriesStub = nil
-	if fake.deleteTimeEntriesReturnsOnCall == nil {
-		fake.deleteTimeEntriesReturnsOnCall = make(map[int]struct {
+func (fake *FakeServiceInterface) CreateProposalsReturnsOnCall(i int, result1 interface{}, result2 error) {
+	fake.createProposalsMutex.Lock()
+	defer fake.createProposalsMutex.Unlock()
+	fake.CreateProposalsStub = nil
+	if fake.createProposalsReturnsOnCall == nil {
+		fake.createProposalsReturnsOnCall = make(map[int]struct {
 			result1 interface{}
 			result2 error
 		})
 	}
-	fake.deleteTimeEntriesReturnsOnCall[i] = struct {
+	fake.createProposalsReturnsOnCall[i] = struct {
 		result1 interface{}
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeServiceInterface) GetAllTimeEntries(arg1 string) model.TimeEntry {
-	fake.getAllTimeEntriesMutex.Lock()
-	ret, specificReturn := fake.getAllTimeEntriesReturnsOnCall[len(fake.getAllTimeEntriesArgsForCall)]
-	fake.getAllTimeEntriesArgsForCall = append(fake.getAllTimeEntriesArgsForCall, struct {
+func (fake *FakeServiceInterface) DeleteProposalsByID(arg1 string, arg2 string) error {
+	fake.deleteProposalsByIDMutex.Lock()
+	ret, specificReturn := fake.deleteProposalsByIDReturnsOnCall[len(fake.deleteProposalsByIDArgsForCall)]
+	fake.deleteProposalsByIDArgsForCall = append(fake.deleteProposalsByIDArgsForCall, struct {
 		arg1 string
-	}{arg1})
-	stub := fake.GetAllTimeEntriesStub
-	fakeReturns := fake.getAllTimeEntriesReturns
-	fake.recordInvocation("GetAllTimeEntries", []interface{}{arg1})
-	fake.getAllTimeEntriesMutex.Unlock()
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.DeleteProposalsByIDStub
+	fakeReturns := fake.deleteProposalsByIDReturns
+	fake.recordInvocation("DeleteProposalsByID", []interface{}{arg1, arg2})
+	fake.deleteProposalsByIDMutex.Unlock()
 	if stub != nil {
-		return stub(arg1)
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
@@ -308,45 +168,45 @@ func (fake *FakeServiceInterface) GetAllTimeEntries(arg1 string) model.TimeEntry
 	return fakeReturns.result1
 }
 
-func (fake *FakeServiceInterface) GetAllTimeEntriesCallCount() int {
-	fake.getAllTimeEntriesMutex.RLock()
-	defer fake.getAllTimeEntriesMutex.RUnlock()
-	return len(fake.getAllTimeEntriesArgsForCall)
+func (fake *FakeServiceInterface) DeleteProposalsByIDCallCount() int {
+	fake.deleteProposalsByIDMutex.RLock()
+	defer fake.deleteProposalsByIDMutex.RUnlock()
+	return len(fake.deleteProposalsByIDArgsForCall)
 }
 
-func (fake *FakeServiceInterface) GetAllTimeEntriesCalls(stub func(string) model.TimeEntry) {
-	fake.getAllTimeEntriesMutex.Lock()
-	defer fake.getAllTimeEntriesMutex.Unlock()
-	fake.GetAllTimeEntriesStub = stub
+func (fake *FakeServiceInterface) DeleteProposalsByIDCalls(stub func(string, string) error) {
+	fake.deleteProposalsByIDMutex.Lock()
+	defer fake.deleteProposalsByIDMutex.Unlock()
+	fake.DeleteProposalsByIDStub = stub
 }
 
-func (fake *FakeServiceInterface) GetAllTimeEntriesArgsForCall(i int) string {
-	fake.getAllTimeEntriesMutex.RLock()
-	defer fake.getAllTimeEntriesMutex.RUnlock()
-	argsForCall := fake.getAllTimeEntriesArgsForCall[i]
-	return argsForCall.arg1
+func (fake *FakeServiceInterface) DeleteProposalsByIDArgsForCall(i int) (string, string) {
+	fake.deleteProposalsByIDMutex.RLock()
+	defer fake.deleteProposalsByIDMutex.RUnlock()
+	argsForCall := fake.deleteProposalsByIDArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *FakeServiceInterface) GetAllTimeEntriesReturns(result1 model.TimeEntry) {
-	fake.getAllTimeEntriesMutex.Lock()
-	defer fake.getAllTimeEntriesMutex.Unlock()
-	fake.GetAllTimeEntriesStub = nil
-	fake.getAllTimeEntriesReturns = struct {
-		result1 model.TimeEntry
+func (fake *FakeServiceInterface) DeleteProposalsByIDReturns(result1 error) {
+	fake.deleteProposalsByIDMutex.Lock()
+	defer fake.deleteProposalsByIDMutex.Unlock()
+	fake.DeleteProposalsByIDStub = nil
+	fake.deleteProposalsByIDReturns = struct {
+		result1 error
 	}{result1}
 }
 
-func (fake *FakeServiceInterface) GetAllTimeEntriesReturnsOnCall(i int, result1 model.TimeEntry) {
-	fake.getAllTimeEntriesMutex.Lock()
-	defer fake.getAllTimeEntriesMutex.Unlock()
-	fake.GetAllTimeEntriesStub = nil
-	if fake.getAllTimeEntriesReturnsOnCall == nil {
-		fake.getAllTimeEntriesReturnsOnCall = make(map[int]struct {
-			result1 model.TimeEntry
+func (fake *FakeServiceInterface) DeleteProposalsByIDReturnsOnCall(i int, result1 error) {
+	fake.deleteProposalsByIDMutex.Lock()
+	defer fake.deleteProposalsByIDMutex.Unlock()
+	fake.DeleteProposalsByIDStub = nil
+	if fake.deleteProposalsByIDReturnsOnCall == nil {
+		fake.deleteProposalsByIDReturnsOnCall = make(map[int]struct {
+			result1 error
 		})
 	}
-	fake.getAllTimeEntriesReturnsOnCall[i] = struct {
-		result1 model.TimeEntry
+	fake.deleteProposalsByIDReturnsOnCall[i] = struct {
+		result1 error
 	}{result1}
 }
 
@@ -411,77 +271,16 @@ func (fake *FakeServiceInterface) GetEmployeeByIdReturnsOnCall(i int, result1 mo
 	}{result1}
 }
 
-func (fake *FakeServiceInterface) GetTimeEntries(arg1 string) model.TimeEntry {
-	fake.getTimeEntriesMutex.Lock()
-	ret, specificReturn := fake.getTimeEntriesReturnsOnCall[len(fake.getTimeEntriesArgsForCall)]
-	fake.getTimeEntriesArgsForCall = append(fake.getTimeEntriesArgsForCall, struct {
+func (fake *FakeServiceInterface) GetProposalsByID(arg1 string) ([]model.Proposal, error) {
+	fake.getProposalsByIDMutex.Lock()
+	ret, specificReturn := fake.getProposalsByIDReturnsOnCall[len(fake.getProposalsByIDArgsForCall)]
+	fake.getProposalsByIDArgsForCall = append(fake.getProposalsByIDArgsForCall, struct {
 		arg1 string
 	}{arg1})
-	stub := fake.GetTimeEntriesStub
-	fakeReturns := fake.getTimeEntriesReturns
-	fake.recordInvocation("GetTimeEntries", []interface{}{arg1})
-	fake.getTimeEntriesMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	return fakeReturns.result1
-}
-
-func (fake *FakeServiceInterface) GetTimeEntriesCallCount() int {
-	fake.getTimeEntriesMutex.RLock()
-	defer fake.getTimeEntriesMutex.RUnlock()
-	return len(fake.getTimeEntriesArgsForCall)
-}
-
-func (fake *FakeServiceInterface) GetTimeEntriesCalls(stub func(string) model.TimeEntry) {
-	fake.getTimeEntriesMutex.Lock()
-	defer fake.getTimeEntriesMutex.Unlock()
-	fake.GetTimeEntriesStub = stub
-}
-
-func (fake *FakeServiceInterface) GetTimeEntriesArgsForCall(i int) string {
-	fake.getTimeEntriesMutex.RLock()
-	defer fake.getTimeEntriesMutex.RUnlock()
-	argsForCall := fake.getTimeEntriesArgsForCall[i]
-	return argsForCall.arg1
-}
-
-func (fake *FakeServiceInterface) GetTimeEntriesReturns(result1 model.TimeEntry) {
-	fake.getTimeEntriesMutex.Lock()
-	defer fake.getTimeEntriesMutex.Unlock()
-	fake.GetTimeEntriesStub = nil
-	fake.getTimeEntriesReturns = struct {
-		result1 model.TimeEntry
-	}{result1}
-}
-
-func (fake *FakeServiceInterface) GetTimeEntriesReturnsOnCall(i int, result1 model.TimeEntry) {
-	fake.getTimeEntriesMutex.Lock()
-	defer fake.getTimeEntriesMutex.Unlock()
-	fake.GetTimeEntriesStub = nil
-	if fake.getTimeEntriesReturnsOnCall == nil {
-		fake.getTimeEntriesReturnsOnCall = make(map[int]struct {
-			result1 model.TimeEntry
-		})
-	}
-	fake.getTimeEntriesReturnsOnCall[i] = struct {
-		result1 model.TimeEntry
-	}{result1}
-}
-
-func (fake *FakeServiceInterface) UpdateTimeEntries(arg1 model.TimeEntry) (interface{}, error) {
-	fake.updateTimeEntriesMutex.Lock()
-	ret, specificReturn := fake.updateTimeEntriesReturnsOnCall[len(fake.updateTimeEntriesArgsForCall)]
-	fake.updateTimeEntriesArgsForCall = append(fake.updateTimeEntriesArgsForCall, struct {
-		arg1 model.TimeEntry
-	}{arg1})
-	stub := fake.UpdateTimeEntriesStub
-	fakeReturns := fake.updateTimeEntriesReturns
-	fake.recordInvocation("UpdateTimeEntries", []interface{}{arg1})
-	fake.updateTimeEntriesMutex.Unlock()
+	stub := fake.GetProposalsByIDStub
+	fakeReturns := fake.getProposalsByIDReturns
+	fake.recordInvocation("GetProposalsByID", []interface{}{arg1})
+	fake.getProposalsByIDMutex.Unlock()
 	if stub != nil {
 		return stub(arg1)
 	}
@@ -491,47 +290,112 @@ func (fake *FakeServiceInterface) UpdateTimeEntries(arg1 model.TimeEntry) (inter
 	return fakeReturns.result1, fakeReturns.result2
 }
 
-func (fake *FakeServiceInterface) UpdateTimeEntriesCallCount() int {
-	fake.updateTimeEntriesMutex.RLock()
-	defer fake.updateTimeEntriesMutex.RUnlock()
-	return len(fake.updateTimeEntriesArgsForCall)
+func (fake *FakeServiceInterface) GetProposalsByIDCallCount() int {
+	fake.getProposalsByIDMutex.RLock()
+	defer fake.getProposalsByIDMutex.RUnlock()
+	return len(fake.getProposalsByIDArgsForCall)
 }
 
-func (fake *FakeServiceInterface) UpdateTimeEntriesCalls(stub func(model.TimeEntry) (interface{}, error)) {
-	fake.updateTimeEntriesMutex.Lock()
-	defer fake.updateTimeEntriesMutex.Unlock()
-	fake.UpdateTimeEntriesStub = stub
+func (fake *FakeServiceInterface) GetProposalsByIDCalls(stub func(string) ([]model.Proposal, error)) {
+	fake.getProposalsByIDMutex.Lock()
+	defer fake.getProposalsByIDMutex.Unlock()
+	fake.GetProposalsByIDStub = stub
 }
 
-func (fake *FakeServiceInterface) UpdateTimeEntriesArgsForCall(i int) model.TimeEntry {
-	fake.updateTimeEntriesMutex.RLock()
-	defer fake.updateTimeEntriesMutex.RUnlock()
-	argsForCall := fake.updateTimeEntriesArgsForCall[i]
+func (fake *FakeServiceInterface) GetProposalsByIDArgsForCall(i int) string {
+	fake.getProposalsByIDMutex.RLock()
+	defer fake.getProposalsByIDMutex.RUnlock()
+	argsForCall := fake.getProposalsByIDArgsForCall[i]
 	return argsForCall.arg1
 }
 
-func (fake *FakeServiceInterface) UpdateTimeEntriesReturns(result1 interface{}, result2 error) {
-	fake.updateTimeEntriesMutex.Lock()
-	defer fake.updateTimeEntriesMutex.Unlock()
-	fake.UpdateTimeEntriesStub = nil
-	fake.updateTimeEntriesReturns = struct {
-		result1 interface{}
+func (fake *FakeServiceInterface) GetProposalsByIDReturns(result1 []model.Proposal, result2 error) {
+	fake.getProposalsByIDMutex.Lock()
+	defer fake.getProposalsByIDMutex.Unlock()
+	fake.GetProposalsByIDStub = nil
+	fake.getProposalsByIDReturns = struct {
+		result1 []model.Proposal
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeServiceInterface) UpdateTimeEntriesReturnsOnCall(i int, result1 interface{}, result2 error) {
-	fake.updateTimeEntriesMutex.Lock()
-	defer fake.updateTimeEntriesMutex.Unlock()
-	fake.UpdateTimeEntriesStub = nil
-	if fake.updateTimeEntriesReturnsOnCall == nil {
-		fake.updateTimeEntriesReturnsOnCall = make(map[int]struct {
-			result1 interface{}
+func (fake *FakeServiceInterface) GetProposalsByIDReturnsOnCall(i int, result1 []model.Proposal, result2 error) {
+	fake.getProposalsByIDMutex.Lock()
+	defer fake.getProposalsByIDMutex.Unlock()
+	fake.GetProposalsByIDStub = nil
+	if fake.getProposalsByIDReturnsOnCall == nil {
+		fake.getProposalsByIDReturnsOnCall = make(map[int]struct {
+			result1 []model.Proposal
 			result2 error
 		})
 	}
-	fake.updateTimeEntriesReturnsOnCall[i] = struct {
-		result1 interface{}
+	fake.getProposalsByIDReturnsOnCall[i] = struct {
+		result1 []model.Proposal
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) UpdateProposalByDate(arg1 model.Proposal, arg2 string) (*mongo.UpdateResult, error) {
+	fake.updateProposalByDateMutex.Lock()
+	ret, specificReturn := fake.updateProposalByDateReturnsOnCall[len(fake.updateProposalByDateArgsForCall)]
+	fake.updateProposalByDateArgsForCall = append(fake.updateProposalByDateArgsForCall, struct {
+		arg1 model.Proposal
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.UpdateProposalByDateStub
+	fakeReturns := fake.updateProposalByDateReturns
+	fake.recordInvocation("UpdateProposalByDate", []interface{}{arg1, arg2})
+	fake.updateProposalByDateMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeServiceInterface) UpdateProposalByDateCallCount() int {
+	fake.updateProposalByDateMutex.RLock()
+	defer fake.updateProposalByDateMutex.RUnlock()
+	return len(fake.updateProposalByDateArgsForCall)
+}
+
+func (fake *FakeServiceInterface) UpdateProposalByDateCalls(stub func(model.Proposal, string) (*mongo.UpdateResult, error)) {
+	fake.updateProposalByDateMutex.Lock()
+	defer fake.updateProposalByDateMutex.Unlock()
+	fake.UpdateProposalByDateStub = stub
+}
+
+func (fake *FakeServiceInterface) UpdateProposalByDateArgsForCall(i int) (model.Proposal, string) {
+	fake.updateProposalByDateMutex.RLock()
+	defer fake.updateProposalByDateMutex.RUnlock()
+	argsForCall := fake.updateProposalByDateArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeServiceInterface) UpdateProposalByDateReturns(result1 *mongo.UpdateResult, result2 error) {
+	fake.updateProposalByDateMutex.Lock()
+	defer fake.updateProposalByDateMutex.Unlock()
+	fake.UpdateProposalByDateStub = nil
+	fake.updateProposalByDateReturns = struct {
+		result1 *mongo.UpdateResult
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) UpdateProposalByDateReturnsOnCall(i int, result1 *mongo.UpdateResult, result2 error) {
+	fake.updateProposalByDateMutex.Lock()
+	defer fake.updateProposalByDateMutex.Unlock()
+	fake.UpdateProposalByDateStub = nil
+	if fake.updateProposalByDateReturnsOnCall == nil {
+		fake.updateProposalByDateReturnsOnCall = make(map[int]struct {
+			result1 *mongo.UpdateResult
+			result2 error
+		})
+	}
+	fake.updateProposalByDateReturnsOnCall[i] = struct {
+		result1 *mongo.UpdateResult
 		result2 error
 	}{result1, result2}
 }
@@ -539,20 +403,16 @@ func (fake *FakeServiceInterface) UpdateTimeEntriesReturnsOnCall(i int, result1 
 func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.creatTimeEntriesMutex.RLock()
-	defer fake.creatTimeEntriesMutex.RUnlock()
-	fake.createEmployeesMutex.RLock()
-	defer fake.createEmployeesMutex.RUnlock()
-	fake.deleteTimeEntriesMutex.RLock()
-	defer fake.deleteTimeEntriesMutex.RUnlock()
-	fake.getAllTimeEntriesMutex.RLock()
-	defer fake.getAllTimeEntriesMutex.RUnlock()
+	fake.createProposalsMutex.RLock()
+	defer fake.createProposalsMutex.RUnlock()
+	fake.deleteProposalsByIDMutex.RLock()
+	defer fake.deleteProposalsByIDMutex.RUnlock()
 	fake.getEmployeeByIdMutex.RLock()
 	defer fake.getEmployeeByIdMutex.RUnlock()
-	fake.getTimeEntriesMutex.RLock()
-	defer fake.getTimeEntriesMutex.RUnlock()
-	fake.updateTimeEntriesMutex.RLock()
-	defer fake.updateTimeEntriesMutex.RUnlock()
+	fake.getProposalsByIDMutex.RLock()
+	defer fake.getProposalsByIDMutex.RUnlock()
+	fake.updateProposalByDateMutex.RLock()
+	defer fake.updateProposalByDateMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value
