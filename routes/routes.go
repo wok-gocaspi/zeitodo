@@ -14,10 +14,10 @@ type HandlerInterface interface {
 var Handler HandlerInterface
 
 func CreateRoutes(group *gin.RouterGroup) {
-	route := group.Group("/employee")
-	route.Use(CORS)
-	route.GET("/:id/get", Handler.GetEmployeeHandler)
-	route.POST("/create", Handler.CreateEmployeeHandler)
+	group.Use(CORS)
+	timeentry := group.Group("/timeentry")
+	timeentry.GET("/:id/get", Handler.GetEmployeeHandler)
+	timeentry.POST("/create", Handler.CreateEmployeeHandler)
 }
 func CORS(c *gin.Context) {
 
