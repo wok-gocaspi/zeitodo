@@ -39,7 +39,11 @@ func NewDbClient(d model.DbConfig) Client {
 }
 
 func (c Client) DeleteTimeEntryById(id string) (interface{}, error) {
-	filter := bson.M{"id": id}
+	idObj, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+	filter := bson.M{"_id": idObj}
 
 	results, err := c.TimeEntries.DeleteOne(context.TODO(), filter)
 
