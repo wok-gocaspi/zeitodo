@@ -120,6 +120,7 @@ func (handler Handler) CreateUserHandler(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"errorMessage": err.Error(),
 		})
+		return
 	}
 	result, err := handler.ServiceInterface.CreateUser(user)
 	if err != nil {
