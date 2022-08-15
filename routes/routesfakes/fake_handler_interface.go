@@ -9,9 +9,14 @@ import (
 )
 
 type FakeHandlerInterface struct {
-	CreateEmployeeHandlerStub        func(*gin.Context)
-	createEmployeeHandlerMutex       sync.RWMutex
-	createEmployeeHandlerArgsForCall []struct {
+	CreateProposalsHandlerStub        func(*gin.Context)
+	createProposalsHandlerMutex       sync.RWMutex
+	createProposalsHandlerArgsForCall []struct {
+		arg1 *gin.Context
+	}
+	DeleteProposalHandlerStub        func(*gin.Context)
+	deleteProposalHandlerMutex       sync.RWMutex
+	deleteProposalHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
 	GetEmployeeHandlerStub        func(*gin.Context)
@@ -19,39 +24,81 @@ type FakeHandlerInterface struct {
 	getEmployeeHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
+	GetProposalsByIdStub        func(*gin.Context)
+	getProposalsByIdMutex       sync.RWMutex
+	getProposalsByIdArgsForCall []struct {
+		arg1 *gin.Context
+	}
+	UpdateProposalsHandlerStub        func(*gin.Context)
+	updateProposalsHandlerMutex       sync.RWMutex
+	updateProposalsHandlerArgsForCall []struct {
+		arg1 *gin.Context
+	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeHandlerInterface) CreateEmployeeHandler(arg1 *gin.Context) {
-	fake.createEmployeeHandlerMutex.Lock()
-	fake.createEmployeeHandlerArgsForCall = append(fake.createEmployeeHandlerArgsForCall, struct {
+func (fake *FakeHandlerInterface) CreateProposalsHandler(arg1 *gin.Context) {
+	fake.createProposalsHandlerMutex.Lock()
+	fake.createProposalsHandlerArgsForCall = append(fake.createProposalsHandlerArgsForCall, struct {
 		arg1 *gin.Context
 	}{arg1})
-	stub := fake.CreateEmployeeHandlerStub
-	fake.recordInvocation("CreateEmployeeHandler", []interface{}{arg1})
-	fake.createEmployeeHandlerMutex.Unlock()
+	stub := fake.CreateProposalsHandlerStub
+	fake.recordInvocation("CreateProposalsHandler", []interface{}{arg1})
+	fake.createProposalsHandlerMutex.Unlock()
 	if stub != nil {
-		fake.CreateEmployeeHandlerStub(arg1)
+		fake.CreateProposalsHandlerStub(arg1)
 	}
 }
 
-func (fake *FakeHandlerInterface) CreateEmployeeHandlerCallCount() int {
-	fake.createEmployeeHandlerMutex.RLock()
-	defer fake.createEmployeeHandlerMutex.RUnlock()
-	return len(fake.createEmployeeHandlerArgsForCall)
+func (fake *FakeHandlerInterface) CreateProposalsHandlerCallCount() int {
+	fake.createProposalsHandlerMutex.RLock()
+	defer fake.createProposalsHandlerMutex.RUnlock()
+	return len(fake.createProposalsHandlerArgsForCall)
 }
 
-func (fake *FakeHandlerInterface) CreateEmployeeHandlerCalls(stub func(*gin.Context)) {
-	fake.createEmployeeHandlerMutex.Lock()
-	defer fake.createEmployeeHandlerMutex.Unlock()
-	fake.CreateEmployeeHandlerStub = stub
+func (fake *FakeHandlerInterface) CreateProposalsHandlerCalls(stub func(*gin.Context)) {
+	fake.createProposalsHandlerMutex.Lock()
+	defer fake.createProposalsHandlerMutex.Unlock()
+	fake.CreateProposalsHandlerStub = stub
 }
 
-func (fake *FakeHandlerInterface) CreateEmployeeHandlerArgsForCall(i int) *gin.Context {
-	fake.createEmployeeHandlerMutex.RLock()
-	defer fake.createEmployeeHandlerMutex.RUnlock()
-	argsForCall := fake.createEmployeeHandlerArgsForCall[i]
+func (fake *FakeHandlerInterface) CreateProposalsHandlerArgsForCall(i int) *gin.Context {
+	fake.createProposalsHandlerMutex.RLock()
+	defer fake.createProposalsHandlerMutex.RUnlock()
+	argsForCall := fake.createProposalsHandlerArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeHandlerInterface) DeleteProposalHandler(arg1 *gin.Context) {
+	fake.deleteProposalHandlerMutex.Lock()
+	fake.deleteProposalHandlerArgsForCall = append(fake.deleteProposalHandlerArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.DeleteProposalHandlerStub
+	fake.recordInvocation("DeleteProposalHandler", []interface{}{arg1})
+	fake.deleteProposalHandlerMutex.Unlock()
+	if stub != nil {
+		fake.DeleteProposalHandlerStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) DeleteProposalHandlerCallCount() int {
+	fake.deleteProposalHandlerMutex.RLock()
+	defer fake.deleteProposalHandlerMutex.RUnlock()
+	return len(fake.deleteProposalHandlerArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) DeleteProposalHandlerCalls(stub func(*gin.Context)) {
+	fake.deleteProposalHandlerMutex.Lock()
+	defer fake.deleteProposalHandlerMutex.Unlock()
+	fake.DeleteProposalHandlerStub = stub
+}
+
+func (fake *FakeHandlerInterface) DeleteProposalHandlerArgsForCall(i int) *gin.Context {
+	fake.deleteProposalHandlerMutex.RLock()
+	defer fake.deleteProposalHandlerMutex.RUnlock()
+	argsForCall := fake.deleteProposalHandlerArgsForCall[i]
 	return argsForCall.arg1
 }
 
@@ -87,13 +134,83 @@ func (fake *FakeHandlerInterface) GetEmployeeHandlerArgsForCall(i int) *gin.Cont
 	return argsForCall.arg1
 }
 
+func (fake *FakeHandlerInterface) GetProposalsById(arg1 *gin.Context) {
+	fake.getProposalsByIdMutex.Lock()
+	fake.getProposalsByIdArgsForCall = append(fake.getProposalsByIdArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.GetProposalsByIdStub
+	fake.recordInvocation("GetProposalsById", []interface{}{arg1})
+	fake.getProposalsByIdMutex.Unlock()
+	if stub != nil {
+		fake.GetProposalsByIdStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) GetProposalsByIdCallCount() int {
+	fake.getProposalsByIdMutex.RLock()
+	defer fake.getProposalsByIdMutex.RUnlock()
+	return len(fake.getProposalsByIdArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) GetProposalsByIdCalls(stub func(*gin.Context)) {
+	fake.getProposalsByIdMutex.Lock()
+	defer fake.getProposalsByIdMutex.Unlock()
+	fake.GetProposalsByIdStub = stub
+}
+
+func (fake *FakeHandlerInterface) GetProposalsByIdArgsForCall(i int) *gin.Context {
+	fake.getProposalsByIdMutex.RLock()
+	defer fake.getProposalsByIdMutex.RUnlock()
+	argsForCall := fake.getProposalsByIdArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeHandlerInterface) UpdateProposalsHandler(arg1 *gin.Context) {
+	fake.updateProposalsHandlerMutex.Lock()
+	fake.updateProposalsHandlerArgsForCall = append(fake.updateProposalsHandlerArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.UpdateProposalsHandlerStub
+	fake.recordInvocation("UpdateProposalsHandler", []interface{}{arg1})
+	fake.updateProposalsHandlerMutex.Unlock()
+	if stub != nil {
+		fake.UpdateProposalsHandlerStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) UpdateProposalsHandlerCallCount() int {
+	fake.updateProposalsHandlerMutex.RLock()
+	defer fake.updateProposalsHandlerMutex.RUnlock()
+	return len(fake.updateProposalsHandlerArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) UpdateProposalsHandlerCalls(stub func(*gin.Context)) {
+	fake.updateProposalsHandlerMutex.Lock()
+	defer fake.updateProposalsHandlerMutex.Unlock()
+	fake.UpdateProposalsHandlerStub = stub
+}
+
+func (fake *FakeHandlerInterface) UpdateProposalsHandlerArgsForCall(i int) *gin.Context {
+	fake.updateProposalsHandlerMutex.RLock()
+	defer fake.updateProposalsHandlerMutex.RUnlock()
+	argsForCall := fake.updateProposalsHandlerArgsForCall[i]
+	return argsForCall.arg1
+}
+
 func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.createEmployeeHandlerMutex.RLock()
-	defer fake.createEmployeeHandlerMutex.RUnlock()
+	fake.createProposalsHandlerMutex.RLock()
+	defer fake.createProposalsHandlerMutex.RUnlock()
+	fake.deleteProposalHandlerMutex.RLock()
+	defer fake.deleteProposalHandlerMutex.RUnlock()
 	fake.getEmployeeHandlerMutex.RLock()
 	defer fake.getEmployeeHandlerMutex.RUnlock()
+	fake.getProposalsByIdMutex.RLock()
+	defer fake.getProposalsByIdMutex.RUnlock()
+	fake.updateProposalsHandlerMutex.RLock()
+	defer fake.updateProposalsHandlerMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

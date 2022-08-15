@@ -2,5 +2,5 @@ projectKey=zeitodo
 serverUrl=http://localhost:9000
 serverVersion=9.4.0.54424
 dashboardUrl=http://localhost:9000/dashboard?id=zeitodo
-ceTaskId=AYJnu9f-vMr-jaht138R
-ceTaskUrl=http://localhost:9000/api/ce/task?id=AYJnu9f-vMr-jaht138R
+ceTaskId=AYKIu8LH59rCEnOna15V
+ceTaskUrl=http://localhost:9000/api/ce/task?id=AYKIu8LH59rCEnOna15V
