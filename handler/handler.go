@@ -192,6 +192,7 @@ func (handler Handler) LoginUserHandler(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"errorMessage": err.Error(),
 		})
+		return
 	}
 	c.SetCookie(response.Name, response.Value, 3600, response.Path, response.Domain, response.Secure, response.HttpOnly)
 	c.Status(200)
@@ -236,6 +237,7 @@ func (handler Handler) PermissionMiddleware(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"errorMessage": err.Error(),
 		})
+		return
 	}
 	ok, err := handler.ServiceInterface.AuthenticateUser(c.Request.RequestURI, c.Request.Method, tokenCookie.Value)
 	if !ok {
