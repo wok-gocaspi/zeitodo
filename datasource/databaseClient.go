@@ -15,6 +15,7 @@ import (
 type MongoDBInterface interface {
 	FindOne(ctx context.Context, filter interface{}, opts ...*options.FindOneOptions) *mongo.SingleResult
 	InsertMany(ctx context.Context, documents []interface{}, opts ...*options.InsertManyOptions) (*mongo.InsertManyResult, error)
+	InsertOne(ctx context.Context, document interface{}, opts ...*options.InsertOneOptions) (*mongo.InsertOneResult, error)
 	Find(ctx context.Context, filter interface{}, opts ...*options.FindOptions) (*mongo.Cursor, error)
 	UpdateOne(ctx context.Context, filter interface{}, update interface{}, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error)
 	DeleteOne(ctx context.Context, filter interface{}, opts ...*options.DeleteOptions) (*mongo.DeleteResult, error)
@@ -116,12 +117,12 @@ func (c Client) GetUserTeamMembersByName(team string) (interface{}, error) {
 
 }
 
-func (c Client) CreateUser(docs []interface{}) (interface{}, error) {
-	results, err := c.Users.InsertMany(context.TODO(), docs)
+func (c Client) CreateUser(docs interface{}) (interface{}, error) {
+	results, err := c.Users.InsertOne(context.TODO(), docs)
 	if err != nil {
 		return nil, err
 	}
-	return results.InsertedIDs, nil
+	return results.InsertedID, nil
 }
 
 func (c Client) UpdateManyUserByID(docs []model.User) []model.UserUpdateResult {

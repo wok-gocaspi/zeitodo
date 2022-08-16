@@ -9,7 +9,7 @@ import (
 type DatabaseInterface interface {
 	GetUserByID(id primitive.ObjectID) (model.UserPayload, error)
 	GetAllUser() ([]model.UserPayload, error)
-	CreateUser(docs []interface{}) (interface{}, error)
+	CreateUser(docs interface{}) (interface{}, error)
 	GetUserTeamMembersByID(id primitive.ObjectID) (interface{}, error)
 	GetUserTeamMembersByName(name string) (interface{}, error)
 	UpdateManyUserByID(docs []model.User) []model.UserUpdateResult

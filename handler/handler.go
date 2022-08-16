@@ -12,7 +12,7 @@ import (
 type ServiceInterface interface {
 	GetUserByID(id string) (model.UserPayload, error)
 	GetAllUser() ([]model.UserPayload, error)
-	CreateUser([]model.UserSignupPayload) (interface{}, error)
+	CreateUser(model.UserSignupPayload) (interface{}, error)
 	GetTeamMembersByUserID(id string) (interface{}, error)
 	UpdateUsers(users []model.User) (interface{}, error)
 	GetTeamMembersByName(name string) (interface{}, error)
@@ -95,37 +95,17 @@ func (handler Handler) GetTeamMemberHandler(c *gin.Context) {
 }
 
 func (handler Handler) CreateUserHandler(c *gin.Context) {
-	var users []model.UserSignupPayload
 	var user model.UserSignupPayload
 	body := c.Copy().Request.Body
 	jsonString, _ := ioutil.ReadAll(body)
 	err := json.Unmarshal(jsonString, &user)
 	if err != nil {
-		err := json.Unmarshal(jsonString, &users)
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"errorMessage": err.Error(),
-			})
-			return
-		}
-		result, err := handler.ServiceInterface.CreateUser(users)
-		if err != nil && err.Error() == "insufficent user data" {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"errorMessage": err.Error(),
-				"errorUser":    result,
-			})
-			return
-		} else if err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"errorMessage": err.Error(),
-			})
-			return
-		}
-		c.JSON(http.StatusOK, result)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": err.Error(),
+		})
 		return
 	}
-	users = append(users, user)
-	result, err := handler.ServiceInterface.CreateUser(users)
+	result, err := handler.ServiceInterface.CreateUser(user)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"errorMessage": err.Error(),
@@ -133,7 +113,6 @@ func (handler Handler) CreateUserHandler(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, result)
-	return
 }
 
 func (handler Handler) UpdateUserHandler(c *gin.Context) {
