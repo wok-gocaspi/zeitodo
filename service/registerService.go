@@ -9,6 +9,7 @@ import (
 type DatabaseInterface interface {
 	GetUserByID(id primitive.ObjectID) (model.UserPayload, error)
 	GetUserByUsername(username string) (model.UserPayload, error)
+	GetUserByEmail(email string) (model.UserPayload, error)
 	GetAllUser() ([]model.UserPayload, error)
 	CreateUser(docs interface{}) (interface{}, error)
 	GetUserTeamMembersByID(id primitive.ObjectID) (interface{}, error)

@@ -59,6 +59,17 @@ func (c Client) GetUserByUsername(username string) (model.UserPayload, error) {
 	return user, nil
 }
 
+func (c Client) GetUserByEmail(email string) (model.UserPayload, error) {
+	filter := bson.M{"email": email}
+	courser := c.Users.FindOne(context.TODO(), filter)
+	var user model.UserPayload
+	err := courser.Decode(&user)
+	if err != nil {
+		return user, err
+	}
+	return user, nil
+}
+
 func (c Client) GetAllUser() ([]model.UserPayload, error) {
 	filter := bson.M{}
 	coursor, err := c.Users.Find(context.TODO(), filter)

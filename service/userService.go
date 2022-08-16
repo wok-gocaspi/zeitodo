@@ -1,8 +1,10 @@
 package service
 
 import (
+	"crypto/sha256"
 	"errors"
 	"example-project/model"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -48,14 +50,21 @@ func (s EmployeeService) GetTeamMembersByName(team string) (interface{}, error) 
 	return result, nil
 }
 
-func (s EmployeeService) CreateUser(user model.UserSignupPayload) (interface{}, error) {
+func (s EmployeeService) CreateUser(userPayload model.UserSignupPayload) (interface{}, error) {
+	hashedPassword := sha256.Sum256([]byte(userPayload.Password))
+	user := model.UserSignup{Username: userPayload.Username, Password: hashedPassword, Email: userPayload.Email, FirstName: userPayload.FirstName, LastName: userPayload.LastName, Group: "user"}
+	checkDBEmpty, _ := s.DbService.GetAllUser()
+	fmt.Println(len(checkDBEmpty))
+	if len(checkDBEmpty) == 0 {
+		user.Group = "admin"
+	}
 
-	getUser, _ := s.DbService.GetUserByUsername(user.Username)
-	if len(getUser.Username) > 0 {
+	getUserByUsername, _ := s.DbService.GetUserByUsername(user.Username)
+	if len(getUserByUsername.Username) > 0 {
 		return nil, errors.New("user already exists, please choose another username")
 	}
 
-	if user.FirstName == "" || user.LastName == "" || user.Email == "" || user.Username == "" || user.Password == "" {
+	if user.FirstName == "" || user.LastName == "" || user.Email == "" || user.Username == "" || userPayload.Password == "" {
 		return nil, errors.New("insufficent user data")
 	}
 	results, err := s.DbService.CreateUser(user)

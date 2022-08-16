@@ -33,6 +33,7 @@ type User struct {
 	Projects          []string           `json:"projects" bson:"projects"`
 	TotalWorkingHours float32            `json:"totalWorkingHours" bson:"totalWorkingHours"`
 	VacationDays      int                `json:"vacationDays" bson:"vacationDays"`
+	Group             string             `json:"group" bson:"group"`
 }
 
 type UserSignupPayload struct {
@@ -49,6 +50,7 @@ type UserSignup struct {
 	FirstName string   `json:"firstname" bson:"firstname"`
 	LastName  string   `json:"lastname" bson:"lastname"`
 	Email     string   `json:"email" bson:"email"`
+	Group     string   `json:"group" bson:"group"`
 }
 
 type UserSignupResult struct {
