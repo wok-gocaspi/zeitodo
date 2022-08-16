@@ -8,10 +8,10 @@ import (
 )
 
 type FakeServiceInterface struct {
-	CreateUserStub        func([]model.UserSignupPayload) (interface{}, error)
+	CreateUserStub        func(model.UserSignupPayload) (interface{}, error)
 	createUserMutex       sync.RWMutex
 	createUserArgsForCall []struct {
-		arg1 []model.UserSignupPayload
+		arg1 model.UserSignupPayload
 	}
 	createUserReturns struct {
 		result1 interface{}
@@ -102,20 +102,15 @@ type FakeServiceInterface struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeServiceInterface) CreateUser(arg1 []model.UserSignupPayload) (interface{}, error) {
-	var arg1Copy []model.UserSignupPayload
-	if arg1 != nil {
-		arg1Copy = make([]model.UserSignupPayload, len(arg1))
-		copy(arg1Copy, arg1)
-	}
+func (fake *FakeServiceInterface) CreateUser(arg1 model.UserSignupPayload) (interface{}, error) {
 	fake.createUserMutex.Lock()
 	ret, specificReturn := fake.createUserReturnsOnCall[len(fake.createUserArgsForCall)]
 	fake.createUserArgsForCall = append(fake.createUserArgsForCall, struct {
-		arg1 []model.UserSignupPayload
-	}{arg1Copy})
+		arg1 model.UserSignupPayload
+	}{arg1})
 	stub := fake.CreateUserStub
 	fakeReturns := fake.createUserReturns
-	fake.recordInvocation("CreateUser", []interface{}{arg1Copy})
+	fake.recordInvocation("CreateUser", []interface{}{arg1})
 	fake.createUserMutex.Unlock()
 	if stub != nil {
 		return stub(arg1)
@@ -132,13 +127,13 @@ func (fake *FakeServiceInterface) CreateUserCallCount() int {
 	return len(fake.createUserArgsForCall)
 }
 
-func (fake *FakeServiceInterface) CreateUserCalls(stub func([]model.UserSignupPayload) (interface{}, error)) {
+func (fake *FakeServiceInterface) CreateUserCalls(stub func(model.UserSignupPayload) (interface{}, error)) {
 	fake.createUserMutex.Lock()
 	defer fake.createUserMutex.Unlock()
 	fake.CreateUserStub = stub
 }
 
-func (fake *FakeServiceInterface) CreateUserArgsForCall(i int) []model.UserSignupPayload {
+func (fake *FakeServiceInterface) CreateUserArgsForCall(i int) model.UserSignupPayload {
 	fake.createUserMutex.RLock()
 	defer fake.createUserMutex.RUnlock()
 	argsForCall := fake.createUserArgsForCall[i]
