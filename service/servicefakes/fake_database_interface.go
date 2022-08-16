@@ -48,6 +48,19 @@ type FakeDatabaseInterface struct {
 		result1 []model.UserPayload
 		result2 error
 	}
+	GetUserByEmailStub        func(string) (model.UserPayload, error)
+	getUserByEmailMutex       sync.RWMutex
+	getUserByEmailArgsForCall []struct {
+		arg1 string
+	}
+	getUserByEmailReturns struct {
+		result1 model.UserPayload
+		result2 error
+	}
+	getUserByEmailReturnsOnCall map[int]struct {
+		result1 model.UserPayload
+		result2 error
+	}
 	GetUserByIDStub        func(primitive.ObjectID) (model.UserPayload, error)
 	getUserByIDMutex       sync.RWMutex
 	getUserByIDArgsForCall []struct {
@@ -295,6 +308,70 @@ func (fake *FakeDatabaseInterface) GetAllUserReturnsOnCall(i int, result1 []mode
 	}
 	fake.getAllUserReturnsOnCall[i] = struct {
 		result1 []model.UserPayload
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeDatabaseInterface) GetUserByEmail(arg1 string) (model.UserPayload, error) {
+	fake.getUserByEmailMutex.Lock()
+	ret, specificReturn := fake.getUserByEmailReturnsOnCall[len(fake.getUserByEmailArgsForCall)]
+	fake.getUserByEmailArgsForCall = append(fake.getUserByEmailArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.GetUserByEmailStub
+	fakeReturns := fake.getUserByEmailReturns
+	fake.recordInvocation("GetUserByEmail", []interface{}{arg1})
+	fake.getUserByEmailMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeDatabaseInterface) GetUserByEmailCallCount() int {
+	fake.getUserByEmailMutex.RLock()
+	defer fake.getUserByEmailMutex.RUnlock()
+	return len(fake.getUserByEmailArgsForCall)
+}
+
+func (fake *FakeDatabaseInterface) GetUserByEmailCalls(stub func(string) (model.UserPayload, error)) {
+	fake.getUserByEmailMutex.Lock()
+	defer fake.getUserByEmailMutex.Unlock()
+	fake.GetUserByEmailStub = stub
+}
+
+func (fake *FakeDatabaseInterface) GetUserByEmailArgsForCall(i int) string {
+	fake.getUserByEmailMutex.RLock()
+	defer fake.getUserByEmailMutex.RUnlock()
+	argsForCall := fake.getUserByEmailArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeDatabaseInterface) GetUserByEmailReturns(result1 model.UserPayload, result2 error) {
+	fake.getUserByEmailMutex.Lock()
+	defer fake.getUserByEmailMutex.Unlock()
+	fake.GetUserByEmailStub = nil
+	fake.getUserByEmailReturns = struct {
+		result1 model.UserPayload
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeDatabaseInterface) GetUserByEmailReturnsOnCall(i int, result1 model.UserPayload, result2 error) {
+	fake.getUserByEmailMutex.Lock()
+	defer fake.getUserByEmailMutex.Unlock()
+	fake.GetUserByEmailStub = nil
+	if fake.getUserByEmailReturnsOnCall == nil {
+		fake.getUserByEmailReturnsOnCall = make(map[int]struct {
+			result1 model.UserPayload
+			result2 error
+		})
+	}
+	fake.getUserByEmailReturnsOnCall[i] = struct {
+		result1 model.UserPayload
 		result2 error
 	}{result1, result2}
 }
@@ -630,6 +707,8 @@ func (fake *FakeDatabaseInterface) Invocations() map[string][][]interface{} {
 	defer fake.deleteUserMutex.RUnlock()
 	fake.getAllUserMutex.RLock()
 	defer fake.getAllUserMutex.RUnlock()
+	fake.getUserByEmailMutex.RLock()
+	defer fake.getUserByEmailMutex.RUnlock()
 	fake.getUserByIDMutex.RLock()
 	defer fake.getUserByIDMutex.RUnlock()
 	fake.getUserByUsernameMutex.RLock()
