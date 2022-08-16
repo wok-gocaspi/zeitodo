@@ -8,7 +8,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . MongoDBInterface
@@ -34,26 +33,6 @@ func NewDbClient(d model.DbConfig) Client {
 		Proposals:   db.Collection("Proposals"),
 	}
 }
-
-func (c Client) UpdateMany(docs []interface{}) interface{} {
-	results, err := c.Users.InsertMany(context.TODO(), docs)
-	if err != nil {
-		log.Println("database error")
-	}
-	return results.InsertedIDs
-}
-
-func (c Client) GetByID(id string) model.Employee {
-	filter := bson.M{"id": id}
-	courser := c.Users.FindOne(context.TODO(), filter)
-	var employee model.Employee
-	err := courser.Decode(&employee)
-	if err != nil {
-		log.Println("error during data marshalling")
-	}
-	return employee
-}
-
 func (c Client) DeleteTimeEntryById(id string) (interface{}, error) {
 	filter := bson.M{"id": id}
 
@@ -69,6 +48,7 @@ func (c Client) DeleteTimeEntryById(id string) (interface{}, error) {
 	}
 	return results.DeletedCount, nil
 }
+
 func (c Client) UpdateTimeEntryById(update model.TimeEntry) (*mongo.UpdateResult, error) {
 	filter := bson.M{"id": update.Start}
 	if update.UserId == "" {
@@ -106,34 +86,28 @@ func (c Client) UpdateTimeEntryById(update model.TimeEntry) (*mongo.UpdateResult
 	}
 	return result, nil
 }
-func (c Client) CreatTimeEntryById(id string) (interface{}, error) {
-	filter := bson.M{"id": id}
-	courser := c.Users.FindOne(context.TODO(), filter)
-	var timee model.TimeEntry
-	err := courser.Decode(&timee)
+func (c Client) CreatTimeEntryById(te model.TimeEntry) (interface{}, error) {
+	result, err := c.TimeEntries.InsertOne(context.TODO(), te)
 	if err != nil {
-		log.Println("Time Entry")
+		return nil, err
 	}
-	return timee, nil
+	return result, nil
 }
-func (c Client) GetTimeEntryById(id string) model.TimeEntry {
-	filter := bson.M{"id": id}
-	courser := c.Users.FindOne(context.TODO(), filter)
-	var timee model.TimeEntry
-	err := courser.Decode(&timee)
-	if err != nil {
-		log.Println("error ")
-	}
-	return timee
-}
+func (c Client) GetTimeEntryByUserID(id string) []model.TimeEntry {
 
-func (c Client) GetAllTimeEntriesById(id string) model.TimeEntry {
-	filter := bson.M{"id": id}
-	courser := c.Users.FindOne(context.TODO(), filter)
-	var Alltimee model.TimeEntry
-	err := courser.Decode(&Alltimee)
+	filter := bson.M{"userId": id}
+	var timeEntries []model.TimeEntry
+	courser, err := c.TimeEntries.Find(context.TODO(), filter)
 	if err != nil {
-		log.Println("error ")
+		return nil
 	}
-	return Alltimee
+	for courser.Next(context.TODO()) {
+		var timeEntry model.TimeEntry
+		err := courser.Decode(&timeEntry)
+		if err != nil {
+			return timeEntries
+		}
+		timeEntries = append(timeEntries, timeEntry)
+	}
+	return timeEntries
 }
