@@ -298,6 +298,52 @@ func TestUpdateUserHandler_Return_invalid_json(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, responseRecorder.Code)
 }
 
+func TestUpdateUserHandler_Return_invalid_500_multi_update_unsuccessful(t *testing.T) {
+	var fakeUserSignupPayload = []model.User{
+		{FirstName: "Peter", ID: primitive.NewObjectID()},
+		{FirstName: "Peter", ID: primitive.NewObjectID()},
+	}
+
+	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
+	responseRecorder := httptest.NewRecorder()
+
+	fakeContext, _ := gin.CreateTestContext(responseRecorder)
+	body := bytes.NewBufferString(string(fakeUserSignupPayloadString))
+	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/user/update", body)
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakeService.UpdateUsersReturns([]model.UserUpdateResult{}, errors.New("a few users couldn't be updated"))
+	responseRecorder.Body = body
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.UpdateUserHandler(fakeContext)
+
+	assert.Equal(t, http.StatusInternalServerError, responseRecorder.Code)
+}
+
+func TestUpdateUserHandler_Return_valid_200_multi(t *testing.T) {
+	var fakeUserSignupPayload = []model.User{
+		{FirstName: "Peter", ID: primitive.ObjectID{}},
+		{FirstName: "Peter", ID: primitive.ObjectID{}},
+	}
+
+	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
+	responseRecorder := httptest.NewRecorder()
+
+	fakeContext, _ := gin.CreateTestContext(responseRecorder)
+	body := bytes.NewBufferString(string(fakeUserSignupPayloadString))
+	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/user/update", body)
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakeService.UpdateUsersReturns([]model.UserUpdateResult{}, nil)
+	responseRecorder.Body = body
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.UpdateUserHandler(fakeContext)
+
+	assert.Equal(t, http.StatusOK, responseRecorder.Code)
+}
+
 func TestUpdateUserHandler_Return_invalid_500_single_update_unsuccessful(t *testing.T) {
 	var fakeUserSignupPayload = model.User{
 		FirstName: "Peter", ID: primitive.NewObjectID(),
