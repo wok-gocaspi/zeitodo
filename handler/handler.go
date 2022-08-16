@@ -67,7 +67,7 @@ func (handler Handler) GetTeamMemberHandler(c *gin.Context) {
 	nameParam, nameOK := c.GetQuery("name")
 	if !idOK && !nameOK {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"errorMessage": "id is not given",
+			"errorMessage": "id or name is not given",
 		})
 		return
 	}
@@ -112,7 +112,7 @@ func (handler Handler) CreateUserHandler(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, result)
+	c.JSON(http.StatusCreated, result)
 }
 
 func (handler Handler) UpdateUserHandler(c *gin.Context) {

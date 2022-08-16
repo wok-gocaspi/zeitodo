@@ -20,12 +20,12 @@ var Handler HandlerInterface
 func CreateRoutes(group *gin.RouterGroup) {
 	group.Use(CORS)
 	user := group.Group("/user")
-	user.GET("/:id/get", Handler.GetUserHandler)
-	user.GET("/get", Handler.GetAllUserHandler)
-	user.POST("/create", Handler.CreateUserHandler)
-	user.GET("/team/get", Handler.GetTeamMemberHandler)
-	user.PUT("/update", Handler.UpdateUserHandler)
-	user.DELETE("/:id/delete", Handler.DeleteUserHandler)
+	user.GET("/:id", Handler.GetUserHandler)
+	user.GET("/", Handler.GetAllUserHandler)
+	user.POST("/", Handler.CreateUserHandler)
+	user.GET("/team", Handler.GetTeamMemberHandler)
+	user.PUT("/", Handler.UpdateUserHandler)
+	user.DELETE("/:id", Handler.DeleteUserHandler)
 }
 func CORS(c *gin.Context) {
 

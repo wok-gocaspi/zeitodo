@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"example-project/model"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -50,14 +51,23 @@ func (s EmployeeService) GetTeamMembersByName(team string) (interface{}, error) 
 
 func (s EmployeeService) CreateUser(user model.UserSignupPayload) (interface{}, error) {
 
+	getUser, _ := s.DbService.GetUserByUsername(user.Username)
+	if len(getUser.Username) > 0 {
+		return nil, errors.New("user already exists, please choose another username")
+	}
+
 	if user.FirstName == "" || user.LastName == "" || user.Email == "" || user.Username == "" || user.Password == "" {
 		return nil, errors.New("insufficent user data")
 	}
 	results, err := s.DbService.CreateUser(user)
+	userID := results.(primitive.ObjectID)
+	fmt.Println(userID)
+
+	userResult := model.UserSignupResult{ID: userID, FirstName: user.FirstName, LastName: user.LastName, Username: user.Username, Email: user.Email}
 	if err != nil {
 		return nil, err
 	}
-	return results, nil
+	return userResult, nil
 }
 
 func (s EmployeeService) UpdateUsers(users []model.User) (interface{}, error) {

@@ -51,6 +51,14 @@ type UserSignup struct {
 	Email     string   `json:"email" bson:"email"`
 }
 
+type UserSignupResult struct {
+	Username  string             `json:"username" bson:"username"`
+	FirstName string             `json:"firstname" bson:"firstname"`
+	LastName  string             `json:"lastname" bson:"lastname"`
+	Email     string             `json:"email" bson:"email"`
+	ID        primitive.ObjectID `json:"id"`
+}
+
 type UserPayload struct {
 	Username          string   `json:"username" bson:"username"`
 	FirstName         string   `json:"firstname" bson:"firstname"`
