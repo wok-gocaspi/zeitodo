@@ -165,7 +165,7 @@ func TestGetTeamMemberHandler_Return_invalid_500_team_error(t *testing.T) {
 	assert.Equal(t, http.StatusInternalServerError, responseRecorder.Code)
 }
 
-func TestCreateUser_Return_valid_200_single(t *testing.T) {
+func TestCreateUser_Return_valid_201_single(t *testing.T) {
 	var fakeUserSignupPayload = model.UserSignupPayload{
 		FirstName: "Peter", LastName: "Test", Email: "peter@test.com", Username: "ptest", Password: "123",
 	}
@@ -186,7 +186,7 @@ func TestCreateUser_Return_valid_200_single(t *testing.T) {
 	handlerInstance := handler.NewHandler(fakeService)
 	handlerInstance.CreateUserHandler(fakeContext)
 
-	assert.Equal(t, http.StatusOK, responseRecorder.Code)
+	assert.Equal(t, http.StatusCreated, responseRecorder.Code)
 }
 
 func TestCreateUser_Return_invalid_500_single_insufficent_data(t *testing.T) {
@@ -204,79 +204,6 @@ func TestCreateUser_Return_invalid_500_single_insufficent_data(t *testing.T) {
 
 	fakeService := &handlerfakes.FakeServiceInterface{}
 	fakeService.CreateUserReturns(nil, errors.New("insufficent user data"))
-	responseRecorder.Body = body
-
-	handlerInstance := handler.NewHandler(fakeService)
-	handlerInstance.CreateUserHandler(fakeContext)
-
-	assert.Equal(t, http.StatusInternalServerError, responseRecorder.Code)
-}
-
-func TestCreateUser_Return_valid_200_multi(t *testing.T) {
-	var fakeUserSignupPayload = []model.UserSignupPayload{
-		{FirstName: "Peter", LastName: "Test", Email: "peter@test.com", Username: "ptest", Password: "123"},
-		{FirstName: "Peter", LastName: "Test", Email: "peter@test.com", Username: "ptest", Password: "123"},
-	}
-
-	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
-	fmt.Println(string(fakeUserSignupPayloadString))
-	responseRecorder := httptest.NewRecorder()
-
-	fakeContext, _ := gin.CreateTestContext(responseRecorder)
-	body := bytes.NewBufferString(string(fakeUserSignupPayloadString))
-	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/user/create", body)
-
-	fakeService := &handlerfakes.FakeServiceInterface{}
-	fakeService.CreateUserReturns(mongo.InsertManyResult{}.InsertedIDs, nil)
-
-	responseRecorder.Body = body
-
-	handlerInstance := handler.NewHandler(fakeService)
-	handlerInstance.CreateUserHandler(fakeContext)
-
-	assert.Equal(t, http.StatusOK, responseRecorder.Code)
-}
-
-func TestCreateUser_Return_invalid_500_multi_insufficent_data(t *testing.T) {
-	var fakeUserSignupPayload = []model.UserSignupPayload{
-		{FirstName: "Peter", LastName: "Test", Email: "peter@test.com", Password: "123"},
-		{FirstName: "Peter", LastName: "Test", Email: "peter@test.com", Username: "ptest", Password: "123"},
-	}
-
-	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
-	fmt.Println(string(fakeUserSignupPayloadString))
-	responseRecorder := httptest.NewRecorder()
-
-	fakeContext, _ := gin.CreateTestContext(responseRecorder)
-	body := bytes.NewBufferString(string(fakeUserSignupPayloadString))
-	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/user/create", body)
-
-	fakeService := &handlerfakes.FakeServiceInterface{}
-	fakeService.CreateUserReturns([]model.UserSignupPayload{fakeUserSignupPayload[0]}, errors.New("insufficent user data"))
-	responseRecorder.Body = body
-
-	handlerInstance := handler.NewHandler(fakeService)
-	handlerInstance.CreateUserHandler(fakeContext)
-
-	assert.Equal(t, http.StatusInternalServerError, responseRecorder.Code)
-}
-
-func TestCreateUser_Return_invalid_500_multi_database_error(t *testing.T) {
-	var fakeUserSignupPayload = []model.UserSignupPayload{
-		{FirstName: "Peter", LastName: "Test", Email: "peter@test.com", Username: "ptest", Password: "123"},
-		{FirstName: "Peter", LastName: "Test", Email: "peter@test.com", Username: "ptest", Password: "123"},
-	}
-
-	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
-	fmt.Println(string(fakeUserSignupPayloadString))
-	responseRecorder := httptest.NewRecorder()
-
-	fakeContext, _ := gin.CreateTestContext(responseRecorder)
-	body := bytes.NewBufferString(string(fakeUserSignupPayloadString))
-	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/user/create", body)
-
-	fakeService := &handlerfakes.FakeServiceInterface{}
-	fakeService.CreateUserReturns(nil, errors.New("some db error"))
 	responseRecorder.Body = body
 
 	handlerInstance := handler.NewHandler(fakeService)

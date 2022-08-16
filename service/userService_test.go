@@ -110,46 +110,48 @@ func TestGetTeamMembersByName_Return_invalid_database_error(t *testing.T) {
 }
 
 func TestCreateUser_Return_valid(t *testing.T) {
-	fakeUserArray := []model.UserSignupPayload{
-		{Username: "pganz", Password: "123", FirstName: "Peter", LastName: "Ganz", Email: "p.ganz@gmail.com"},
-		{Username: "hugo", Password: "321", FirstName: "Hugo", LastName: "Meinz", Email: "h.meinz@gmail.com"},
-	}
-	var dbReturn interface{}
+	fakeUser := model.UserSignupPayload{Username: "pganz", Password: "123", FirstName: "Peter", LastName: "Ganz", Email: "p.ganz@gmail.com"}
+	dbReturn := primitive.NewObjectID()
+	var dbInterface interface{} = dbReturn
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
-	fakeDB.CreateUserReturns(dbReturn, nil)
+	fakeDB.CreateUserReturns(dbInterface, nil)
 	serviceInstance := service.NewEmployeeService(fakeDB)
-	_, err := serviceInstance.CreateUser(fakeUserArray)
+	_, err := serviceInstance.CreateUser(fakeUser)
 	assert.Nil(t, err)
 }
 
 func TestCreateUser_Return_invalid_database_error(t *testing.T) {
-	fakeUserArray := []model.UserSignupPayload{
-		{Username: "pganz", Password: "123", FirstName: "Peter", LastName: "Ganz", Email: "p.ganz@gmail.com"},
-		{Username: "hugo", Password: "321", FirstName: "Hugo", LastName: "Meinz", Email: "h.meinz@gmail.com"},
-	}
+	fakeUser := model.UserSignupPayload{Username: "pganz", Password: "123", FirstName: "Peter", LastName: "Ganz", Email: "p.ganz@gmail.com"}
+
 	var dbReturn interface{}
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
 	fakeDB.CreateUserReturns(dbReturn, errors.New("some db error"))
 	serviceInstance := service.NewEmployeeService(fakeDB)
-	_, err := serviceInstance.CreateUser(fakeUserArray)
+	_, err := serviceInstance.CreateUser(fakeUser)
 	assert.Error(t, err, "some db error")
 }
 
 func TestCreateUser_Return_invalid_payload(t *testing.T) {
-	fakeUserArray := []model.UserSignupPayload{
-		{Username: "pganz", Password: "123", FirstName: "Peter", LastName: "Ganz", Email: "p.ganz@gmail.com"},
-		{Username: "hugo", Password: "321", LastName: "Meinz", Email: "h.meinz@gmail.com"},
-	}
-	expectedUserArray := []model.UserSignupPayload{
-		{Username: "hugo", Password: "321", LastName: "Meinz", Email: "h.meinz@gmail.com"},
-	}
-	var dbReturn interface{}
+	fakeUser := model.UserSignupPayload{Username: "pganz", FirstName: "Peter", LastName: "Ganz", Email: "p.ganz@gmail.com"}
+	dbReturn := primitive.NewObjectID()
+	var dbInterface interface{} = dbReturn
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
-	fakeDB.CreateUserReturns(dbReturn, nil)
+	fakeDB.CreateUserReturns(dbInterface, nil)
 	serviceInstance := service.NewEmployeeService(fakeDB)
-	result, err := serviceInstance.CreateUser(fakeUserArray)
+	_, err := serviceInstance.CreateUser(fakeUser)
 	assert.Error(t, err, "insufficent user data")
-	assert.Equal(t, expectedUserArray, result)
+}
+
+func TestCreateUser_Return_existing_user(t *testing.T) {
+	fakeUser := model.UserSignupPayload{Username: "pganz", FirstName: "Peter", LastName: "Ganz", Email: "p.ganz@gmail.com"}
+	dbReturn := primitive.NewObjectID()
+	var dbInterface interface{} = dbReturn
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	fakeDB.CreateUserReturns(dbInterface, nil)
+	fakeDB.GetUserByUsernameReturns(model.UserPayload{Username: "123"}, nil)
+	serviceInstance := service.NewEmployeeService(fakeDB)
+	_, err := serviceInstance.CreateUser(fakeUser)
+	assert.Error(t, err, "user already exists, please choose another username")
 }
 
 func TestUpdateUser_Return_valid(t *testing.T) {

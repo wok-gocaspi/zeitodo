@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"example-project/model"
-	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -60,13 +59,11 @@ func (s EmployeeService) CreateUser(user model.UserSignupPayload) (interface{}, 
 		return nil, errors.New("insufficent user data")
 	}
 	results, err := s.DbService.CreateUser(user)
-	userID := results.(primitive.ObjectID)
-	fmt.Println(userID)
-
-	userResult := model.UserSignupResult{ID: userID, FirstName: user.FirstName, LastName: user.LastName, Username: user.Username, Email: user.Email}
 	if err != nil {
 		return nil, err
 	}
+	userID := results.(primitive.ObjectID)
+	userResult := model.UserSignupResult{ID: userID, FirstName: user.FirstName, LastName: user.LastName, Username: user.Username, Email: user.Email}
 	return userResult, nil
 }
 
