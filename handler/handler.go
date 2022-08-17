@@ -3,10 +3,9 @@ package handler
 import (
 	"encoding/json"
 	"example-project/model"
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"io/ioutil"
 	"go.mongodb.org/mongo-driver/mongo"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -19,7 +18,6 @@ type ServiceInterface interface {
 	UpdateUsers(users []model.User) (interface{}, error)
 	GetTeamMembersByName(name string) (interface{}, error)
 	DeleteUsers(id string) (interface{}, error)
-	GetEmployeeById(id string) model.Employee
 	GetProposalsByID(id string) ([]model.Proposal, error)
 	CreateProposals(proposalPayloadArr []model.ProposalPayload, id string) (interface{}, error)
 	DeleteProposalsByID(id string, date string) error
@@ -35,7 +33,6 @@ func NewHandler(serviceInterface ServiceInterface) Handler {
 		ServiceInterface: serviceInterface,
 	}
 }
-
 
 func (handler Handler) GetUserHandler(c *gin.Context) {
 	pathParam, ok := c.Params.Get("id")
@@ -177,20 +174,6 @@ func (handler Handler) DeleteUserHandler(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, result)
 }
-func (handler Handler) GetEmployeeHandler(c *gin.Context) {
-	pathParam, ok := c.Params.Get("id")
-	if !ok {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"errorMessage": "id is not given",
-		})
-		return
-	}
-
-	response := handler.ServiceInterface.GetEmployeeById(pathParam)
-	fmt.Println(response)
-	c.JSON(http.StatusOK, response)
-}
-
 
 const idNotFoundMsg = "id is not given"
 

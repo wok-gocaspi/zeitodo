@@ -10,33 +10,11 @@ import (
 	"testing"
 )
 
-func TestGetEmployeeById(t *testing.T) {
-	fakeDB := &servicefakes.FakeDatabaseInterface{}
-
-	data := model.Employee{
-		ID:        "1",
-		FirstName: "jon",
-		LastName:  "kock",
-		Email:     "jon@gmail.com",
-	}
-
-	fakeDB.GetByIDReturns(data)
-
-	serviceInstance := service.NewEmployeeService(fakeDB)
-	actual := serviceInstance.GetEmployeeById("1")
-	assert.Equal(t, data, actual)
-
-}
-
-func TestCreateEmployees(t *testing.T) {
-	//here comes your first unit test which should cover the function CreateEmployees
-}
-
 func TestProposalService_GetProposalsByID(t *testing.T) {
 	fakeDb := &servicefakes.FakeDatabaseInterface{}
 	fakePayload := []model.Proposal{
-		model.Proposal{UserId: "1", Approved: false},
-		model.Proposal{UserId: "1", Approved: true},
+		{UserId: "1", Approved: false},
+		{UserId: "1", Approved: true},
 	}
 	fakeNilPayload := []model.Proposal{}
 	fakeDecodeErr := errors.New("Decode went wrong")
@@ -110,17 +88,17 @@ func TestEmployeeService_UpdateEmployee(t *testing.T) {
 
 func TestEmployeeService_CreateProposals(t *testing.T) {
 	StartExceedsEnd := []model.ProposalPayload{
-		model.ProposalPayload{UserId: "1", StartDate: "2006-Nov-08", EndDate: "2005-Nov-07"},
+		{UserId: "1", StartDate: "2006-Nov-08", EndDate: "2005-Nov-07"},
 	}
 	okPayload := []model.ProposalPayload{
-		model.ProposalPayload{UserId: "1", StartDate: "2006-Nov-04", EndDate: "2006-Nov-10"},
+		{UserId: "1", StartDate: "2006-Nov-04", EndDate: "2006-Nov-10"},
 	}
 	GetByIdReturn := []model.Proposal{
-		model.Proposal{UserId: "1", StartDate: "2006-Nov-06", EndDate: "2006-Nov-07"},
+		{UserId: "1", StartDate: "2006-Nov-06", EndDate: "2006-Nov-07"},
 	}
 	GetByIdReturnOverlapp := []model.Proposal{
-		model.Proposal{UserId: "1", StartDate: "2006-Nov-07", EndDate: "2006-Nov-08"},
-		model.Proposal{UserId: "1", StartDate: "2006-Nov-06", EndDate: "2006-Nov-09"},
+		{UserId: "1", StartDate: "2006-Nov-07", EndDate: "2006-Nov-08"},
+		{UserId: "1", StartDate: "2006-Nov-06", EndDate: "2006-Nov-09"},
 	}
 
 	StartExceedsEndMsg := "The startdate must be before the enddate"

@@ -2,8 +2,8 @@ package service
 
 import (
 	"example-project/model"
-	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . DatabaseInterface
@@ -17,7 +17,6 @@ type DatabaseInterface interface {
 	GetUserTeamMembersByName(name string) (interface{}, error)
 	UpdateManyUserByID(docs []model.User) []model.UserUpdateResult
 	DeleteUser(id primitive.ObjectID) (interface{}, error)
-	GetByID(id string) model.Employee
 	GetProposals(id string) ([]model.Proposal, error)
 	SaveProposals(docs []interface{}) (interface{}, error)
 	DeleteProposalByIdAndDate(id string, date string) (*mongo.DeleteResult, error)
