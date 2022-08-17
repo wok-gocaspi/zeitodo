@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"log"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . MongoDBInterface
@@ -224,4 +225,92 @@ func (c Client) DeleteUser(id primitive.ObjectID) (interface{}, error) {
 		return nil, deleteError
 	}
 	return deleteResult, nil
+}
+
+func (c Client) GetProposals(id string) ([]model.Proposal, error) {
+	var proposalArr []model.Proposal
+	filter := bson.M{"userId": id}
+	cur, err := c.Proposals.Find(context.TODO(), filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(context.Background())
+	for cur.Next(context.Background()) {
+		// To decode into a struct, use cursor.Decode()
+		var proposal model.Proposal
+		err = cur.Decode(&proposal)
+		if err != nil {
+			return nil, err
+		}
+		proposalArr = append(proposalArr, proposal)
+	}
+	if err = cur.Err(); err != nil {
+		return nil, err
+	}
+	return proposalArr, nil
+}
+
+func (c Client) SaveProposals(docs []interface{}) (interface{}, error) {
+	results, err := c.Proposals.InsertMany(context.TODO(), docs)
+	if err != nil {
+		log.Println("database error")
+		return nil, err
+	}
+	return results.InsertedIDs, nil
+}
+
+func (c Client) DeleteProposalByIdAndDate(id string, date string) (*mongo.DeleteResult, error) {
+
+	filter := bson.M{"startDate": date, "userId": id}
+
+	results, err := c.Proposals.DeleteOne(context.TODO(), filter)
+
+	if err != nil {
+
+		return nil, err
+	}
+	if results.DeletedCount == 0 {
+		deleterror := errors.New("the Employee id is not existing")
+		return nil, deleterror
+	}
+	return results, nil
+}
+
+func (c Client) UpdateProposal(update model.Proposal, date string) (*mongo.UpdateResult, error) {
+	filter := bson.M{"userId": update.UserId, "startDate": date}
+	// datensatz zur id auslesen
+	// check doc geschnitten datensatzen
+	// change update
+	if update.UserId == "" {
+		IdMissing := "an userId has to be provided"
+		return nil, errors.New(IdMissing)
+	}
+	courser := c.Proposals.FindOne(context.TODO(), filter)
+	var proposal model.Proposal
+	err := courser.Decode(&proposal)
+	if proposal.UserId == "" {
+		IdWrong := "an userId has to be provided"
+		return nil, errors.New(IdWrong)
+	}
+	fmt.Println(update)
+	var setElements bson.D
+	if update.StartDate != "" {
+		setElements = append(setElements, bson.E{Key: "startDate", Value: update.StartDate})
+	}
+	if update.EndDate != "" {
+		setElements = append(setElements, bson.E{Key: "endDate", Value: update.EndDate})
+	}
+	if update.Type != "" {
+		setElements = append(setElements, bson.E{Key: "type", Value: update.Type})
+	}
+
+	setMap := bson.D{
+		{"$set", setElements},
+	}
+	result, err := c.Proposals.UpdateOne(context.TODO(), filter, setMap)
+	if err != nil {
+		return nil, err
+
+	}
+	return result, nil
 }

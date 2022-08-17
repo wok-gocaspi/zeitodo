@@ -3,6 +3,7 @@ package model
 import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"github.com/retailify/go-interval"
 	"time"
 )
 
@@ -96,9 +97,30 @@ type TimeEntry struct {
 }
 
 type Proposal struct {
-	UserId    string    `json:"userId" bson:"userId"`
-	StartDate time.Time `json:"startDate" bson:"startDate"`
-	EndDate   time.Time `json:"endDate" bson:"endDate"`
-	Approved  bool      `json:"approved" bson:"approved"`
-	Type      string    `json:"type" bson:"type"`
+	UserId    string `json:"userId" bson:"userId"`
+	StartDate string `json:"startDate" bson:"startDate"`
+	EndDate   string `json:"endDate" bson:"endDate"`
+	Approved  bool   `json:"approved" bson:"approved"`
+	Type      string `json:"type" bson:"type"`
+	//	ID         primitive.ObjectID `bson:"_id" json:"id,omitempty"`
+	TimeObject ProposalTimeObject `json:"timeObject" bson:"timeObject"`
+}
+
+type ProposalTimeObject struct {
+	Duration time.Duration
+	Interval *interval.TimeInterval
+	//	Err      error
+}
+
+type ProposalPayload struct {
+	UserId    string `json:"userId" bson:"userId"`
+	StartDate string `json:"startDate" bson:"startDate"`
+	EndDate   string `json:"endDate" bson:"endDate"`
+	Type      string `json:"type" bson:"type"`
+}
+
+type ProposalTimeStringObject struct {
+	Duration time.Duration
+	Interval interval.TimeInterval
+	//	Err      error
 }
