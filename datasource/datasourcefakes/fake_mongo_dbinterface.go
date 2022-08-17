@@ -69,6 +69,21 @@ type FakeMongoDBInterface struct {
 		result1 *mongo.InsertManyResult
 		result2 error
 	}
+	InsertOneStub        func(context.Context, interface{}, ...*options.InsertOneOptions) (*mongo.InsertOneResult, error)
+	insertOneMutex       sync.RWMutex
+	insertOneArgsForCall []struct {
+		arg1 context.Context
+		arg2 interface{}
+		arg3 []*options.InsertOneOptions
+	}
+	insertOneReturns struct {
+		result1 *mongo.InsertOneResult
+		result2 error
+	}
+	insertOneReturnsOnCall map[int]struct {
+		result1 *mongo.InsertOneResult
+		result2 error
+	}
 	UpdateOneStub        func(context.Context, interface{}, interface{}, ...*options.UpdateOptions) (*mongo.UpdateResult, error)
 	updateOneMutex       sync.RWMutex
 	updateOneArgsForCall []struct {
@@ -355,6 +370,72 @@ func (fake *FakeMongoDBInterface) InsertManyReturnsOnCall(i int, result1 *mongo.
 	}{result1, result2}
 }
 
+func (fake *FakeMongoDBInterface) InsertOne(arg1 context.Context, arg2 interface{}, arg3 ...*options.InsertOneOptions) (*mongo.InsertOneResult, error) {
+	fake.insertOneMutex.Lock()
+	ret, specificReturn := fake.insertOneReturnsOnCall[len(fake.insertOneArgsForCall)]
+	fake.insertOneArgsForCall = append(fake.insertOneArgsForCall, struct {
+		arg1 context.Context
+		arg2 interface{}
+		arg3 []*options.InsertOneOptions
+	}{arg1, arg2, arg3})
+	stub := fake.InsertOneStub
+	fakeReturns := fake.insertOneReturns
+	fake.recordInvocation("InsertOne", []interface{}{arg1, arg2, arg3})
+	fake.insertOneMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeMongoDBInterface) InsertOneCallCount() int {
+	fake.insertOneMutex.RLock()
+	defer fake.insertOneMutex.RUnlock()
+	return len(fake.insertOneArgsForCall)
+}
+
+func (fake *FakeMongoDBInterface) InsertOneCalls(stub func(context.Context, interface{}, ...*options.InsertOneOptions) (*mongo.InsertOneResult, error)) {
+	fake.insertOneMutex.Lock()
+	defer fake.insertOneMutex.Unlock()
+	fake.InsertOneStub = stub
+}
+
+func (fake *FakeMongoDBInterface) InsertOneArgsForCall(i int) (context.Context, interface{}, []*options.InsertOneOptions) {
+	fake.insertOneMutex.RLock()
+	defer fake.insertOneMutex.RUnlock()
+	argsForCall := fake.insertOneArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeMongoDBInterface) InsertOneReturns(result1 *mongo.InsertOneResult, result2 error) {
+	fake.insertOneMutex.Lock()
+	defer fake.insertOneMutex.Unlock()
+	fake.InsertOneStub = nil
+	fake.insertOneReturns = struct {
+		result1 *mongo.InsertOneResult
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeMongoDBInterface) InsertOneReturnsOnCall(i int, result1 *mongo.InsertOneResult, result2 error) {
+	fake.insertOneMutex.Lock()
+	defer fake.insertOneMutex.Unlock()
+	fake.InsertOneStub = nil
+	if fake.insertOneReturnsOnCall == nil {
+		fake.insertOneReturnsOnCall = make(map[int]struct {
+			result1 *mongo.InsertOneResult
+			result2 error
+		})
+	}
+	fake.insertOneReturnsOnCall[i] = struct {
+		result1 *mongo.InsertOneResult
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeMongoDBInterface) UpdateOne(arg1 context.Context, arg2 interface{}, arg3 interface{}, arg4 ...*options.UpdateOptions) (*mongo.UpdateResult, error) {
 	fake.updateOneMutex.Lock()
 	ret, specificReturn := fake.updateOneReturnsOnCall[len(fake.updateOneArgsForCall)]
@@ -433,6 +514,8 @@ func (fake *FakeMongoDBInterface) Invocations() map[string][][]interface{} {
 	defer fake.findOneMutex.RUnlock()
 	fake.insertManyMutex.RLock()
 	defer fake.insertManyMutex.RUnlock()
+	fake.insertOneMutex.RLock()
+	defer fake.insertOneMutex.RUnlock()
 	fake.updateOneMutex.RLock()
 	defer fake.updateOneMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

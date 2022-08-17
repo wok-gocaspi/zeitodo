@@ -56,29 +56,30 @@ func (s EmployeeService) GetTeamMembersByName(team string) (interface{}, error) 
 	return result, nil
 }
 
-func (s EmployeeService) CreateUser(user model.UserSignupPayload) (interface{}, error) {
-	result, _ := s.DbService.GetUserByUsername(user.Username)
-	if len(result.ID) < 0 {
-		return nil, errors.New("user already exists with this username")
+func (s EmployeeService) CreateUser(userPayload model.UserSignupPayload) (interface{}, error) {
+	hashedPassword := sha256.Sum256([]byte(userPayload.Password))
+	user := model.UserSignup{Username: userPayload.Username, Password: hashedPassword, Email: userPayload.Email, FirstName: userPayload.FirstName, LastName: userPayload.LastName, Group: "user"}
+	checkDBEmpty, _ := s.DbService.GetAllUser()
+	fmt.Println(len(checkDBEmpty))
+	if len(checkDBEmpty) == 0 {
+		user.Group = "admin"
 	}
 
-	newUser := model.UserSignup{
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
-		Email:     user.Email,
-		Username:  user.Username,
-		Password:  sha256.Sum256([]byte(user.Password)),
-		Group:     "user",
-	}
-	if user.FirstName == "" || user.LastName == "" || user.Email == "" || user.Username == "" || user.Password == "" {
-		return nil, errors.New("invalid register form")
+	getUserByUsername, _ := s.DbService.GetUserByUsername(user.Username)
+	if len(getUserByUsername.Username) > 0 {
+		return nil, errors.New("user already exists, please choose another username")
 	}
 
-	results, err := s.DbService.CreateUser(newUser)
+	if user.FirstName == "" || user.LastName == "" || user.Email == "" || user.Username == "" || userPayload.Password == "" {
+		return nil, errors.New("insufficent user data")
+	}
+	results, err := s.DbService.CreateUser(user)
 	if err != nil {
 		return nil, err
 	}
-	return results, nil
+	userID := results.(primitive.ObjectID)
+	userResult := model.UserSignupResult{ID: userID, FirstName: user.FirstName, LastName: user.LastName, Username: user.Username, Email: user.Email}
+	return userResult, nil
 }
 
 func (s EmployeeService) UpdateUsers(users []model.User) (interface{}, error) {

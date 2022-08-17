@@ -33,7 +33,7 @@ func CreateRoutes(group *gin.RouterGroup) {
 	group.POST("/refresh", Handler.RefreshTokenHandler)
 	user := group.Group("/user")
 	user.GET("/:id", Handler.PermissionMiddleware, Handler.GetUserHandler)
-	user.GET("/all", Handler.PermissionMiddleware, Handler.GetAllUserHandler)
+	user.GET("/", Handler.PermissionMiddleware, Handler.GetAllUserHandler)
 	user.POST("/", Handler.CreateUserHandler)
 	user.GET("/team", Handler.PermissionMiddleware, Handler.GetTeamMemberHandler)
 	user.PUT("/", Handler.PermissionMiddleware, Handler.UpdateUserHandler)

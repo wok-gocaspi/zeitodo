@@ -4,14 +4,30 @@ package handlerfakes
 import (
 	"example-project/handler"
 	"example-project/model"
+	"net/http"
 	"sync"
 )
 
 type FakeServiceInterface struct {
-	CreateUserStub        func([]model.UserSignupPayload) (interface{}, error)
+	AuthenticateUserStub        func(string, string, string) (bool, error)
+	authenticateUserMutex       sync.RWMutex
+	authenticateUserArgsForCall []struct {
+		arg1 string
+		arg2 string
+		arg3 string
+	}
+	authenticateUserReturns struct {
+		result1 bool
+		result2 error
+	}
+	authenticateUserReturnsOnCall map[int]struct {
+		result1 bool
+		result2 error
+	}
+	CreateUserStub        func(model.UserSignupPayload) (interface{}, error)
 	createUserMutex       sync.RWMutex
 	createUserArgsForCall []struct {
-		arg1 []model.UserSignupPayload
+		arg1 model.UserSignupPayload
 	}
 	createUserReturns struct {
 		result1 interface{}
@@ -85,6 +101,44 @@ type FakeServiceInterface struct {
 		result1 model.UserPayload
 		result2 error
 	}
+	LoginUserStub        func(string, string) (http.Cookie, error)
+	loginUserMutex       sync.RWMutex
+	loginUserArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	loginUserReturns struct {
+		result1 http.Cookie
+		result2 error
+	}
+	loginUserReturnsOnCall map[int]struct {
+		result1 http.Cookie
+		result2 error
+	}
+	LogoutUserStub        func(string) bool
+	logoutUserMutex       sync.RWMutex
+	logoutUserArgsForCall []struct {
+		arg1 string
+	}
+	logoutUserReturns struct {
+		result1 bool
+	}
+	logoutUserReturnsOnCall map[int]struct {
+		result1 bool
+	}
+	RefreshTokenStub        func(string) (string, error)
+	refreshTokenMutex       sync.RWMutex
+	refreshTokenArgsForCall []struct {
+		arg1 string
+	}
+	refreshTokenReturns struct {
+		result1 string
+		result2 error
+	}
+	refreshTokenReturnsOnCall map[int]struct {
+		result1 string
+		result2 error
+	}
 	UpdateUsersStub        func([]model.User) (interface{}, error)
 	updateUsersMutex       sync.RWMutex
 	updateUsersArgsForCall []struct {
@@ -102,20 +156,81 @@ type FakeServiceInterface struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeServiceInterface) CreateUser(arg1 []model.UserSignupPayload) (interface{}, error) {
-	var arg1Copy []model.UserSignupPayload
-	if arg1 != nil {
-		arg1Copy = make([]model.UserSignupPayload, len(arg1))
-		copy(arg1Copy, arg1)
+func (fake *FakeServiceInterface) AuthenticateUser(arg1 string, arg2 string, arg3 string) (bool, error) {
+	fake.authenticateUserMutex.Lock()
+	ret, specificReturn := fake.authenticateUserReturnsOnCall[len(fake.authenticateUserArgsForCall)]
+	fake.authenticateUserArgsForCall = append(fake.authenticateUserArgsForCall, struct {
+		arg1 string
+		arg2 string
+		arg3 string
+	}{arg1, arg2, arg3})
+	stub := fake.AuthenticateUserStub
+	fakeReturns := fake.authenticateUserReturns
+	fake.recordInvocation("AuthenticateUser", []interface{}{arg1, arg2, arg3})
+	fake.authenticateUserMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
 	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeServiceInterface) AuthenticateUserCallCount() int {
+	fake.authenticateUserMutex.RLock()
+	defer fake.authenticateUserMutex.RUnlock()
+	return len(fake.authenticateUserArgsForCall)
+}
+
+func (fake *FakeServiceInterface) AuthenticateUserCalls(stub func(string, string, string) (bool, error)) {
+	fake.authenticateUserMutex.Lock()
+	defer fake.authenticateUserMutex.Unlock()
+	fake.AuthenticateUserStub = stub
+}
+
+func (fake *FakeServiceInterface) AuthenticateUserArgsForCall(i int) (string, string, string) {
+	fake.authenticateUserMutex.RLock()
+	defer fake.authenticateUserMutex.RUnlock()
+	argsForCall := fake.authenticateUserArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeServiceInterface) AuthenticateUserReturns(result1 bool, result2 error) {
+	fake.authenticateUserMutex.Lock()
+	defer fake.authenticateUserMutex.Unlock()
+	fake.AuthenticateUserStub = nil
+	fake.authenticateUserReturns = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) AuthenticateUserReturnsOnCall(i int, result1 bool, result2 error) {
+	fake.authenticateUserMutex.Lock()
+	defer fake.authenticateUserMutex.Unlock()
+	fake.AuthenticateUserStub = nil
+	if fake.authenticateUserReturnsOnCall == nil {
+		fake.authenticateUserReturnsOnCall = make(map[int]struct {
+			result1 bool
+			result2 error
+		})
+	}
+	fake.authenticateUserReturnsOnCall[i] = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) CreateUser(arg1 model.UserSignupPayload) (interface{}, error) {
 	fake.createUserMutex.Lock()
 	ret, specificReturn := fake.createUserReturnsOnCall[len(fake.createUserArgsForCall)]
 	fake.createUserArgsForCall = append(fake.createUserArgsForCall, struct {
-		arg1 []model.UserSignupPayload
-	}{arg1Copy})
+		arg1 model.UserSignupPayload
+	}{arg1})
 	stub := fake.CreateUserStub
 	fakeReturns := fake.createUserReturns
-	fake.recordInvocation("CreateUser", []interface{}{arg1Copy})
+	fake.recordInvocation("CreateUser", []interface{}{arg1})
 	fake.createUserMutex.Unlock()
 	if stub != nil {
 		return stub(arg1)
@@ -132,13 +247,13 @@ func (fake *FakeServiceInterface) CreateUserCallCount() int {
 	return len(fake.createUserArgsForCall)
 }
 
-func (fake *FakeServiceInterface) CreateUserCalls(stub func([]model.UserSignupPayload) (interface{}, error)) {
+func (fake *FakeServiceInterface) CreateUserCalls(stub func(model.UserSignupPayload) (interface{}, error)) {
 	fake.createUserMutex.Lock()
 	defer fake.createUserMutex.Unlock()
 	fake.CreateUserStub = stub
 }
 
-func (fake *FakeServiceInterface) CreateUserArgsForCall(i int) []model.UserSignupPayload {
+func (fake *FakeServiceInterface) CreateUserArgsForCall(i int) model.UserSignupPayload {
 	fake.createUserMutex.RLock()
 	defer fake.createUserMutex.RUnlock()
 	argsForCall := fake.createUserArgsForCall[i]
@@ -483,6 +598,196 @@ func (fake *FakeServiceInterface) GetUserByIDReturnsOnCall(i int, result1 model.
 	}{result1, result2}
 }
 
+func (fake *FakeServiceInterface) LoginUser(arg1 string, arg2 string) (http.Cookie, error) {
+	fake.loginUserMutex.Lock()
+	ret, specificReturn := fake.loginUserReturnsOnCall[len(fake.loginUserArgsForCall)]
+	fake.loginUserArgsForCall = append(fake.loginUserArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.LoginUserStub
+	fakeReturns := fake.loginUserReturns
+	fake.recordInvocation("LoginUser", []interface{}{arg1, arg2})
+	fake.loginUserMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeServiceInterface) LoginUserCallCount() int {
+	fake.loginUserMutex.RLock()
+	defer fake.loginUserMutex.RUnlock()
+	return len(fake.loginUserArgsForCall)
+}
+
+func (fake *FakeServiceInterface) LoginUserCalls(stub func(string, string) (http.Cookie, error)) {
+	fake.loginUserMutex.Lock()
+	defer fake.loginUserMutex.Unlock()
+	fake.LoginUserStub = stub
+}
+
+func (fake *FakeServiceInterface) LoginUserArgsForCall(i int) (string, string) {
+	fake.loginUserMutex.RLock()
+	defer fake.loginUserMutex.RUnlock()
+	argsForCall := fake.loginUserArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeServiceInterface) LoginUserReturns(result1 http.Cookie, result2 error) {
+	fake.loginUserMutex.Lock()
+	defer fake.loginUserMutex.Unlock()
+	fake.LoginUserStub = nil
+	fake.loginUserReturns = struct {
+		result1 http.Cookie
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) LoginUserReturnsOnCall(i int, result1 http.Cookie, result2 error) {
+	fake.loginUserMutex.Lock()
+	defer fake.loginUserMutex.Unlock()
+	fake.LoginUserStub = nil
+	if fake.loginUserReturnsOnCall == nil {
+		fake.loginUserReturnsOnCall = make(map[int]struct {
+			result1 http.Cookie
+			result2 error
+		})
+	}
+	fake.loginUserReturnsOnCall[i] = struct {
+		result1 http.Cookie
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) LogoutUser(arg1 string) bool {
+	fake.logoutUserMutex.Lock()
+	ret, specificReturn := fake.logoutUserReturnsOnCall[len(fake.logoutUserArgsForCall)]
+	fake.logoutUserArgsForCall = append(fake.logoutUserArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.LogoutUserStub
+	fakeReturns := fake.logoutUserReturns
+	fake.recordInvocation("LogoutUser", []interface{}{arg1})
+	fake.logoutUserMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeServiceInterface) LogoutUserCallCount() int {
+	fake.logoutUserMutex.RLock()
+	defer fake.logoutUserMutex.RUnlock()
+	return len(fake.logoutUserArgsForCall)
+}
+
+func (fake *FakeServiceInterface) LogoutUserCalls(stub func(string) bool) {
+	fake.logoutUserMutex.Lock()
+	defer fake.logoutUserMutex.Unlock()
+	fake.LogoutUserStub = stub
+}
+
+func (fake *FakeServiceInterface) LogoutUserArgsForCall(i int) string {
+	fake.logoutUserMutex.RLock()
+	defer fake.logoutUserMutex.RUnlock()
+	argsForCall := fake.logoutUserArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeServiceInterface) LogoutUserReturns(result1 bool) {
+	fake.logoutUserMutex.Lock()
+	defer fake.logoutUserMutex.Unlock()
+	fake.LogoutUserStub = nil
+	fake.logoutUserReturns = struct {
+		result1 bool
+	}{result1}
+}
+
+func (fake *FakeServiceInterface) LogoutUserReturnsOnCall(i int, result1 bool) {
+	fake.logoutUserMutex.Lock()
+	defer fake.logoutUserMutex.Unlock()
+	fake.LogoutUserStub = nil
+	if fake.logoutUserReturnsOnCall == nil {
+		fake.logoutUserReturnsOnCall = make(map[int]struct {
+			result1 bool
+		})
+	}
+	fake.logoutUserReturnsOnCall[i] = struct {
+		result1 bool
+	}{result1}
+}
+
+func (fake *FakeServiceInterface) RefreshToken(arg1 string) (string, error) {
+	fake.refreshTokenMutex.Lock()
+	ret, specificReturn := fake.refreshTokenReturnsOnCall[len(fake.refreshTokenArgsForCall)]
+	fake.refreshTokenArgsForCall = append(fake.refreshTokenArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.RefreshTokenStub
+	fakeReturns := fake.refreshTokenReturns
+	fake.recordInvocation("RefreshToken", []interface{}{arg1})
+	fake.refreshTokenMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeServiceInterface) RefreshTokenCallCount() int {
+	fake.refreshTokenMutex.RLock()
+	defer fake.refreshTokenMutex.RUnlock()
+	return len(fake.refreshTokenArgsForCall)
+}
+
+func (fake *FakeServiceInterface) RefreshTokenCalls(stub func(string) (string, error)) {
+	fake.refreshTokenMutex.Lock()
+	defer fake.refreshTokenMutex.Unlock()
+	fake.RefreshTokenStub = stub
+}
+
+func (fake *FakeServiceInterface) RefreshTokenArgsForCall(i int) string {
+	fake.refreshTokenMutex.RLock()
+	defer fake.refreshTokenMutex.RUnlock()
+	argsForCall := fake.refreshTokenArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeServiceInterface) RefreshTokenReturns(result1 string, result2 error) {
+	fake.refreshTokenMutex.Lock()
+	defer fake.refreshTokenMutex.Unlock()
+	fake.RefreshTokenStub = nil
+	fake.refreshTokenReturns = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) RefreshTokenReturnsOnCall(i int, result1 string, result2 error) {
+	fake.refreshTokenMutex.Lock()
+	defer fake.refreshTokenMutex.Unlock()
+	fake.RefreshTokenStub = nil
+	if fake.refreshTokenReturnsOnCall == nil {
+		fake.refreshTokenReturnsOnCall = make(map[int]struct {
+			result1 string
+			result2 error
+		})
+	}
+	fake.refreshTokenReturnsOnCall[i] = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeServiceInterface) UpdateUsers(arg1 []model.User) (interface{}, error) {
 	var arg1Copy []model.User
 	if arg1 != nil {
@@ -555,6 +860,8 @@ func (fake *FakeServiceInterface) UpdateUsersReturnsOnCall(i int, result1 interf
 func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.authenticateUserMutex.RLock()
+	defer fake.authenticateUserMutex.RUnlock()
 	fake.createUserMutex.RLock()
 	defer fake.createUserMutex.RUnlock()
 	fake.deleteUsersMutex.RLock()
@@ -567,6 +874,12 @@ func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	defer fake.getTeamMembersByUserIDMutex.RUnlock()
 	fake.getUserByIDMutex.RLock()
 	defer fake.getUserByIDMutex.RUnlock()
+	fake.loginUserMutex.RLock()
+	defer fake.loginUserMutex.RUnlock()
+	fake.logoutUserMutex.RLock()
+	defer fake.logoutUserMutex.RUnlock()
+	fake.refreshTokenMutex.RLock()
+	defer fake.refreshTokenMutex.RUnlock()
 	fake.updateUsersMutex.RLock()
 	defer fake.updateUsersMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
