@@ -1,6 +1,7 @@
 package service_test
 
 import (
+	"crypto/sha256"
 	"errors"
 	"example-project/model"
 	"example-project/service"
@@ -189,4 +190,83 @@ func TestDeleteUser_Invalid_ID(t *testing.T) {
 	result, err := serviceInstance.DeleteUsers("1")
 	assert.Nil(t, result)
 	assert.Error(t, err, "encoding/hex: odd length hex string")
+}
+
+func TestEmployeeService_LoginUser(t *testing.T) {
+	fakePw := "pa55word"
+	fakePwWrong := "password"
+	fakeUserPwHash := sha256.Sum256([]byte(fakePw))
+	fakeUser := model.User{ID: primitive.NewObjectID(), Username: "Hans", Password: fakeUserPwHash}
+	fakeError := errors.New("invalid login")
+
+	var tests = []struct {
+		GetUserError   bool
+		PasswordsError bool
+	}{
+		{true, false},
+		{false, true},
+		{false, false},
+	}
+
+	for _, tt := range tests {
+		fakeDB := &servicefakes.FakeDatabaseInterface{}
+		serviceInstance := service.NewEmployeeService(fakeDB)
+		if tt.GetUserError {
+			fakeDB.GetUserByUsernameReturns(fakeUser, fakeError)
+			_, err := serviceInstance.LoginUser(fakeUser.Username, fakePw)
+
+			assert.Equal(t, fakeError.Error(), err.Error())
+		}
+
+		if tt.PasswordsError {
+			fakeDB.GetUserByUsernameReturns(fakeUser, nil)
+			_, err := serviceInstance.LoginUser(fakeUser.Username, fakePwWrong)
+
+			assert.Equal(t, fakeError.Error(), err.Error())
+		}
+
+		fakeDB.GetUserByUsernameReturns(fakeUser, nil)
+		_, err := serviceInstance.LoginUser(fakeUser.Username, fakePw)
+
+		assert.Nil(t, err)
+	}
+}
+
+func TestEmployeeService_LogoutUserF(t *testing.T) {
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	serviceInstance := service.NewEmployeeService(fakeDB)
+	sMap := service.SessionMap
+	sMap["fake"] = "fakeToken"
+
+	result := serviceInstance.LogoutUser("fake")
+
+	assert.Equal(t, true, result)
+
+}
+
+func TestEmployeeService_LogoutUser(t *testing.T) {
+	var tests = []struct {
+		userInMap bool
+	}{
+		{true},
+		{false},
+	}
+
+	for _, tt := range tests {
+		fakeDB := &servicefakes.FakeDatabaseInterface{}
+		serviceInstance := service.NewEmployeeService(fakeDB)
+		sMap := service.SessionMap
+		if tt.userInMap {
+			sMap["fake"] = "fakeToken"
+			result := serviceInstance.LogoutUser("fake")
+
+			assert.Equal(t, tt.userInMap, result)
+		} else {
+			result := serviceInstance.LogoutUser("faker")
+
+			assert.Equal(t, tt.userInMap, result)
+
+		}
+
+	}
 }
