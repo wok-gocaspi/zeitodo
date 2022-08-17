@@ -6,6 +6,8 @@ import (
 	"example-project/model"
 	"net/http"
 	"sync"
+
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type FakeServiceInterface struct {
@@ -24,6 +26,20 @@ type FakeServiceInterface struct {
 		result1 bool
 		result2 error
 	}
+	CreateProposalsStub        func([]model.ProposalPayload, string) (interface{}, error)
+	createProposalsMutex       sync.RWMutex
+	createProposalsArgsForCall []struct {
+		arg1 []model.ProposalPayload
+		arg2 string
+	}
+	createProposalsReturns struct {
+		result1 interface{}
+		result2 error
+	}
+	createProposalsReturnsOnCall map[int]struct {
+		result1 interface{}
+		result2 error
+	}
 	CreateUserStub        func(model.UserSignupPayload) (interface{}, error)
 	createUserMutex       sync.RWMutex
 	createUserArgsForCall []struct {
@@ -36,6 +52,18 @@ type FakeServiceInterface struct {
 	createUserReturnsOnCall map[int]struct {
 		result1 interface{}
 		result2 error
+	}
+	DeleteProposalsByIDStub        func(string, string) error
+	deleteProposalsByIDMutex       sync.RWMutex
+	deleteProposalsByIDArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	deleteProposalsByIDReturns struct {
+		result1 error
+	}
+	deleteProposalsByIDReturnsOnCall map[int]struct {
+		result1 error
 	}
 	DeleteUsersStub        func(string) (interface{}, error)
 	deleteUsersMutex       sync.RWMutex
@@ -60,6 +88,19 @@ type FakeServiceInterface struct {
 	}
 	getAllUserReturnsOnCall map[int]struct {
 		result1 []model.UserPayload
+		result2 error
+	}
+	GetProposalsByIDStub        func(string) ([]model.Proposal, error)
+	getProposalsByIDMutex       sync.RWMutex
+	getProposalsByIDArgsForCall []struct {
+		arg1 string
+	}
+	getProposalsByIDReturns struct {
+		result1 []model.Proposal
+		result2 error
+	}
+	getProposalsByIDReturnsOnCall map[int]struct {
+		result1 []model.Proposal
 		result2 error
 	}
 	GetTeamMembersByNameStub        func(string) (interface{}, error)
@@ -126,6 +167,20 @@ type FakeServiceInterface struct {
 	}
 	refreshTokenReturnsOnCall map[int]struct {
 		result1 string
+		result2 error
+	}
+	UpdateProposalByDateStub        func(model.Proposal, string) (*mongo.UpdateResult, error)
+	updateProposalByDateMutex       sync.RWMutex
+	updateProposalByDateArgsForCall []struct {
+		arg1 model.Proposal
+		arg2 string
+	}
+	updateProposalByDateReturns struct {
+		result1 *mongo.UpdateResult
+		result2 error
+	}
+	updateProposalByDateReturnsOnCall map[int]struct {
+		result1 *mongo.UpdateResult
 		result2 error
 	}
 	UpdateUsersStub        func([]model.User) (interface{}, error)
@@ -211,6 +266,76 @@ func (fake *FakeServiceInterface) AuthenticateUserReturnsOnCall(i int, result1 b
 	}{result1, result2}
 }
 
+func (fake *FakeServiceInterface) CreateProposals(arg1 []model.ProposalPayload, arg2 string) (interface{}, error) {
+	var arg1Copy []model.ProposalPayload
+	if arg1 != nil {
+		arg1Copy = make([]model.ProposalPayload, len(arg1))
+		copy(arg1Copy, arg1)
+	}
+	fake.createProposalsMutex.Lock()
+	ret, specificReturn := fake.createProposalsReturnsOnCall[len(fake.createProposalsArgsForCall)]
+	fake.createProposalsArgsForCall = append(fake.createProposalsArgsForCall, struct {
+		arg1 []model.ProposalPayload
+		arg2 string
+	}{arg1Copy, arg2})
+	stub := fake.CreateProposalsStub
+	fakeReturns := fake.createProposalsReturns
+	fake.recordInvocation("CreateProposals", []interface{}{arg1Copy, arg2})
+	fake.createProposalsMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeServiceInterface) CreateProposalsCallCount() int {
+	fake.createProposalsMutex.RLock()
+	defer fake.createProposalsMutex.RUnlock()
+	return len(fake.createProposalsArgsForCall)
+}
+
+func (fake *FakeServiceInterface) CreateProposalsCalls(stub func([]model.ProposalPayload, string) (interface{}, error)) {
+	fake.createProposalsMutex.Lock()
+	defer fake.createProposalsMutex.Unlock()
+	fake.CreateProposalsStub = stub
+}
+
+func (fake *FakeServiceInterface) CreateProposalsArgsForCall(i int) ([]model.ProposalPayload, string) {
+	fake.createProposalsMutex.RLock()
+	defer fake.createProposalsMutex.RUnlock()
+	argsForCall := fake.createProposalsArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeServiceInterface) CreateProposalsReturns(result1 interface{}, result2 error) {
+	fake.createProposalsMutex.Lock()
+	defer fake.createProposalsMutex.Unlock()
+	fake.CreateProposalsStub = nil
+	fake.createProposalsReturns = struct {
+		result1 interface{}
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) CreateProposalsReturnsOnCall(i int, result1 interface{}, result2 error) {
+	fake.createProposalsMutex.Lock()
+	defer fake.createProposalsMutex.Unlock()
+	fake.CreateProposalsStub = nil
+	if fake.createProposalsReturnsOnCall == nil {
+		fake.createProposalsReturnsOnCall = make(map[int]struct {
+			result1 interface{}
+			result2 error
+		})
+	}
+	fake.createProposalsReturnsOnCall[i] = struct {
+		result1 interface{}
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeServiceInterface) CreateUser(arg1 model.UserSignupPayload) (interface{}, error) {
 	fake.createUserMutex.Lock()
 	ret, specificReturn := fake.createUserReturnsOnCall[len(fake.createUserArgsForCall)]
@@ -273,6 +398,68 @@ func (fake *FakeServiceInterface) CreateUserReturnsOnCall(i int, result1 interfa
 		result1 interface{}
 		result2 error
 	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) DeleteProposalsByID(arg1 string, arg2 string) error {
+	fake.deleteProposalsByIDMutex.Lock()
+	ret, specificReturn := fake.deleteProposalsByIDReturnsOnCall[len(fake.deleteProposalsByIDArgsForCall)]
+	fake.deleteProposalsByIDArgsForCall = append(fake.deleteProposalsByIDArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.DeleteProposalsByIDStub
+	fakeReturns := fake.deleteProposalsByIDReturns
+	fake.recordInvocation("DeleteProposalsByID", []interface{}{arg1, arg2})
+	fake.deleteProposalsByIDMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeServiceInterface) DeleteProposalsByIDCallCount() int {
+	fake.deleteProposalsByIDMutex.RLock()
+	defer fake.deleteProposalsByIDMutex.RUnlock()
+	return len(fake.deleteProposalsByIDArgsForCall)
+}
+
+func (fake *FakeServiceInterface) DeleteProposalsByIDCalls(stub func(string, string) error) {
+	fake.deleteProposalsByIDMutex.Lock()
+	defer fake.deleteProposalsByIDMutex.Unlock()
+	fake.DeleteProposalsByIDStub = stub
+}
+
+func (fake *FakeServiceInterface) DeleteProposalsByIDArgsForCall(i int) (string, string) {
+	fake.deleteProposalsByIDMutex.RLock()
+	defer fake.deleteProposalsByIDMutex.RUnlock()
+	argsForCall := fake.deleteProposalsByIDArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeServiceInterface) DeleteProposalsByIDReturns(result1 error) {
+	fake.deleteProposalsByIDMutex.Lock()
+	defer fake.deleteProposalsByIDMutex.Unlock()
+	fake.DeleteProposalsByIDStub = nil
+	fake.deleteProposalsByIDReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeServiceInterface) DeleteProposalsByIDReturnsOnCall(i int, result1 error) {
+	fake.deleteProposalsByIDMutex.Lock()
+	defer fake.deleteProposalsByIDMutex.Unlock()
+	fake.DeleteProposalsByIDStub = nil
+	if fake.deleteProposalsByIDReturnsOnCall == nil {
+		fake.deleteProposalsByIDReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.deleteProposalsByIDReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *FakeServiceInterface) DeleteUsers(arg1 string) (interface{}, error) {
@@ -391,6 +578,70 @@ func (fake *FakeServiceInterface) GetAllUserReturnsOnCall(i int, result1 []model
 	}
 	fake.getAllUserReturnsOnCall[i] = struct {
 		result1 []model.UserPayload
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) GetProposalsByID(arg1 string) ([]model.Proposal, error) {
+	fake.getProposalsByIDMutex.Lock()
+	ret, specificReturn := fake.getProposalsByIDReturnsOnCall[len(fake.getProposalsByIDArgsForCall)]
+	fake.getProposalsByIDArgsForCall = append(fake.getProposalsByIDArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.GetProposalsByIDStub
+	fakeReturns := fake.getProposalsByIDReturns
+	fake.recordInvocation("GetProposalsByID", []interface{}{arg1})
+	fake.getProposalsByIDMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeServiceInterface) GetProposalsByIDCallCount() int {
+	fake.getProposalsByIDMutex.RLock()
+	defer fake.getProposalsByIDMutex.RUnlock()
+	return len(fake.getProposalsByIDArgsForCall)
+}
+
+func (fake *FakeServiceInterface) GetProposalsByIDCalls(stub func(string) ([]model.Proposal, error)) {
+	fake.getProposalsByIDMutex.Lock()
+	defer fake.getProposalsByIDMutex.Unlock()
+	fake.GetProposalsByIDStub = stub
+}
+
+func (fake *FakeServiceInterface) GetProposalsByIDArgsForCall(i int) string {
+	fake.getProposalsByIDMutex.RLock()
+	defer fake.getProposalsByIDMutex.RUnlock()
+	argsForCall := fake.getProposalsByIDArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeServiceInterface) GetProposalsByIDReturns(result1 []model.Proposal, result2 error) {
+	fake.getProposalsByIDMutex.Lock()
+	defer fake.getProposalsByIDMutex.Unlock()
+	fake.GetProposalsByIDStub = nil
+	fake.getProposalsByIDReturns = struct {
+		result1 []model.Proposal
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) GetProposalsByIDReturnsOnCall(i int, result1 []model.Proposal, result2 error) {
+	fake.getProposalsByIDMutex.Lock()
+	defer fake.getProposalsByIDMutex.Unlock()
+	fake.GetProposalsByIDStub = nil
+	if fake.getProposalsByIDReturnsOnCall == nil {
+		fake.getProposalsByIDReturnsOnCall = make(map[int]struct {
+			result1 []model.Proposal
+			result2 error
+		})
+	}
+	fake.getProposalsByIDReturnsOnCall[i] = struct {
+		result1 []model.Proposal
 		result2 error
 	}{result1, result2}
 }
@@ -716,6 +967,71 @@ func (fake *FakeServiceInterface) RefreshTokenReturnsOnCall(i int, result1 strin
 	}{result1, result2}
 }
 
+func (fake *FakeServiceInterface) UpdateProposalByDate(arg1 model.Proposal, arg2 string) (*mongo.UpdateResult, error) {
+	fake.updateProposalByDateMutex.Lock()
+	ret, specificReturn := fake.updateProposalByDateReturnsOnCall[len(fake.updateProposalByDateArgsForCall)]
+	fake.updateProposalByDateArgsForCall = append(fake.updateProposalByDateArgsForCall, struct {
+		arg1 model.Proposal
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.UpdateProposalByDateStub
+	fakeReturns := fake.updateProposalByDateReturns
+	fake.recordInvocation("UpdateProposalByDate", []interface{}{arg1, arg2})
+	fake.updateProposalByDateMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeServiceInterface) UpdateProposalByDateCallCount() int {
+	fake.updateProposalByDateMutex.RLock()
+	defer fake.updateProposalByDateMutex.RUnlock()
+	return len(fake.updateProposalByDateArgsForCall)
+}
+
+func (fake *FakeServiceInterface) UpdateProposalByDateCalls(stub func(model.Proposal, string) (*mongo.UpdateResult, error)) {
+	fake.updateProposalByDateMutex.Lock()
+	defer fake.updateProposalByDateMutex.Unlock()
+	fake.UpdateProposalByDateStub = stub
+}
+
+func (fake *FakeServiceInterface) UpdateProposalByDateArgsForCall(i int) (model.Proposal, string) {
+	fake.updateProposalByDateMutex.RLock()
+	defer fake.updateProposalByDateMutex.RUnlock()
+	argsForCall := fake.updateProposalByDateArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeServiceInterface) UpdateProposalByDateReturns(result1 *mongo.UpdateResult, result2 error) {
+	fake.updateProposalByDateMutex.Lock()
+	defer fake.updateProposalByDateMutex.Unlock()
+	fake.UpdateProposalByDateStub = nil
+	fake.updateProposalByDateReturns = struct {
+		result1 *mongo.UpdateResult
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) UpdateProposalByDateReturnsOnCall(i int, result1 *mongo.UpdateResult, result2 error) {
+	fake.updateProposalByDateMutex.Lock()
+	defer fake.updateProposalByDateMutex.Unlock()
+	fake.UpdateProposalByDateStub = nil
+	if fake.updateProposalByDateReturnsOnCall == nil {
+		fake.updateProposalByDateReturnsOnCall = make(map[int]struct {
+			result1 *mongo.UpdateResult
+			result2 error
+		})
+	}
+	fake.updateProposalByDateReturnsOnCall[i] = struct {
+		result1 *mongo.UpdateResult
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeServiceInterface) UpdateUsers(arg1 []model.User) (interface{}, error) {
 	var arg1Copy []model.User
 	if arg1 != nil {
@@ -790,12 +1106,18 @@ func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	defer fake.invocationsMutex.RUnlock()
 	fake.authenticateUserMutex.RLock()
 	defer fake.authenticateUserMutex.RUnlock()
+	fake.createProposalsMutex.RLock()
+	defer fake.createProposalsMutex.RUnlock()
 	fake.createUserMutex.RLock()
 	defer fake.createUserMutex.RUnlock()
+	fake.deleteProposalsByIDMutex.RLock()
+	defer fake.deleteProposalsByIDMutex.RUnlock()
 	fake.deleteUsersMutex.RLock()
 	defer fake.deleteUsersMutex.RUnlock()
 	fake.getAllUserMutex.RLock()
 	defer fake.getAllUserMutex.RUnlock()
+	fake.getProposalsByIDMutex.RLock()
+	defer fake.getProposalsByIDMutex.RUnlock()
 	fake.getTeamMembersByNameMutex.RLock()
 	defer fake.getTeamMembersByNameMutex.RUnlock()
 	fake.getTeamMembersByUserIDMutex.RLock()
@@ -806,6 +1128,8 @@ func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	defer fake.loginUserMutex.RUnlock()
 	fake.refreshTokenMutex.RLock()
 	defer fake.refreshTokenMutex.RUnlock()
+	fake.updateProposalByDateMutex.RLock()
+	defer fake.updateProposalByDateMutex.RUnlock()
 	fake.updateUsersMutex.RLock()
 	defer fake.updateUsersMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

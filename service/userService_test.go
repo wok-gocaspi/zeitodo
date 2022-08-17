@@ -114,7 +114,8 @@ func TestGetTeamMembersByName_Return_invalid_database_error(t *testing.T) {
 
 func TestCreateUser_Return_valid(t *testing.T) {
 	fakeUser := model.UserSignupPayload{Username: "pganz", Password: "123", FirstName: "Peter", LastName: "Ganz", Email: "p.ganz@gmail.com"}
-	var dbReturn interface{}
+	dbInsertedIDS := primitive.NewObjectID()
+	var dbReturn interface{} = dbInsertedIDS
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
 	fakeDB.CreateUserReturns(dbReturn, nil)
 	serviceInstance := service.NewEmployeeService(fakeDB)
@@ -148,7 +149,7 @@ func TestCreateUser_Return_existing_user(t *testing.T) {
 	var dbInterface interface{} = dbReturn
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
 	fakeDB.CreateUserReturns(dbInterface, nil)
-	fakeDB.GetUserByUsernameReturns(model.UserPayload{Username: "123"}, nil)
+	fakeDB.GetUserByUsernameReturns(model.User{Username: "123"}, nil)
 	serviceInstance := service.NewEmployeeService(fakeDB)
 	_, err := serviceInstance.CreateUser(fakeUser)
 	assert.Error(t, err, "user already exists, please choose another username")
