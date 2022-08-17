@@ -3,22 +3,12 @@ package model
 import (
 	"errors"
 	"fmt"
+	"github.com/retailify/go-interval"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"strings"
 	"time"
 )
-
-type Employee struct {
-	ID        string `json:"id"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Email     string `json:"email"`
-}
-
-type Payload struct {
-	Employees []Employee `json:"employees"`
-}
 
 type DbConfig struct {
 	URL      string
@@ -36,6 +26,7 @@ type User struct {
 	Projects          []string           `json:"projects" bson:"projects"`
 	TotalWorkingHours float32            `json:"totalWorkingHours" bson:"totalWorkingHours"`
 	VacationDays      int                `json:"vacationDays" bson:"vacationDays"`
+	Group             string             `json:"group" bson:"group"`
 }
 
 type UserSignupPayload struct {
@@ -89,8 +80,8 @@ type UserAuthPayload struct {
 type TeamMember struct {
 	ID        primitive.ObjectID `json:"id" bson:"_id"`
 	Username  string             `json:"username" bson:"username"`
-	FirstName string             `json:"first_name" bson:"first_name"`
-	LastName  string             `json:"last_name" bson:"lastName"`
+	FirstName string             `json:"firstname" bson:"firstname"`
+	LastName  string             `json:"lastname" bson:"lastname"`
 	Email     string             `json:"email" bson:"email"`
 }
 
@@ -104,11 +95,32 @@ type TimeEntry struct {
 }
 
 type Proposal struct {
-	UserId    string    `json:"userId" bson:"userId"`
-	StartDate time.Time `json:"startDate" bson:"startDate"`
-	EndDate   time.Time `json:"endDate" bson:"endDate"`
-	Approved  bool      `json:"approved" bson:"approved"`
-	Type      string    `json:"type" bson:"type"`
+	UserId    string `json:"userId" bson:"userId"`
+	StartDate string `json:"startDate" bson:"startDate"`
+	EndDate   string `json:"endDate" bson:"endDate"`
+	Approved  bool   `json:"approved" bson:"approved"`
+	Type      string `json:"type" bson:"type"`
+	//	ID         primitive.ObjectID `bson:"_id" json:"id,omitempty"`
+	TimeObject ProposalTimeObject `json:"timeObject" bson:"timeObject"`
+}
+
+type ProposalTimeObject struct {
+	Duration time.Duration
+	Interval *interval.TimeInterval
+	//	Err      error
+}
+
+type ProposalPayload struct {
+	UserId    string `json:"userId" bson:"userId"`
+	StartDate string `json:"startDate" bson:"startDate"`
+	EndDate   string `json:"endDate" bson:"endDate"`
+	Type      string `json:"type" bson:"type"`
+}
+
+type ProposalTimeStringObject struct {
+	Duration time.Duration
+	Interval interval.TimeInterval
+	//	Err      error
 }
 
 type Permission struct {

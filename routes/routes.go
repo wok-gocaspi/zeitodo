@@ -18,6 +18,10 @@ type HandlerInterface interface {
 	LoginUserHandler(c *gin.Context)
 	LogoutUserHandler(c *gin.Context)
 	RefreshTokenHandler(c *gin.Context)
+	GetProposalsById(c *gin.Context)
+	CreateProposalsHandler(c *gin.Context)
+	DeleteProposalHandler(c *gin.Context)
+	UpdateProposalsHandler(c *gin.Context)
 }
 
 var Handler HandlerInterface
@@ -38,6 +42,12 @@ func CreateRoutes(group *gin.RouterGroup) {
 	user.GET("/team", Handler.PermissionMiddleware, Handler.GetTeamMemberHandler)
 	user.PUT("/", Handler.PermissionMiddleware, Handler.UpdateUserHandler)
 	user.DELETE("/:id", Handler.PermissionMiddleware, Handler.DeleteUserHandler)
+	route := group.Group("/employee")
+	route.Use(CORS)
+	route.GET("/:id/proposals", Handler.GetProposalsById)
+	route.POST("/:id/proposals/create", Handler.CreateProposalsHandler)
+	route.DELETE("/:id/proposals/delete", Handler.DeleteProposalHandler)
+	route.PATCH("/proposals/patch", Handler.UpdateProposalsHandler)
 }
 func CORS(c *gin.Context) {
 

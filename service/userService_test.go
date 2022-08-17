@@ -142,6 +142,18 @@ func TestCreateUser_Return_invalid_payload(t *testing.T) {
 	assert.Error(t, err, "insufficent user data")
 }
 
+func TestCreateUser_Return_existing_user(t *testing.T) {
+	fakeUser := model.UserSignupPayload{Username: "pganz", FirstName: "Peter", LastName: "Ganz", Email: "p.ganz@gmail.com"}
+	dbReturn := primitive.NewObjectID()
+	var dbInterface interface{} = dbReturn
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	fakeDB.CreateUserReturns(dbInterface, nil)
+	fakeDB.GetUserByUsernameReturns(model.UserPayload{Username: "123"}, nil)
+	serviceInstance := service.NewEmployeeService(fakeDB)
+	_, err := serviceInstance.CreateUser(fakeUser)
+	assert.Error(t, err, "user already exists, please choose another username")
+}
+
 func TestUpdateUser_Return_valid(t *testing.T) {
 	fakeUserArray := []model.User{
 		{ID: primitive.NewObjectID(), LastName: "Hans"},
