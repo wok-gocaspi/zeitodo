@@ -115,17 +115,6 @@ type FakeServiceInterface struct {
 		result1 http.Cookie
 		result2 error
 	}
-	LogoutUserStub        func(string) bool
-	logoutUserMutex       sync.RWMutex
-	logoutUserArgsForCall []struct {
-		arg1 string
-	}
-	logoutUserReturns struct {
-		result1 bool
-	}
-	logoutUserReturnsOnCall map[int]struct {
-		result1 bool
-	}
 	RefreshTokenStub        func(string) (string, error)
 	refreshTokenMutex       sync.RWMutex
 	refreshTokenArgsForCall []struct {
@@ -663,67 +652,6 @@ func (fake *FakeServiceInterface) LoginUserReturnsOnCall(i int, result1 http.Coo
 	}{result1, result2}
 }
 
-func (fake *FakeServiceInterface) LogoutUser(arg1 string) bool {
-	fake.logoutUserMutex.Lock()
-	ret, specificReturn := fake.logoutUserReturnsOnCall[len(fake.logoutUserArgsForCall)]
-	fake.logoutUserArgsForCall = append(fake.logoutUserArgsForCall, struct {
-		arg1 string
-	}{arg1})
-	stub := fake.LogoutUserStub
-	fakeReturns := fake.logoutUserReturns
-	fake.recordInvocation("LogoutUser", []interface{}{arg1})
-	fake.logoutUserMutex.Unlock()
-	if stub != nil {
-		return stub(arg1)
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	return fakeReturns.result1
-}
-
-func (fake *FakeServiceInterface) LogoutUserCallCount() int {
-	fake.logoutUserMutex.RLock()
-	defer fake.logoutUserMutex.RUnlock()
-	return len(fake.logoutUserArgsForCall)
-}
-
-func (fake *FakeServiceInterface) LogoutUserCalls(stub func(string) bool) {
-	fake.logoutUserMutex.Lock()
-	defer fake.logoutUserMutex.Unlock()
-	fake.LogoutUserStub = stub
-}
-
-func (fake *FakeServiceInterface) LogoutUserArgsForCall(i int) string {
-	fake.logoutUserMutex.RLock()
-	defer fake.logoutUserMutex.RUnlock()
-	argsForCall := fake.logoutUserArgsForCall[i]
-	return argsForCall.arg1
-}
-
-func (fake *FakeServiceInterface) LogoutUserReturns(result1 bool) {
-	fake.logoutUserMutex.Lock()
-	defer fake.logoutUserMutex.Unlock()
-	fake.LogoutUserStub = nil
-	fake.logoutUserReturns = struct {
-		result1 bool
-	}{result1}
-}
-
-func (fake *FakeServiceInterface) LogoutUserReturnsOnCall(i int, result1 bool) {
-	fake.logoutUserMutex.Lock()
-	defer fake.logoutUserMutex.Unlock()
-	fake.LogoutUserStub = nil
-	if fake.logoutUserReturnsOnCall == nil {
-		fake.logoutUserReturnsOnCall = make(map[int]struct {
-			result1 bool
-		})
-	}
-	fake.logoutUserReturnsOnCall[i] = struct {
-		result1 bool
-	}{result1}
-}
-
 func (fake *FakeServiceInterface) RefreshToken(arg1 string) (string, error) {
 	fake.refreshTokenMutex.Lock()
 	ret, specificReturn := fake.refreshTokenReturnsOnCall[len(fake.refreshTokenArgsForCall)]
@@ -876,8 +804,6 @@ func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	defer fake.getUserByIDMutex.RUnlock()
 	fake.loginUserMutex.RLock()
 	defer fake.loginUserMutex.RUnlock()
-	fake.logoutUserMutex.RLock()
-	defer fake.logoutUserMutex.RUnlock()
 	fake.refreshTokenMutex.RLock()
 	defer fake.refreshTokenMutex.RUnlock()
 	fake.updateUsersMutex.RLock()

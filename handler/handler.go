@@ -19,7 +19,6 @@ type ServiceInterface interface {
 	GetTeamMembersByName(name string) (interface{}, error)
 	DeleteUsers(id string) (interface{}, error)
 	LoginUser(username string, password string) (http.Cookie, error)
-	LogoutUser(userid string) bool
 	RefreshToken(token string) (string, error)
 	AuthenticateUser(url string, method string, token string) (bool, error)
 }
@@ -195,7 +194,7 @@ func (handler Handler) LoginUserHandler(c *gin.Context) {
 		return
 	}
 	c.SetCookie(response.Name, response.Value, 3600, response.Path, response.Domain, response.Secure, response.HttpOnly)
-	c.Status(200)
+	c.Status(http.StatusOK)
 }
 
 func (handler Handler) LogoutUserHandler(c *gin.Context) {
@@ -207,7 +206,7 @@ func (handler Handler) LogoutUserHandler(c *gin.Context) {
 		return
 	}
 	c.SetCookie("token", "", 0, "", "", true, true)
-	c.Status(200)
+	c.Status(http.StatusOK)
 	return
 }
 
@@ -227,7 +226,7 @@ func (handler Handler) RefreshTokenHandler(c *gin.Context) {
 		return
 	}
 	c.SetCookie("token", token, 3600, "/", "localhost", false, true)
-	c.Status(200)
+	c.Status(http.StatusOK)
 }
 
 func (handler Handler) PermissionMiddleware(c *gin.Context) {

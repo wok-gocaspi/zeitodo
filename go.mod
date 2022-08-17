@@ -6,6 +6,7 @@ require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/joho/godotenv v1.3.0
+	github.com/retailify/go-interval v0.0.0-20180427165929-297a169340a9
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.5.0 // indirect
 	github.com/stretchr/testify v1.8.0
 	go.mongodb.org/mongo-driver v1.5.3

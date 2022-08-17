@@ -1,10 +1,13 @@
 package service_test
 
 import (
+	"crypto/sha256"
 	"errors"
 	"example-project/model"
+	"example-project/routes"
 	"example-project/service"
 	"example-project/service/servicefakes"
+	"example-project/utils"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -189,4 +192,162 @@ func TestDeleteUser_Invalid_ID(t *testing.T) {
 	result, err := serviceInstance.DeleteUsers("1")
 	assert.Nil(t, result)
 	assert.Error(t, err, "encoding/hex: odd length hex string")
+}
+
+func TestEmployeeService_LoginUser(t *testing.T) {
+	fakePw := "pa55word"
+	fakePwWrong := "password"
+	fakeUserPwHash := sha256.Sum256([]byte(fakePw))
+	fakeUser := model.User{ID: primitive.NewObjectID(), Username: "Hans", Password: fakeUserPwHash}
+	fakeError := errors.New("invalid login")
+
+	var tests = []struct {
+		GetUserError   bool
+		PasswordsError bool
+	}{
+		{true, false},
+		{false, true},
+		{false, false},
+	}
+
+	for _, tt := range tests {
+		fakeDB := &servicefakes.FakeDatabaseInterface{}
+		serviceInstance := service.NewEmployeeService(fakeDB)
+		if tt.GetUserError {
+			fakeDB.GetUserByUsernameReturns(fakeUser, fakeError)
+			_, err := serviceInstance.LoginUser(fakeUser.Username, fakePw)
+
+			assert.Equal(t, fakeError.Error(), err.Error())
+		}
+
+		if tt.PasswordsError {
+			fakeDB.GetUserByUsernameReturns(fakeUser, nil)
+			_, err := serviceInstance.LoginUser(fakeUser.Username, fakePwWrong)
+
+			assert.Equal(t, fakeError.Error(), err.Error())
+		}
+
+		fakeDB.GetUserByUsernameReturns(fakeUser, nil)
+		_, err := serviceInstance.LoginUser(fakeUser.Username, fakePw)
+
+		assert.Nil(t, err)
+	}
+}
+
+func TestEmployeeService_LogoutUserF(t *testing.T) {
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	serviceInstance := service.NewEmployeeService(fakeDB)
+	sMap := service.SessionMap
+	sMap["fake"] = "fakeToken"
+
+	result := serviceInstance.LogoutUser("fake")
+
+	assert.Equal(t, true, result)
+
+}
+
+func TestEmployeeService_LogoutUser(t *testing.T) {
+	var tests = []struct {
+		userInMap bool
+	}{
+		{true},
+		{false},
+	}
+
+	for _, tt := range tests {
+		fakeDB := &servicefakes.FakeDatabaseInterface{}
+		serviceInstance := service.NewEmployeeService(fakeDB)
+		sMap := service.SessionMap
+		if tt.userInMap {
+			sMap["fake"] = "fakeToken"
+			result := serviceInstance.LogoutUser("fake")
+
+			assert.Equal(t, tt.userInMap, result)
+		} else {
+			result := serviceInstance.LogoutUser("faker")
+
+			assert.Equal(t, tt.userInMap, result)
+
+		}
+
+	}
+}
+
+func TestRefreshToken(t *testing.T) {
+	fakeToken := utils.GenerateToken(primitive.NewObjectID())
+
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	serviceInstance := service.NewEmployeeService(fakeDB)
+	var tests = []struct {
+		token          string
+		expectedResult string
+		doExpectErr    bool
+	}{
+		{fakeToken, fakeToken, false},
+		{"banana", "", true},
+	}
+
+	for _, tt := range tests {
+		actualResult, actualErr := serviceInstance.RefreshToken(tt.token)
+
+		assert.Equal(t, tt.doExpectErr, actualErr != nil)
+		if !tt.doExpectErr {
+			assert.Equal(t, tt.token, actualResult)
+		}
+	}
+}
+
+func TestAuthenticateUser(t *testing.T) {
+	fakeUserID := primitive.NewObjectID()
+	fakeToken := utils.GenerateToken(fakeUserID)
+	fakeUser := model.UserPayload{Group: "user"}
+	fakeAdmin := model.UserPayload{Group: "admin"}
+
+	routes.PermissionList.Permissions = append(routes.PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET"}, GetSameUser: true, Group: "user"})
+	routes.PermissionList.Permissions = append(routes.PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "POST", "PUT", "DELETE"}, GetSameUser: false, Group: "admin"})
+
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	serviceInstance := service.NewEmployeeService(fakeDB)
+
+	var tests = []struct {
+		url            string
+		userPayload    model.UserPayload
+		method         string
+		token          string
+		expectedResult bool
+		doExpectErr    bool
+	}{
+		{"/user/" + fakeUserID.Hex(), fakeUser, "GET", fakeToken, true, false},
+		{"/user/", fakeAdmin, "GET", fakeToken, true, false},
+		{"/user/", fakeUser, "POST", fakeToken, false, true},
+		{"/user/", fakeAdmin, "POST", fakeToken, true, false},
+	}
+
+	for _, tt := range tests {
+		fakeDB.GetUserByIDReturns(tt.userPayload, nil)
+
+		actualResult, actualErr := serviceInstance.AuthenticateUser(tt.url, tt.method, tt.token)
+
+		assert.Equal(t, tt.expectedResult, actualResult)
+		assert.Equal(t, tt.doExpectErr, actualErr != nil)
+	}
+}
+
+func TestAuthenticateUserErrorGetUserByID(t *testing.T) {
+	fakeUserID := primitive.NewObjectID()
+	fakeToken := utils.GenerateToken(fakeUserID)
+
+	routes.PermissionList.Permissions = append(routes.PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET"}, GetSameUser: true, Group: "user"})
+	routes.PermissionList.Permissions = append(routes.PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "POST", "PUT", "DELETE"}, GetSameUser: false, Group: "admin"})
+
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	serviceInstance := service.NewEmployeeService(fakeDB)
+	fakeError := errors.New("test error")
+
+	fakeDB.GetUserByIDReturns(model.UserPayload{}, fakeError)
+
+	actualResult, actualErr := serviceInstance.AuthenticateUser("/user/", "GET", fakeToken)
+
+	assert.Equal(t, false, actualResult)
+	assert.Equal(t, fakeError, actualErr)
 }
