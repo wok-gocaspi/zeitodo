@@ -1,10 +1,13 @@
 package service_test
 
 import (
+	"crypto/sha256"
 	"errors"
 	"example-project/model"
+	"example-project/routes"
 	"example-project/service"
 	"example-project/service/servicefakes"
+	"example-project/utils"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
