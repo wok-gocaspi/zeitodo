@@ -42,12 +42,12 @@ func CreateRoutes(group *gin.RouterGroup) {
 	user.GET("/team", Handler.PermissionMiddleware, Handler.GetTeamMemberHandler)
 	user.PUT("/", Handler.PermissionMiddleware, Handler.UpdateUserHandler)
 	user.DELETE("/:id", Handler.PermissionMiddleware, Handler.DeleteUserHandler)
-	route := group.Group("/employee")
+	route := group.Group("/proposals")
 	route.Use(CORS)
-	route.GET("/:id/proposals", Handler.GetProposalsById)
-	route.POST("/:id/proposals/create", Handler.CreateProposalsHandler)
-	route.DELETE("/:id/proposals/delete", Handler.DeleteProposalHandler)
-	route.PATCH("/proposals/patch", Handler.UpdateProposalsHandler)
+	route.GET("/:id", Handler.GetProposalsById)
+	route.POST("/:id", Handler.CreateProposalsHandler)
+	route.DELETE("/:id", Handler.DeleteProposalHandler)
+	route.PATCH("/", Handler.UpdateProposalsHandler)
 }
 func CORS(c *gin.Context) {
 
