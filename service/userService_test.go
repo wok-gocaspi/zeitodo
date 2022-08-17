@@ -1,7 +1,6 @@
 package service_test
 
 import (
-	"crypto/sha256"
 	"errors"
 	"example-project/model"
 	"example-project/service"
@@ -269,4 +268,83 @@ func TestEmployeeService_LogoutUser(t *testing.T) {
 		}
 
 	}
+}
+
+func TestRefreshToken(t *testing.T) {
+	fakeToken := utils.GenerateToken(primitive.NewObjectID())
+
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	serviceInstance := service.NewEmployeeService(fakeDB)
+	var tests = []struct {
+		token          string
+		expectedResult string
+		doExpectErr    bool
+	}{
+		{fakeToken, fakeToken, false},
+		{"banana", "", true},
+	}
+
+	for _, tt := range tests {
+		actualResult, actualErr := serviceInstance.RefreshToken(tt.token)
+
+		assert.Equal(t, tt.doExpectErr, actualErr != nil)
+		if !tt.doExpectErr {
+			assert.Equal(t, tt.token, actualResult)
+		}
+	}
+}
+
+func TestAuthenticateUser(t *testing.T) {
+	fakeUserID := primitive.NewObjectID()
+	fakeToken := utils.GenerateToken(fakeUserID)
+	fakeUser := model.UserPayload{Group: "user"}
+	fakeAdmin := model.UserPayload{Group: "admin"}
+
+	routes.PermissionList.Permissions = append(routes.PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET"}, GetSameUser: true, Group: "user"})
+	routes.PermissionList.Permissions = append(routes.PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "POST", "PUT", "DELETE"}, GetSameUser: false, Group: "admin"})
+
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	serviceInstance := service.NewEmployeeService(fakeDB)
+
+	var tests = []struct {
+		url            string
+		userPayload    model.UserPayload
+		method         string
+		token          string
+		expectedResult bool
+		doExpectErr    bool
+	}{
+		{"/user/" + fakeUserID.Hex(), fakeUser, "GET", fakeToken, true, false},
+		{"/user/", fakeAdmin, "GET", fakeToken, true, false},
+		{"/user/", fakeUser, "POST", fakeToken, false, true},
+		{"/user/", fakeAdmin, "POST", fakeToken, true, false},
+	}
+
+	for _, tt := range tests {
+		fakeDB.GetUserByIDReturns(tt.userPayload, nil)
+
+		actualResult, actualErr := serviceInstance.AuthenticateUser(tt.url, tt.method, tt.token)
+
+		assert.Equal(t, tt.expectedResult, actualResult)
+		assert.Equal(t, tt.doExpectErr, actualErr != nil)
+	}
+}
+
+func TestAuthenticateUserErrorGetUserByID(t *testing.T) {
+	fakeUserID := primitive.NewObjectID()
+	fakeToken := utils.GenerateToken(fakeUserID)
+
+	routes.PermissionList.Permissions = append(routes.PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET"}, GetSameUser: true, Group: "user"})
+	routes.PermissionList.Permissions = append(routes.PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "POST", "PUT", "DELETE"}, GetSameUser: false, Group: "admin"})
+
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	serviceInstance := service.NewEmployeeService(fakeDB)
+	fakeError := errors.New("test error")
+
+	fakeDB.GetUserByIDReturns(model.UserPayload{}, fakeError)
+
+	actualResult, actualErr := serviceInstance.AuthenticateUser("/user/", "GET", fakeToken)
+
+	assert.Equal(t, false, actualResult)
+	assert.Equal(t, fakeError, actualErr)
 }

@@ -124,7 +124,6 @@ func (s EmployeeService) LoginUser(username string, password string) (http.Cooki
 		Secure:   false,
 		HttpOnly: true,
 	}
-
 	return tokenPayload, nil
 }
 
@@ -176,11 +175,8 @@ func (s EmployeeService) AuthenticateUser(requestedURI string, requestMethod str
 	if err != nil {
 		return false, err
 	}
-	ok, err := routes.PermissionList.CheckPolicy(requestedURI, requestMethod, userObj.Group, userID)
+	_, err = routes.PermissionList.CheckPolicy(requestedURI, requestMethod, userObj.Group, userID)
 	if err != nil {
-		return false, err
-	}
-	if !ok {
 		return false, err
 	}
 	return true, nil
