@@ -7,10 +7,13 @@ import (
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . HandlerInterface
 type HandlerInterface interface {
-	//	CreateEmployeeHandler(c *gin.Context)
-	GetEmployeeHandler(c *gin.Context)
+	GetUserHandler(c *gin.Context)
+	GetAllUserHandler(c *gin.Context)
+	CreateUserHandler(c *gin.Context)
+	GetTeamMemberHandler(c *gin.Context)
+	UpdateUserHandler(c *gin.Context)
+	DeleteUserHandler(c *gin.Context)
 	GetProposalsById(c *gin.Context)
-	//	CreateProposalsHandler(c *gin.Context)
 	CreateProposalsHandler(c *gin.Context)
 	DeleteProposalHandler(c *gin.Context)
 	UpdateProposalsHandler(c *gin.Context)
@@ -19,10 +22,16 @@ type HandlerInterface interface {
 var Handler HandlerInterface
 
 func CreateRoutes(group *gin.RouterGroup) {
+	group.Use(CORS)
+	user := group.Group("/user")
+	user.GET("/:id", Handler.GetUserHandler)
+	user.GET("/", Handler.GetAllUserHandler)
+	user.POST("/", Handler.CreateUserHandler)
+	user.GET("/team", Handler.GetTeamMemberHandler)
+	user.PUT("/", Handler.UpdateUserHandler)
+	user.DELETE("/:id", Handler.DeleteUserHandler)
 	route := group.Group("/employee")
 	route.Use(CORS)
-	route.GET("/:id/get", Handler.GetEmployeeHandler)
-	//	route.POST("/create", Handler.CreateEmployeeHandler)
 	route.GET("/:id/proposals", Handler.GetProposalsById)
 	route.POST("/:id/proposals/create", Handler.CreateProposalsHandler)
 	route.DELETE("/:id/proposals/delete", Handler.DeleteProposalHandler)
