@@ -1,32 +1,53 @@
 package routes
 
 import (
+	"example-project/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . HandlerInterface
 type HandlerInterface interface {
-	//	CreateEmployeeHandler(c *gin.Context)
-	GetEmployeeHandler(c *gin.Context)
+	GetUserHandler(c *gin.Context)
+	GetAllUserHandler(c *gin.Context)
+	CreateUserHandler(c *gin.Context)
+	GetTeamMemberHandler(c *gin.Context)
+	UpdateUserHandler(c *gin.Context)
+	DeleteUserHandler(c *gin.Context)
+	PermissionMiddleware(c *gin.Context)
+	LoginUserHandler(c *gin.Context)
+	LogoutUserHandler(c *gin.Context)
+	RefreshTokenHandler(c *gin.Context)
 	GetProposalsById(c *gin.Context)
-	//	CreateProposalsHandler(c *gin.Context)
 	CreateProposalsHandler(c *gin.Context)
 	DeleteProposalHandler(c *gin.Context)
 	UpdateProposalsHandler(c *gin.Context)
 }
 
 var Handler HandlerInterface
+var PermissionList model.PermissionList
 
 func CreateRoutes(group *gin.RouterGroup) {
-	route := group.Group("/employee")
+	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET"}, GetSameUser: true, Group: "user"})
+
+	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "POST", "PUT", "DELETE"}, GetSameUser: false, Group: "admin"})
+	group.Use(CORS)
+	group.POST("/login", Handler.LoginUserHandler)
+	group.POST("/logout", Handler.LogoutUserHandler)
+	group.POST("/refresh", Handler.RefreshTokenHandler)
+	user := group.Group("/user")
+	user.GET("/:id", Handler.PermissionMiddleware, Handler.GetUserHandler)
+	user.GET("/", Handler.PermissionMiddleware, Handler.GetAllUserHandler)
+	user.POST("/", Handler.CreateUserHandler)
+	user.GET("/team", Handler.PermissionMiddleware, Handler.GetTeamMemberHandler)
+	user.PUT("/", Handler.PermissionMiddleware, Handler.UpdateUserHandler)
+	user.DELETE("/:id", Handler.PermissionMiddleware, Handler.DeleteUserHandler)
+	route := group.Group("/proposals")
 	route.Use(CORS)
-	route.GET("/:id/get", Handler.GetEmployeeHandler)
-	//	route.POST("/create", Handler.CreateEmployeeHandler)
-	route.GET("/:id/proposals", Handler.GetProposalsById)
-	route.POST("/:id/proposals/create", Handler.CreateProposalsHandler)
-	route.DELETE("/:id/proposals/delete", Handler.DeleteProposalHandler)
-	route.PATCH("/proposals/patch", Handler.UpdateProposalsHandler)
+	route.GET("/:id", Handler.GetProposalsById)
+	route.POST("/:id", Handler.CreateProposalsHandler)
+	route.DELETE("/:id", Handler.DeleteProposalHandler)
+	route.PATCH("/", Handler.UpdateProposalsHandler)
 }
 func CORS(c *gin.Context) {
 
