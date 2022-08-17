@@ -5,6 +5,7 @@ go 1.15
 require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-playground/validator/v10 v10.11.0 // indirect
+	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/retailify/go-interval v0.0.0-20180427165929-297a169340a9
 	github.com/stretchr/testify v1.8.0
