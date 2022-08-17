@@ -9,8 +9,7 @@ import (
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . DatabaseInterface
 type DatabaseInterface interface {
 	GetUserByID(id primitive.ObjectID) (model.UserPayload, error)
-	GetUserByUsername(username string) (model.UserPayload, error)
-	GetUserByEmail(email string) (model.UserPayload, error)
+	GetUserByUsername(username string) (model.User, error)
 	GetAllUser() ([]model.UserPayload, error)
 	CreateUser(docs interface{}) (interface{}, error)
 	GetUserTeamMembersByID(id primitive.ObjectID) (interface{}, error)

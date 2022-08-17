@@ -49,6 +49,26 @@ type FakeHandlerInterface struct {
 	getUserHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
+	LoginUserHandlerStub        func(*gin.Context)
+	loginUserHandlerMutex       sync.RWMutex
+	loginUserHandlerArgsForCall []struct {
+		arg1 *gin.Context
+	}
+	LogoutUserHandlerStub        func(*gin.Context)
+	logoutUserHandlerMutex       sync.RWMutex
+	logoutUserHandlerArgsForCall []struct {
+		arg1 *gin.Context
+	}
+	PermissionMiddlewareStub        func(*gin.Context)
+	permissionMiddlewareMutex       sync.RWMutex
+	permissionMiddlewareArgsForCall []struct {
+		arg1 *gin.Context
+	}
+	RefreshTokenHandlerStub        func(*gin.Context)
+	refreshTokenHandlerMutex       sync.RWMutex
+	refreshTokenHandlerArgsForCall []struct {
+		arg1 *gin.Context
+	}
 	UpdateProposalsHandlerStub        func(*gin.Context)
 	updateProposalsHandlerMutex       sync.RWMutex
 	updateProposalsHandlerArgsForCall []struct {
@@ -319,6 +339,134 @@ func (fake *FakeHandlerInterface) GetUserHandlerArgsForCall(i int) *gin.Context 
 	return argsForCall.arg1
 }
 
+func (fake *FakeHandlerInterface) LoginUserHandler(arg1 *gin.Context) {
+	fake.loginUserHandlerMutex.Lock()
+	fake.loginUserHandlerArgsForCall = append(fake.loginUserHandlerArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.LoginUserHandlerStub
+	fake.recordInvocation("LoginUserHandler", []interface{}{arg1})
+	fake.loginUserHandlerMutex.Unlock()
+	if stub != nil {
+		fake.LoginUserHandlerStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) LoginUserHandlerCallCount() int {
+	fake.loginUserHandlerMutex.RLock()
+	defer fake.loginUserHandlerMutex.RUnlock()
+	return len(fake.loginUserHandlerArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) LoginUserHandlerCalls(stub func(*gin.Context)) {
+	fake.loginUserHandlerMutex.Lock()
+	defer fake.loginUserHandlerMutex.Unlock()
+	fake.LoginUserHandlerStub = stub
+}
+
+func (fake *FakeHandlerInterface) LoginUserHandlerArgsForCall(i int) *gin.Context {
+	fake.loginUserHandlerMutex.RLock()
+	defer fake.loginUserHandlerMutex.RUnlock()
+	argsForCall := fake.loginUserHandlerArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeHandlerInterface) LogoutUserHandler(arg1 *gin.Context) {
+	fake.logoutUserHandlerMutex.Lock()
+	fake.logoutUserHandlerArgsForCall = append(fake.logoutUserHandlerArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.LogoutUserHandlerStub
+	fake.recordInvocation("LogoutUserHandler", []interface{}{arg1})
+	fake.logoutUserHandlerMutex.Unlock()
+	if stub != nil {
+		fake.LogoutUserHandlerStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) LogoutUserHandlerCallCount() int {
+	fake.logoutUserHandlerMutex.RLock()
+	defer fake.logoutUserHandlerMutex.RUnlock()
+	return len(fake.logoutUserHandlerArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) LogoutUserHandlerCalls(stub func(*gin.Context)) {
+	fake.logoutUserHandlerMutex.Lock()
+	defer fake.logoutUserHandlerMutex.Unlock()
+	fake.LogoutUserHandlerStub = stub
+}
+
+func (fake *FakeHandlerInterface) LogoutUserHandlerArgsForCall(i int) *gin.Context {
+	fake.logoutUserHandlerMutex.RLock()
+	defer fake.logoutUserHandlerMutex.RUnlock()
+	argsForCall := fake.logoutUserHandlerArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeHandlerInterface) PermissionMiddleware(arg1 *gin.Context) {
+	fake.permissionMiddlewareMutex.Lock()
+	fake.permissionMiddlewareArgsForCall = append(fake.permissionMiddlewareArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.PermissionMiddlewareStub
+	fake.recordInvocation("PermissionMiddleware", []interface{}{arg1})
+	fake.permissionMiddlewareMutex.Unlock()
+	if stub != nil {
+		fake.PermissionMiddlewareStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) PermissionMiddlewareCallCount() int {
+	fake.permissionMiddlewareMutex.RLock()
+	defer fake.permissionMiddlewareMutex.RUnlock()
+	return len(fake.permissionMiddlewareArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) PermissionMiddlewareCalls(stub func(*gin.Context)) {
+	fake.permissionMiddlewareMutex.Lock()
+	defer fake.permissionMiddlewareMutex.Unlock()
+	fake.PermissionMiddlewareStub = stub
+}
+
+func (fake *FakeHandlerInterface) PermissionMiddlewareArgsForCall(i int) *gin.Context {
+	fake.permissionMiddlewareMutex.RLock()
+	defer fake.permissionMiddlewareMutex.RUnlock()
+	argsForCall := fake.permissionMiddlewareArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeHandlerInterface) RefreshTokenHandler(arg1 *gin.Context) {
+	fake.refreshTokenHandlerMutex.Lock()
+	fake.refreshTokenHandlerArgsForCall = append(fake.refreshTokenHandlerArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.RefreshTokenHandlerStub
+	fake.recordInvocation("RefreshTokenHandler", []interface{}{arg1})
+	fake.refreshTokenHandlerMutex.Unlock()
+	if stub != nil {
+		fake.RefreshTokenHandlerStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) RefreshTokenHandlerCallCount() int {
+	fake.refreshTokenHandlerMutex.RLock()
+	defer fake.refreshTokenHandlerMutex.RUnlock()
+	return len(fake.refreshTokenHandlerArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) RefreshTokenHandlerCalls(stub func(*gin.Context)) {
+	fake.refreshTokenHandlerMutex.Lock()
+	defer fake.refreshTokenHandlerMutex.Unlock()
+	fake.RefreshTokenHandlerStub = stub
+}
+
+func (fake *FakeHandlerInterface) RefreshTokenHandlerArgsForCall(i int) *gin.Context {
+	fake.refreshTokenHandlerMutex.RLock()
+	defer fake.refreshTokenHandlerMutex.RUnlock()
+	argsForCall := fake.refreshTokenHandlerArgsForCall[i]
+	return argsForCall.arg1
+}
+
 func (fake *FakeHandlerInterface) UpdateProposalsHandler(arg1 *gin.Context) {
 	fake.updateProposalsHandlerMutex.Lock()
 	fake.updateProposalsHandlerArgsForCall = append(fake.updateProposalsHandlerArgsForCall, struct {
@@ -402,6 +550,14 @@ func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	defer fake.getTeamMemberHandlerMutex.RUnlock()
 	fake.getUserHandlerMutex.RLock()
 	defer fake.getUserHandlerMutex.RUnlock()
+	fake.loginUserHandlerMutex.RLock()
+	defer fake.loginUserHandlerMutex.RUnlock()
+	fake.logoutUserHandlerMutex.RLock()
+	defer fake.logoutUserHandlerMutex.RUnlock()
+	fake.permissionMiddlewareMutex.RLock()
+	defer fake.permissionMiddlewareMutex.RUnlock()
+	fake.refreshTokenHandlerMutex.RLock()
+	defer fake.refreshTokenHandlerMutex.RUnlock()
 	fake.updateProposalsHandlerMutex.RLock()
 	defer fake.updateProposalsHandlerMutex.RUnlock()
 	fake.updateUserHandlerMutex.RLock()

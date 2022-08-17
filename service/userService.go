@@ -4,9 +4,15 @@ import (
 	"crypto/sha256"
 	"errors"
 	"example-project/model"
+	"example-project/routes"
+	"example-project/utils"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"net/http"
+	"time"
 )
+
+var SessionMap = make(map[string]string)
 
 func (s EmployeeService) GetUserByID(id string) (model.UserPayload, error) {
 	objectID, err := primitive.ObjectIDFromHex(id)
@@ -97,4 +103,82 @@ func (s EmployeeService) DeleteUsers(id string) (interface{}, error) {
 	}
 	result, err := s.DbService.DeleteUser(idObject)
 	return result, err
+}
+
+func (s EmployeeService) LoginUser(username string, password string) (http.Cookie, error) {
+	userObj, err := s.DbService.GetUserByUsername(username)
+	if err != nil {
+		return http.Cookie{}, errors.New("invalid login")
+	}
+	hashedPassword := sha256.Sum256([]byte(password))
+	if hashedPassword != userObj.Password {
+		return http.Cookie{}, errors.New("invalid login")
+	}
+	token := utils.GenerateToken(userObj.ID)
+	expDate := time.Now().Add(time.Minute * 5)
+	tokenPayload := http.Cookie{
+		Name:     "token",
+		Value:    token,
+		Expires:  expDate,
+		Path:     "/",
+		Domain:   "localhost",
+		Secure:   false,
+		HttpOnly: true,
+	}
+	return tokenPayload, nil
+}
+
+func (s EmployeeService) LogoutUser(userid string) bool {
+	for key, _ := range SessionMap {
+		if key == userid {
+			delete(SessionMap, key)
+			return true
+		}
+	}
+	return false
+}
+
+func (s EmployeeService) RefreshToken(token string) (string, error) {
+	tkn, claims, err := utils.ValidateToken(token)
+	if err != nil {
+		return "", err
+	}
+	var userID string
+	for key, val := range claims {
+		if key == "userID" {
+			userID = fmt.Sprint(val)
+		}
+	}
+	if !tkn.Valid {
+		return "", errors.New("invalid token")
+	}
+	tokenObj, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return "", err
+	}
+	tokenString := utils.GenerateToken(tokenObj)
+	return tokenString, nil
+}
+
+func (s EmployeeService) AuthenticateUser(requestedURI string, requestMethod string, token string) (bool, error) {
+	_, claims, err := utils.ValidateToken(token)
+	if err != nil {
+		return false, err
+	}
+	var userID string
+	for key, val := range claims {
+		if key == "userID" {
+			userID = fmt.Sprint(val)
+		}
+	}
+
+	userObj, err := s.GetUserByID(userID)
+	if err != nil {
+		return false, err
+	}
+	_, err = routes.PermissionList.CheckPolicy(requestedURI, requestMethod, userObj.Group, userID)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }

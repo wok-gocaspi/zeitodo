@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"example-project/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -13,6 +14,10 @@ type HandlerInterface interface {
 	GetTeamMemberHandler(c *gin.Context)
 	UpdateUserHandler(c *gin.Context)
 	DeleteUserHandler(c *gin.Context)
+	PermissionMiddleware(c *gin.Context)
+	LoginUserHandler(c *gin.Context)
+	LogoutUserHandler(c *gin.Context)
+	RefreshTokenHandler(c *gin.Context)
 	GetProposalsById(c *gin.Context)
 	CreateProposalsHandler(c *gin.Context)
 	DeleteProposalHandler(c *gin.Context)
@@ -20,16 +25,23 @@ type HandlerInterface interface {
 }
 
 var Handler HandlerInterface
+var PermissionList model.PermissionList
 
 func CreateRoutes(group *gin.RouterGroup) {
+	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET"}, GetSameUser: true, Group: "user"})
+
+	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "POST", "PUT", "DELETE"}, GetSameUser: false, Group: "admin"})
 	group.Use(CORS)
+	group.POST("/login", Handler.LoginUserHandler)
+	group.POST("/logout", Handler.LogoutUserHandler)
+	group.POST("/refresh", Handler.RefreshTokenHandler)
 	user := group.Group("/user")
-	user.GET("/:id", Handler.GetUserHandler)
-	user.GET("/", Handler.GetAllUserHandler)
+	user.GET("/:id", Handler.PermissionMiddleware, Handler.GetUserHandler)
+	user.GET("/", Handler.PermissionMiddleware, Handler.GetAllUserHandler)
 	user.POST("/", Handler.CreateUserHandler)
-	user.GET("/team", Handler.GetTeamMemberHandler)
-	user.PUT("/", Handler.UpdateUserHandler)
-	user.DELETE("/:id", Handler.DeleteUserHandler)
+	user.GET("/team", Handler.PermissionMiddleware, Handler.GetTeamMemberHandler)
+	user.PUT("/", Handler.PermissionMiddleware, Handler.UpdateUserHandler)
+	user.DELETE("/:id", Handler.PermissionMiddleware, Handler.DeleteUserHandler)
 	route := group.Group("/employee")
 	route.Use(CORS)
 	route.GET("/:id/proposals", Handler.GetProposalsById)

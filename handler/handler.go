@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"example-project/model"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 	"io/ioutil"
@@ -18,6 +19,9 @@ type ServiceInterface interface {
 	UpdateUsers(users []model.User) (interface{}, error)
 	GetTeamMembersByName(name string) (interface{}, error)
 	DeleteUsers(id string) (interface{}, error)
+	LoginUser(username string, password string) (http.Cookie, error)
+	RefreshToken(token string) (string, error)
+	AuthenticateUser(url string, method string, token string) (bool, error)
 	GetProposalsByID(id string) ([]model.Proposal, error)
 	CreateProposals(proposalPayloadArr []model.ProposalPayload, id string) (interface{}, error)
 	DeleteProposalsByID(id string, date string) error
@@ -53,6 +57,7 @@ func (handler Handler) GetUserHandler(c *gin.Context) {
 	return
 
 }
+
 func (handler Handler) GetAllUserHandler(c *gin.Context) {
 	response, err := handler.ServiceInterface.GetAllUser()
 	if err != nil {
@@ -175,6 +180,80 @@ func (handler Handler) DeleteUserHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+func (handler Handler) LoginUserHandler(c *gin.Context) {
+	var authObj model.UserAuthPayload
+	body := c.Copy().Request.Body
+	jsonString, _ := ioutil.ReadAll(body)
+	err := json.Unmarshal(jsonString, &authObj)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": "invalid data",
+		})
+		return
+	}
+	response, err := handler.ServiceInterface.LoginUser(authObj.Username, authObj.Password)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+	c.SetCookie(response.Name, response.Value, 3600, response.Path, response.Domain, response.Secure, response.HttpOnly)
+	c.Status(http.StatusOK)
+}
+
+func (handler Handler) LogoutUserHandler(c *gin.Context) {
+	_, err := c.Request.Cookie("token")
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+	c.SetCookie("token", "", 0, "", "", true, true)
+	c.Status(http.StatusOK)
+	return
+}
+
+func (handler Handler) RefreshTokenHandler(c *gin.Context) {
+	cookie, err := c.Request.Cookie("token")
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+	token, err := handler.ServiceInterface.RefreshToken(cookie.Value)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+	c.SetCookie("token", token, 3600, "/", "localhost", false, true)
+	c.Status(http.StatusOK)
+}
+
+func (handler Handler) PermissionMiddleware(c *gin.Context) {
+	fmt.Println(c.Request.RequestURI)
+	tokenCookie, err := c.Request.Cookie("token")
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+	ok, err := handler.ServiceInterface.AuthenticateUser(c.Request.RequestURI, c.Request.Method, tokenCookie.Value)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+	c.Next()
+	return
+}
+
 const idNotFoundMsg = "id is not given"
 
 func (handler Handler) DeleteProposalHandler(c *gin.Context) {
@@ -257,16 +336,6 @@ func (handler Handler) CreateProposalsHandler(c *gin.Context) {
 }
 
 func (handler Handler) UpdateProposalsHandler(c *gin.Context) {
-	/*
-		pathParam, ok := c.Params.Get("id")
-		if !ok {
-			c.AbortWithStatusJSON(404, gin.H{
-				"errorMessage": "id is not given",
-			})
-			return
-		}
-
-	*/
 
 	date, dateOk := c.GetQuery("date")
 	if !dateOk {

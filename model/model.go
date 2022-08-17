@@ -1,9 +1,12 @@
 package model
 
 import (
+	"errors"
+	"fmt"
 	"github.com/retailify/go-interval"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"strings"
 	"time"
 )
 
@@ -60,12 +63,18 @@ type UserPayload struct {
 	Projects          []string `json:"projects" bson:"projects"`
 	TotalWorkingHours float32  `json:"totalWorkingHours" bson:"totalWorkingHours"`
 	VacationDays      int      `json:"vacationDays" bson:"vacationDays"`
+	Group             string   `json:"group" bson:"group"`
 }
 
 type UserUpdateResult struct {
 	UpdateResult *mongo.UpdateResult `json:"result"`
 	User         User                `json:"user"`
 	Success      bool                `json:"success"`
+}
+
+type UserAuthPayload struct {
+	Username string `json:"username"`
+	Password string `json:"password" key:"required"`
 }
 
 type TeamMember struct {
@@ -112,4 +121,45 @@ type ProposalTimeStringObject struct {
 	Duration time.Duration
 	Interval interval.TimeInterval
 	//	Err      error
+}
+
+type Permission struct {
+	Uri         string
+	Methods     []string
+	Group       string
+	GetSameUser bool
+}
+
+type PermissionList struct {
+	Permissions []Permission
+}
+
+func (pl PermissionList) AddPermission(permission Permission) {
+	pl.Permissions = append(pl.Permissions, permission)
+}
+
+func (pl PermissionList) CheckPolicy(url string, method string, group string, userid string) (bool, error) {
+	fmt.Println(group)
+	for _, p := range pl.Permissions {
+		if strings.HasPrefix(url, p.Uri) && group == p.Group {
+
+			for _, pmethod := range p.Methods {
+				fmt.Println(method)
+				if method == pmethod && method == "GET" && p.GetSameUser {
+					urlSplit := strings.Split(url, "/")
+					urlEnd := urlSplit[len(urlSplit)-1]
+					fmt.Println(userid)
+					fmt.Println(urlEnd)
+					if urlEnd == userid {
+						return true, nil
+					} else {
+						return false, errors.New("requesting user data of other users is not allowed")
+					}
+				} else if method == pmethod {
+					return true, nil
+				}
+			}
+		}
+	}
+	return false, errors.New("url dosent match to any permission, deny request...")
 }
