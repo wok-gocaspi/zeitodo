@@ -37,7 +37,6 @@ func TestGetUserHandler_Return_valid_200(t *testing.T) {
 
 }
 
-
 func TestGetUserHandler_Return_invalid_400(t *testing.T) {
 	responseRecoder := httptest.NewRecorder()
 
@@ -529,7 +528,7 @@ func TestRefreshTokenHandler(t *testing.T) {
 	}
 	fakeServiceToken := "serviceToken"
 
-	fakeCookieHeader := "token=" + fakeServiceToken + "; Path=/; Domain=localhost; Max-Age=3600; HttpOnly"
+	fakeCookieHeader := "token=" + fakeServiceToken + "; Path=/; Max-Age=3600; HttpOnly"
 	fakeServiceErr := errors.New("fake unauthorized user")
 
 	var tests = []struct {
@@ -612,7 +611,6 @@ func TestPermissionMiddleware(t *testing.T) {
 		assert.Equal(t, tt.expectedStatus, responseRecorder.Code)
 	}
 }
-
 
 func TestHandler_GetProposalsById(t *testing.T) {
 
