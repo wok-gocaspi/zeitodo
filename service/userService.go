@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -121,7 +122,7 @@ func (s EmployeeService) LoginUser(username string, password string) (http.Cooki
 		Value:    token,
 		Expires:  expDate,
 		Path:     "/",
-		Domain:   "localhost",
+		Domain:   os.Getenv("COOKIE_DOMAIN"),
 		Secure:   false,
 		HttpOnly: true,
 	}
@@ -129,7 +130,7 @@ func (s EmployeeService) LoginUser(username string, password string) (http.Cooki
 }
 
 func (s EmployeeService) LogoutUser(userid string) bool {
-	for key, _ := range SessionMap {
+	for key := range SessionMap {
 		if key == userid {
 			delete(SessionMap, key)
 			return true

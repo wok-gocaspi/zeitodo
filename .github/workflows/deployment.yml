@@ -9,6 +9,8 @@ env:
   DOCKER_USER: zeitodoreg
   AZURERG: ZeiTodoRG
   CONTAINER_NAME: zeitodobackend
+  DOMAIN: zeitodobackend.northeurope.azurecontainer.io
+  BRANCH: ${GITHUB_REF##*/}
 
 
 jobs:
@@ -84,13 +86,16 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_AUTH }}
+
+      - name: Branch name
+        run: echo running on branch ${GITHUB_REF##*/}
       - name: 'Deploy to Azure Container Instances'
         uses: 'azure/aci-deploy@v1'
         with:
           resource-group: ${{ env.AZURERG }}
           dns-name-label: ${{ env.CONTAINER_NAME }}
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
-          environment-variables: environment=production
+          environment-variables: environment=production COOKIE_DOMAIN=zeitodobackend.northeurope.azurecontainer.io
           registry-login-server: ${{ env.REGISTRY }}
           registry-username: ${{ env.DOCKER_USER }}
           registry-password: ${{ secrets.DOCKER_TOKEN }}
