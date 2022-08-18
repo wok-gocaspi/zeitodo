@@ -94,7 +94,7 @@ jobs:
         with:
           resource-group: ${{ env.AZURERG }}
           dns-name-label: ${{ env.CONTAINER_NAME }}
-          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${GITHUB_REF##*/}
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ GITHUB_REF##*/ }}
           environment-variables: environment=production COOKIE_DOMAIN=zeitodobackend.northeurope.azurecontainer.io
           registry-login-server: ${{ env.REGISTRY }}
           registry-username: ${{ env.DOCKER_USER }}
