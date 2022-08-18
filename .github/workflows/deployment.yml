@@ -13,6 +13,7 @@ env:
   DOCKER_USER: zeitodoreg
   AZURERG: ZeiTodoRG
   CONTAINER_NAME: zeitodobackend
+  DOMAIN: zeitodobackend.northeurope.azurecontainer.io
 
 
 jobs:
@@ -94,7 +95,7 @@ jobs:
           resource-group: ${{ env.AZURERG }}
           dns-name-label: ${{ env.CONTAINER_NAME }}
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
-          environment-variables: environment=production
+          environment-variables: environment=production DOMAIN=${{ env.DOMAIN }}
           registry-login-server: ${{ env.REGISTRY }}
           registry-username: ${{ env.DOCKER_USER }}
           registry-password: ${{ secrets.DOCKER_TOKEN }}
