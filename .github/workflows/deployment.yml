@@ -11,6 +11,7 @@ env:
   AZURERG: ZeiTodoRG
   CONTAINER_NAME: zeitodobackend
   DOMAIN: zeitodobackend.northeurope.azurecontainer.io
+  BRANCH: ${GITHUB_REF##*/}
 
 
 jobs:
@@ -94,7 +95,7 @@ jobs:
         with:
           resource-group: ${{ env.AZURERG }}
           dns-name-label: ${{ env.CONTAINER_NAME }}
-          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ GITHUB_REF##*/ }}
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BRANCH }}
           environment-variables: environment=production COOKIE_DOMAIN=zeitodobackend.northeurope.azurecontainer.io
           registry-login-server: ${{ env.REGISTRY }}
           registry-username: ${{ env.DOCKER_USER }}
