@@ -1,7 +1,6 @@
 on:
   workflow_dispatch:
 
-
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: zeitodoreg.azurecr.io
