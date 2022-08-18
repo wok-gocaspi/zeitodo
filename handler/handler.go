@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"io/ioutil"
 	"net/http"
+	"os"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . ServiceInterface
@@ -230,7 +231,7 @@ func (handler Handler) RefreshTokenHandler(c *gin.Context) {
 		})
 		return
 	}
-	c.SetCookie("token", token, 3600, "/", "localhost", false, true)
+	c.SetCookie("token", token, 3600, "/", os.Getenv("COOKIE_DOMAIN"), false, true)
 	c.Status(http.StatusOK)
 }
 
