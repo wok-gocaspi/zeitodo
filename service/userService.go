@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -122,7 +121,7 @@ func (s EmployeeService) LoginUser(username string, password string) (http.Cooki
 		Value:    token,
 		Expires:  expDate,
 		Path:     "/",
-		Domain:   os.Getenv("COOKIE_DOMAIN"),
+		Domain:   "zeitodobackend.northeurope.azurecontainer.io",
 		Secure:   false,
 		HttpOnly: true,
 	}
