@@ -122,7 +122,7 @@ func (s EmployeeService) LoginUser(username string, password string) (http.Cooki
 		Value:    token,
 		Expires:  expDate,
 		Path:     "/",
-		Domain:   os.Getenv("DOMAIN"),
+		Domain:   os.Getenv("COOKIE_DOMAIN"),
 		Secure:   false,
 		HttpOnly: true,
 	}
