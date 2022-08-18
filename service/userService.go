@@ -120,7 +120,7 @@ func (s EmployeeService) LoginUser(username string, password string) (http.Cooki
 		Name:     "token",
 		Value:    token,
 		Expires:  expDate,
-		Path:     "/",
+		Path:     "/test",
 		Domain:   "zeitodobackend.northeurope.azurecontainer.io",
 		Secure:   false,
 		HttpOnly: true,
