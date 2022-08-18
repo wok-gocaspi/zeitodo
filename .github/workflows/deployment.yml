@@ -92,7 +92,7 @@ jobs:
           resource-group: ${{ env.AZURERG }}
           dns-name-label: ${{ env.CONTAINER_NAME }}
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
-          environment-variables: environment=production COOKIE_DOMAIN=${{ env.DOMAIN }}
+          environment-variables: environment=production COOKIE_DOMAIN=zeitodobackend.northeurope.azurecontainer.io
           registry-login-server: ${{ env.REGISTRY }}
           registry-username: ${{ env.DOCKER_USER }}
           registry-password: ${{ secrets.DOCKER_TOKEN }}
