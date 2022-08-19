@@ -21,6 +21,9 @@ type DatabaseInterface interface {
 	SaveProposals(docs []interface{}) (interface{}, error)
 	DeleteProposalByIdAndDate(id string, date string) (*mongo.DeleteResult, error)
 	UpdateProposal(update model.Proposal, date string) (*mongo.UpdateResult, error)
+	CreatTimeEntryById(te model.TimeEntry) (interface{}, error)
+	UpdateTimeEntryById(update model.TimeEntry) (*mongo.UpdateResult, error)
+	GetTimeEntryByID(id string) []model.TimeEntry
 }
 
 type EmployeeService struct {

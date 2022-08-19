@@ -17,6 +17,9 @@ type HandlerInterface interface {
 	CreateProposalsHandler(c *gin.Context)
 	DeleteProposalHandler(c *gin.Context)
 	UpdateProposalsHandler(c *gin.Context)
+	CreatTimeEntry(c *gin.Context)
+	UpdateTimeEntry(c *gin.Context)
+	GetTimeEntry(c *gin.Context)
 }
 
 var Handler HandlerInterface
@@ -36,6 +39,9 @@ func CreateRoutes(group *gin.RouterGroup) {
 	route.POST("/:id/proposals/create", Handler.CreateProposalsHandler)
 	route.DELETE("/:id/proposals/delete", Handler.DeleteProposalHandler)
 	route.PATCH("/proposals/patch", Handler.UpdateProposalsHandler)
+	route.POST("/:id/createtime", Handler.CreatTimeEntry)
+	route.PUT("/:id/update", Handler.UpdateTimeEntry)
+	route.GET("/:id/gettime", Handler.GetTimeEntry)
 }
 func CORS(c *gin.Context) {
 

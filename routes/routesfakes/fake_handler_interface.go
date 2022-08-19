@@ -9,6 +9,11 @@ import (
 )
 
 type FakeHandlerInterface struct {
+	CreatTimeEntryStub        func(*gin.Context)
+	creatTimeEntryMutex       sync.RWMutex
+	creatTimeEntryArgsForCall []struct {
+		arg1 *gin.Context
+	}
 	CreateProposalsHandlerStub        func(*gin.Context)
 	createProposalsHandlerMutex       sync.RWMutex
 	createProposalsHandlerArgsForCall []struct {
@@ -44,6 +49,11 @@ type FakeHandlerInterface struct {
 	getTeamMemberHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
+	GetTimeEntryStub        func(*gin.Context)
+	getTimeEntryMutex       sync.RWMutex
+	getTimeEntryArgsForCall []struct {
+		arg1 *gin.Context
+	}
 	GetUserHandlerStub        func(*gin.Context)
 	getUserHandlerMutex       sync.RWMutex
 	getUserHandlerArgsForCall []struct {
@@ -54,6 +64,11 @@ type FakeHandlerInterface struct {
 	updateProposalsHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
+	UpdateTimeEntryStub        func(*gin.Context)
+	updateTimeEntryMutex       sync.RWMutex
+	updateTimeEntryArgsForCall []struct {
+		arg1 *gin.Context
+	}
 	UpdateUserHandlerStub        func(*gin.Context)
 	updateUserHandlerMutex       sync.RWMutex
 	updateUserHandlerArgsForCall []struct {
@@ -61,6 +76,38 @@ type FakeHandlerInterface struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *FakeHandlerInterface) CreatTimeEntry(arg1 *gin.Context) {
+	fake.creatTimeEntryMutex.Lock()
+	fake.creatTimeEntryArgsForCall = append(fake.creatTimeEntryArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.CreatTimeEntryStub
+	fake.recordInvocation("CreatTimeEntry", []interface{}{arg1})
+	fake.creatTimeEntryMutex.Unlock()
+	if stub != nil {
+		fake.CreatTimeEntryStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) CreatTimeEntryCallCount() int {
+	fake.creatTimeEntryMutex.RLock()
+	defer fake.creatTimeEntryMutex.RUnlock()
+	return len(fake.creatTimeEntryArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) CreatTimeEntryCalls(stub func(*gin.Context)) {
+	fake.creatTimeEntryMutex.Lock()
+	defer fake.creatTimeEntryMutex.Unlock()
+	fake.CreatTimeEntryStub = stub
+}
+
+func (fake *FakeHandlerInterface) CreatTimeEntryArgsForCall(i int) *gin.Context {
+	fake.creatTimeEntryMutex.RLock()
+	defer fake.creatTimeEntryMutex.RUnlock()
+	argsForCall := fake.creatTimeEntryArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeHandlerInterface) CreateProposalsHandler(arg1 *gin.Context) {
@@ -287,6 +334,38 @@ func (fake *FakeHandlerInterface) GetTeamMemberHandlerArgsForCall(i int) *gin.Co
 	return argsForCall.arg1
 }
 
+func (fake *FakeHandlerInterface) GetTimeEntry(arg1 *gin.Context) {
+	fake.getTimeEntryMutex.Lock()
+	fake.getTimeEntryArgsForCall = append(fake.getTimeEntryArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.GetTimeEntryStub
+	fake.recordInvocation("GetTimeEntry", []interface{}{arg1})
+	fake.getTimeEntryMutex.Unlock()
+	if stub != nil {
+		fake.GetTimeEntryStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) GetTimeEntryCallCount() int {
+	fake.getTimeEntryMutex.RLock()
+	defer fake.getTimeEntryMutex.RUnlock()
+	return len(fake.getTimeEntryArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) GetTimeEntryCalls(stub func(*gin.Context)) {
+	fake.getTimeEntryMutex.Lock()
+	defer fake.getTimeEntryMutex.Unlock()
+	fake.GetTimeEntryStub = stub
+}
+
+func (fake *FakeHandlerInterface) GetTimeEntryArgsForCall(i int) *gin.Context {
+	fake.getTimeEntryMutex.RLock()
+	defer fake.getTimeEntryMutex.RUnlock()
+	argsForCall := fake.getTimeEntryArgsForCall[i]
+	return argsForCall.arg1
+}
+
 func (fake *FakeHandlerInterface) GetUserHandler(arg1 *gin.Context) {
 	fake.getUserHandlerMutex.Lock()
 	fake.getUserHandlerArgsForCall = append(fake.getUserHandlerArgsForCall, struct {
@@ -351,6 +430,38 @@ func (fake *FakeHandlerInterface) UpdateProposalsHandlerArgsForCall(i int) *gin.
 	return argsForCall.arg1
 }
 
+func (fake *FakeHandlerInterface) UpdateTimeEntry(arg1 *gin.Context) {
+	fake.updateTimeEntryMutex.Lock()
+	fake.updateTimeEntryArgsForCall = append(fake.updateTimeEntryArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.UpdateTimeEntryStub
+	fake.recordInvocation("UpdateTimeEntry", []interface{}{arg1})
+	fake.updateTimeEntryMutex.Unlock()
+	if stub != nil {
+		fake.UpdateTimeEntryStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) UpdateTimeEntryCallCount() int {
+	fake.updateTimeEntryMutex.RLock()
+	defer fake.updateTimeEntryMutex.RUnlock()
+	return len(fake.updateTimeEntryArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) UpdateTimeEntryCalls(stub func(*gin.Context)) {
+	fake.updateTimeEntryMutex.Lock()
+	defer fake.updateTimeEntryMutex.Unlock()
+	fake.UpdateTimeEntryStub = stub
+}
+
+func (fake *FakeHandlerInterface) UpdateTimeEntryArgsForCall(i int) *gin.Context {
+	fake.updateTimeEntryMutex.RLock()
+	defer fake.updateTimeEntryMutex.RUnlock()
+	argsForCall := fake.updateTimeEntryArgsForCall[i]
+	return argsForCall.arg1
+}
+
 func (fake *FakeHandlerInterface) UpdateUserHandler(arg1 *gin.Context) {
 	fake.updateUserHandlerMutex.Lock()
 	fake.updateUserHandlerArgsForCall = append(fake.updateUserHandlerArgsForCall, struct {
@@ -386,6 +497,8 @@ func (fake *FakeHandlerInterface) UpdateUserHandlerArgsForCall(i int) *gin.Conte
 func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.creatTimeEntryMutex.RLock()
+	defer fake.creatTimeEntryMutex.RUnlock()
 	fake.createProposalsHandlerMutex.RLock()
 	defer fake.createProposalsHandlerMutex.RUnlock()
 	fake.createUserHandlerMutex.RLock()
@@ -400,10 +513,14 @@ func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	defer fake.getProposalsByIdMutex.RUnlock()
 	fake.getTeamMemberHandlerMutex.RLock()
 	defer fake.getTeamMemberHandlerMutex.RUnlock()
+	fake.getTimeEntryMutex.RLock()
+	defer fake.getTimeEntryMutex.RUnlock()
 	fake.getUserHandlerMutex.RLock()
 	defer fake.getUserHandlerMutex.RUnlock()
 	fake.updateProposalsHandlerMutex.RLock()
 	defer fake.updateProposalsHandlerMutex.RUnlock()
+	fake.updateTimeEntryMutex.RLock()
+	defer fake.updateTimeEntryMutex.RUnlock()
 	fake.updateUserHandlerMutex.RLock()
 	defer fake.updateUserHandlerMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

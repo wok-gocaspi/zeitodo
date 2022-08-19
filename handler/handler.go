@@ -3,10 +3,12 @@ package handler
 import (
 	"encoding/json"
 	"example-project/model"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . ServiceInterface
@@ -22,6 +24,9 @@ type ServiceInterface interface {
 	CreateProposals(proposalPayloadArr []model.ProposalPayload, id string) (interface{}, error)
 	DeleteProposalsByID(id string, date string) error
 	UpdateProposalByDate(update model.Proposal, date string) (*mongo.UpdateResult, error)
+	CreatTimeEntries(te model.TimeEntry) (interface{}, error)
+	UpdateTimeEntries(update model.TimeEntry) (interface{}, error)
+	GetTimeEntries(id string) []model.TimeEntry
 }
 
 type Handler struct {
@@ -32,6 +37,75 @@ func NewHandler(serviceInterface ServiceInterface) Handler {
 	return Handler{
 		ServiceInterface: serviceInterface,
 	}
+}
+
+//Creat TimeEntries
+func (handler Handler) CreatTimeEntry(c *gin.Context) {
+	var timeEntry model.TimeEntry
+	err := c.BindJSON(&timeEntry)
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": "Time User is not created ",
+		})
+		return
+	}
+	response, err := handler.ServiceInterface.CreatTimeEntries(timeEntry)
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, response)
+}
+
+//Update TimeEntries
+
+func (handler Handler) UpdateTimeEntry(context *gin.Context) {
+	id, ok := context.Params.Get("id")
+	if !ok {
+		context.AbortWithStatusJSON(401, "No Time was submitted")
+		return
+	}
+	response := handler.ServiceInterface.GetTimeEntries(id)
+	if response == nil {
+		context.AbortWithStatusJSON(400, "Time user ist not existing ")
+		return
+	}
+	var payLoad model.TimeEntry
+	err := context.ShouldBindJSON(&payLoad)
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": "invalid payload",
+		})
+		return
+	}
+	//update := model.TimeEntry{}
+	result, err := handler.ServiceInterface.UpdateTimeEntries(payLoad)
+	if err != nil {
+		context.AbortWithStatusJSON(400, err.Error())
+		return
+	}
+	context.JSON(200, result)
+}
+func (handler Handler) GetTimeEntry(c *gin.Context) {
+	pathParam, ok := c.Params.Get("id")
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": "time is not given",
+		})
+		return
+	}
+
+	response := handler.ServiceInterface.GetTimeEntries(pathParam)
+	dt := time.Now()
+	{
+		fmt.Println("Current date and time is : ", dt.String())
+	}
+	c.JSON(http.StatusOK, response)
+
 }
 
 func (handler Handler) GetUserHandler(c *gin.Context) {
