@@ -137,70 +137,12 @@ func (c Client) CreateUser(docs interface{}) (interface{}, error) {
 	return results.InsertedID, nil
 }
 
-func (c Client) UpdateManyUserByID(docs []model.User) []model.UserUpdateResult {
-	var UMR []model.UserUpdateResult
-	for _, user := range docs {
-		var UpdateResult model.UserUpdateResult
-		filter := bson.M{"_id": user.ID}
-		if user.ID.String() == "" {
-			UpdateResult.User = user
-			UpdateResult.Success = false
-			UMR = append(UMR, UpdateResult)
-			continue
-		}
-		courser := c.Users.FindOne(context.TODO(), filter)
-		var userDoc model.User
-		err := courser.Decode(&userDoc)
-		if err != nil || userDoc.ID.String() == "" {
-			UpdateResult.Success = false
-			UpdateResult.User = user
-			UMR = append(UMR, UpdateResult)
-			continue
-		}
-
-		var setElements bson.D
-		if user.FirstName != "" {
-			fmt.Println(user.FirstName)
-			setElements = append(setElements, bson.E{Key: "firstname", Value: user.FirstName})
-		}
-		if user.LastName != "" {
-			setElements = append(setElements, bson.E{Key: "lastname", Value: user.LastName})
-		}
-		if user.Email != "" {
-			setElements = append(setElements, bson.E{Key: "email", Value: user.Email})
-		}
-		if user.Team != "" {
-			setElements = append(setElements, bson.E{Key: "team", Value: user.Team})
-		}
-		if user.TotalWorkingHours != 0 {
-			setElements = append(setElements, bson.E{Key: "totalWorkingHours", Value: user.TotalWorkingHours})
-		}
-		if user.VacationDays != 0 {
-			setElements = append(setElements, bson.E{Key: "vacationDays", Value: user.VacationDays})
-		}
-		if user.Username != "" {
-			setElements = append(setElements, bson.E{Key: "username", Value: user.Username})
-		}
-		fmt.Println(len(user.Projects))
-		if len(user.Projects) != 0 {
-			setElements = append(setElements, bson.E{Key: "projects", Value: user.Projects})
-		}
-		setMap := bson.D{
-			{"$set", setElements},
-		}
-		result, err := c.Users.UpdateOne(context.TODO(), filter, setMap)
-		if err != nil {
-			UpdateResult.Success = false
-			UpdateResult.User = user
-			UMR = append(UMR, UpdateResult)
-			continue
-		}
-		UpdateResult.Success = true
-		UpdateResult.UpdateResult = result
-		UpdateResult.User = user
-		UMR = append(UMR, UpdateResult)
+func (c Client) UpdateUserByID(filter bson.M, setter bson.D) (*mongo.UpdateResult, error) {
+	result, err := c.Users.UpdateOne(context.TODO(), filter, setter)
+	if err != nil {
+		return result, err
 	}
-	return UMR
+	return result, nil
 }
 
 func (c Client) DeleteUser(id primitive.ObjectID) (interface{}, error) {

@@ -155,38 +155,29 @@ func TestCreateUser_Return_existing_user(t *testing.T) {
 	assert.Error(t, err, "user already exists, please choose another username")
 }
 
-func TestUpdateUser_Return_valid(t *testing.T) {
-	fakeUserArray := []model.User{
-		{ID: primitive.NewObjectID(), LastName: "Hans"},
-		{ID: primitive.NewObjectID(), Email: "test@gmail.com"},
-	}
-	fakeUserUpdateResults := []model.UserUpdateResult{
-		{Success: true, User: fakeUserArray[0]},
-		{Success: true, User: fakeUserArray[1]},
-	}
+func TestUpdateUser_Service(t *testing.T) {
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
-	fakeDB.UpdateManyUserByIDReturns(fakeUserUpdateResults)
-	serviceInstance := service.NewEmployeeService(fakeDB)
-	result, err := serviceInstance.UpdateUsers(fakeUserArray)
-	assert.Nil(t, err)
-	assert.Equal(t, fakeUserUpdateResults, result)
-}
+	fakeUserID := primitive.NewObjectID()
+	fakeNexUserID := primitive.NewObjectID()
+	var tests = []struct {
+		users     []model.UpdateUserPayload
+		group     string
+		userid    string
+		hasError  bool
+		mockError error
+		Result    *mongo.UpdateResult
+	}{
+		{[]model.UpdateUserPayload{{ID: fakeUserID, Username: "jochen1"}, {ID: fakeNexUserID, Username: "peter2"}}, "admin", fakeUserID.Hex(), false, nil, &mongo.UpdateResult{}},
+	}
+	for _, tt := range tests {
+		fakeDB.UpdateUserByIDReturns(tt.Result, tt.mockError)
+		fakeDB.GetUserByIDCalls()
+		serviceInstance := service.NewEmployeeService(fakeDB)
+		actual, err := serviceInstance.UpdateUsers(tt.users, tt.userid, tt.group)
 
-func TestUpdateUser_Return_Unsuccessful(t *testing.T) {
-	fakeUserArray := []model.User{
-		{ID: primitive.NewObjectID(), LastName: "Hans"},
-		{ID: primitive.NewObjectID(), Email: "test@gmail.com"},
+		assert.Equal(t, actual, tt.Result)
+		assert.Equal(t, tt.mockError, err)
 	}
-	fakeUserUpdateResults := []model.UserUpdateResult{
-		{Success: false, User: fakeUserArray[0]},
-		{Success: true, User: fakeUserArray[1]},
-	}
-	fakeDB := &servicefakes.FakeDatabaseInterface{}
-	fakeDB.UpdateManyUserByIDReturns(fakeUserUpdateResults)
-	serviceInstance := service.NewEmployeeService(fakeDB)
-	result, err := serviceInstance.UpdateUsers(fakeUserArray)
-	assert.Error(t, err, "a few users couldn't be updated")
-	assert.Equal(t, []model.UserUpdateResult{{User: fakeUserUpdateResults[0].User, Success: false}}, result)
 }
 
 func TestDeleteUser_Return_Success(t *testing.T) {
@@ -339,9 +330,8 @@ func TestAuthenticateUser(t *testing.T) {
 	for _, tt := range tests {
 		fakeDB.GetUserByIDReturns(tt.userPayload, nil)
 
-		actualResult, actualErr := serviceInstance.AuthenticateUser(tt.url, tt.method, tt.token)
+		_, _, actualErr := serviceInstance.AuthenticateUser(tt.url, tt.method, tt.token)
 
-		assert.Equal(t, tt.expectedResult, actualResult)
 		assert.Equal(t, tt.doExpectErr, actualErr != nil)
 	}
 }
@@ -359,8 +349,7 @@ func TestAuthenticateUserErrorGetUserByID(t *testing.T) {
 
 	fakeDB.GetUserByIDReturns(model.UserPayload{}, fakeError)
 
-	actualResult, actualErr := serviceInstance.AuthenticateUser("/user/", "GET", fakeToken)
+	_, _, actualErr := serviceInstance.AuthenticateUser("/user/", "GET", fakeToken)
 
-	assert.Equal(t, false, actualResult)
 	assert.Equal(t, fakeError, actualErr)
 }

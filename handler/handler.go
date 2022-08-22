@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"example-project/model"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 	"io/ioutil"
@@ -16,12 +15,12 @@ type ServiceInterface interface {
 	GetAllUser() ([]model.UserPayload, error)
 	CreateUser(model.UserSignupPayload) (interface{}, error)
 	GetTeamMembersByUserID(id string) (interface{}, error)
-	UpdateUsers(users []model.User) (interface{}, error)
+	UpdateUsers(users []model.UpdateUserPayload, id string, group string) (interface{}, error)
 	GetTeamMembersByName(name string) (interface{}, error)
 	DeleteUsers(id string) (interface{}, error)
 	LoginUser(username string, password string) (http.Cookie, error)
 	RefreshToken(token string) (string, error)
-	AuthenticateUser(url string, method string, token string) (bool, error)
+	AuthenticateUser(url string, method string, token string) (string, string, error)
 	GetProposalsByID(id string) ([]model.Proposal, error)
 	CreateProposals(proposalPayloadArr []model.ProposalPayload, id string) (interface{}, error)
 	DeleteProposalsByID(id string, date string) error
@@ -125,8 +124,8 @@ func (handler Handler) CreateUserHandler(c *gin.Context) {
 }
 
 func (handler Handler) UpdateUserHandler(c *gin.Context) {
-	var user model.User
-	var users []model.User
+	var user model.UpdateUserPayload
+	var users []model.UpdateUserPayload
 	body := c.Copy().Request.Body
 	jsonString, _ := ioutil.ReadAll(body)
 	err := json.Unmarshal(jsonString, &user)
@@ -138,7 +137,7 @@ func (handler Handler) UpdateUserHandler(c *gin.Context) {
 			})
 			return
 		}
-		result, err := handler.ServiceInterface.UpdateUsers(users)
+		result, err := handler.ServiceInterface.UpdateUsers(users, c.GetString("userid"), c.GetString("group"))
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"errorMessage": err.Error(),
@@ -150,7 +149,7 @@ func (handler Handler) UpdateUserHandler(c *gin.Context) {
 		return
 	}
 	users = append(users, user)
-	result, err := handler.ServiceInterface.UpdateUsers(users)
+	result, err := handler.ServiceInterface.UpdateUsers(users, c.GetString("userid"), c.GetString("group"))
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"errorMessage": err.Error(),
@@ -235,7 +234,6 @@ func (handler Handler) RefreshTokenHandler(c *gin.Context) {
 }
 
 func (handler Handler) PermissionMiddleware(c *gin.Context) {
-	fmt.Println(c.Request.RequestURI)
 	tokenCookie, err := c.Request.Cookie("token")
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
@@ -243,13 +241,15 @@ func (handler Handler) PermissionMiddleware(c *gin.Context) {
 		})
 		return
 	}
-	ok, err := handler.ServiceInterface.AuthenticateUser(c.Request.RequestURI, c.Request.Method, tokenCookie.Value)
-	if !ok {
+	userID, userGroup, err := handler.ServiceInterface.AuthenticateUser(c.Request.RequestURI, c.Request.Method, tokenCookie.Value)
+	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"errorMessage": err.Error(),
 		})
 		return
 	}
+	c.Set("group", userGroup)
+	c.Set("userid", userID)
 	c.Next()
 	return
 }

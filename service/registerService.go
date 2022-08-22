@@ -2,6 +2,7 @@ package service
 
 import (
 	"example-project/model"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -14,7 +15,7 @@ type DatabaseInterface interface {
 	CreateUser(docs interface{}) (interface{}, error)
 	GetUserTeamMembersByID(id primitive.ObjectID) (interface{}, error)
 	GetUserTeamMembersByName(name string) (interface{}, error)
-	UpdateManyUserByID(docs []model.User) []model.UserUpdateResult
+	UpdateUserByID(filter bson.M, setter bson.D) (*mongo.UpdateResult, error)
 	DeleteUser(id primitive.ObjectID) (interface{}, error)
 	GetProposals(id string) ([]model.Proposal, error)
 	SaveProposals(docs []interface{}) (interface{}, error)
