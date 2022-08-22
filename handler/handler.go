@@ -203,6 +203,7 @@ func (handler Handler) LoginUserHandler(c *gin.Context) {
 	})
 }
 
+/*
 func (handler Handler) LogoutUserHandler(c *gin.Context) {
 	_, err := c.Request.Cookie("token")
 	if err != nil {
@@ -215,6 +216,8 @@ func (handler Handler) LogoutUserHandler(c *gin.Context) {
 	c.Status(http.StatusOK)
 	return
 }
+
+*/
 
 func (handler Handler) RefreshTokenHandler(c *gin.Context) {
 	tokenHeader := c.Request.Header.Get("Authorization")
