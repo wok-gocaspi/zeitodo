@@ -421,32 +421,36 @@ func TestLoginUserHandler(t *testing.T) {
 		Password: "testuserpwd",
 	}
 	fakePayloadString, _ := json.Marshal(fakePayload)
+	/*
+		expDate := time.Now().Add(time.Minute * 5)
+		fakeCookie := http.Cookie{
+			Name:     "token",
+			Value:    "this is  sample token",
+			Expires:  expDate,
+			Path:     "/",
+			Domain:   "localhost",
+			Secure:   false,
+			HttpOnly: true,
+		}
 
-	expDate := time.Now().Add(time.Minute * 5)
-	fakeCookie := http.Cookie{
-		Name:     "token",
-		Value:    "this is  sample token",
-		Expires:  expDate,
-		Path:     "/",
-		Domain:   "localhost",
-		Secure:   false,
-		HttpOnly: true,
-	}
+	*/
 
-	fakeCookieHeader := "token=this+is++sample+token; Path=/; Domain=localhost; Max-Age=3600; HttpOnly"
+	fakeToken := "fakeToken"
+
+	//	fakeCookieHeader := "token=this+is++sample+token; Path=/; Domain=localhost; Max-Age=3600; HttpOnly"
 	fakeServiceErr := errors.New("user is unauthorized")
 
 	var tests = []struct {
 		body                *bytes.Buffer
-		serviceResponse     http.Cookie
+		serviceResponse     string
 		serviceErr          error
 		expectedStatus      int
 		expectedCookieCount int
 		expectedCookie      string
 	}{
-		{bytes.NewBufferString(""), fakeCookie, nil, http.StatusBadRequest, 0, ""},
-		{bytes.NewBufferString(string(fakePayloadString)), fakeCookie, nil, http.StatusOK, 1, fakeCookieHeader},
-		{bytes.NewBufferString(string(fakePayloadString)), fakeCookie, fakeServiceErr, http.StatusUnauthorized, 0, ""},
+		{bytes.NewBufferString(""), fakeToken, nil, http.StatusBadRequest, 0, "invalid data"},
+		{bytes.NewBufferString(string(fakePayloadString)), fakeToken, nil, http.StatusOK, 1, fakeToken},
+		{bytes.NewBufferString(string(fakePayloadString)), fakeToken, fakeServiceErr, http.StatusUnauthorized, 0, "user is unauthorized"},
 	}
 
 	for _, tt := range tests {
@@ -456,16 +460,19 @@ func TestLoginUserHandler(t *testing.T) {
 		fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/user/login", tt.body)
 
 		fakeService := &handlerfakes.FakeServiceInterface{}
-		fakeService.LoginUserReturns(tt.serviceResponse, tt.serviceErr)
+		fakeService.LoginUserReturns(fakeToken, tt.serviceErr)
 
 		handlerInstance := handler.NewHandler(fakeService)
 		handlerInstance.LoginUserHandler(fakeContext)
 
 		assert.Equal(t, tt.expectedStatus, responseRecorder.Code)
-		assert.Equal(t, tt.expectedCookieCount, len(responseRecorder.Header()["Set-Cookie"]))
-		if tt.expectedCookieCount > 0 {
-			assert.Equal(t, tt.expectedCookie, responseRecorder.Header()["Set-Cookie"][0])
-		}
+		assert.Contains(t, responseRecorder.Body.String(), tt.expectedCookie)
+		/*
+			if tt.expectedCookieCount > 0 {
+				assert.Equal(t, tt.expectedCookie, responseRecorder.Header()["Set-Cookie"][0])
+			}
+
+		*/
 	}
 }
 
