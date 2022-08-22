@@ -1,0 +1,10 @@
+
+FROM jenkins/ssh-agent:jdk11
+
+USER root
+RUN apt-get update && apt-get install -y wget tar
+RUN wget https://go.dev/dl/go1.16.2.linux-amd64.tar.gz && \
+    tar -C /usr/local/ -xzf go1.16.2.linux-amd64.tar.gz
+RUN echo $PATH
+ENV PATH="${PATH}:/usr/local/go/bin"
+RUN go version

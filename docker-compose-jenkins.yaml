@@ -1,0 +1,23 @@
+# docker-compose-jenkins.yaml
+version: '3.8'
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    privileged: true
+    user: root
+    ports:
+      - 8080:8080
+      - 50000:50000
+    container_name: jenkins-controller
+    volumes:
+      - /home/okapi/jenkins_compose/jenkins_configuration:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+  agent:
+    image: myjenkins-agent
+    privileged: true
+    user: root
+    container_name: agent
+    expose:
+      - 22
+    environment:
+      - JENKINS_AGENT_SSH_PUBKEY=ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDYBQlBcfqjBC9oJ9W9DERPck/s0VW3cqNR/n5avyEr4ShTFCC5Pk2gF57PoNKpsK1BjugKb4x5C2E3N0+84PzlKB4teXz24GHalepFauhVSWymwTLvYA/nTGV//C9PuN+dhXzVPuL/09ZuhwlIAXhloI2SHHq5tMKvuedemizISKbAr5PiCDShzUj/NM8/otRCcI6ptL5gEhbpEEkkYFGjptx1sy9mil+lcSgrL4wHSGqW9bn9Y0kFt7cTtFz9ad8NKuar2urHmor5O1u06PfR7/DOoCQks3QyyevkCuGrbjfKQa/PyhoE4ISKfx+PRY3JFRoWhlOnD84oGb+WOwmu/fh4Nf1kamarP15NUy0UD9bCdwcoz73A/qVW+LemzUYzTLCBb6QHO6uOulnRGMaMVivt05K+4xyvh8ge5zTjAsHBNO2+uAbzNwQasIuDx1lsxJ5g2mccPN5uFBA53lHrInC3yeEWRfd+y6jzVz0q3Z4HOC3owSngeJVNEfk0Bm8= okapi@okapi-VirtualBox
