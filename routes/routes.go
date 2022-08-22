@@ -22,6 +22,7 @@ type HandlerInterface interface {
 	CreateProposalsHandler(c *gin.Context)
 	DeleteProposalHandler(c *gin.Context)
 	UpdateProposalsHandler(c *gin.Context)
+	GetUserIdHandler(c *gin.Context)
 }
 
 var Handler HandlerInterface
@@ -35,6 +36,7 @@ func CreateRoutes(group *gin.RouterGroup) {
 	group.POST("/login", Handler.LoginUserHandler)
 	//	group.POST("/logout", Handler.LogoutUserHandler)
 	group.POST("/refresh", Handler.RefreshTokenHandler)
+	group.GET("/uId/:username", Handler.GetUserIdHandler)
 	user := group.Group("/user")
 	user.GET("/:id", Handler.PermissionMiddleware, Handler.GetUserHandler)
 	user.GET("/", Handler.PermissionMiddleware, Handler.GetAllUserHandler)

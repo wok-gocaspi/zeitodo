@@ -13,6 +13,7 @@ import (
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . ServiceInterface
 type ServiceInterface interface {
 	GetUserByID(id string) (model.UserPayload, error)
+	GetUserId(username string) (string, error)
 	GetAllUser() ([]model.UserPayload, error)
 	CreateUser(model.UserSignupPayload) (interface{}, error)
 	GetTeamMembersByUserID(id string) (interface{}, error)
@@ -56,6 +57,25 @@ func (handler Handler) GetUserHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 	return
 
+}
+
+func (handler Handler) GetUserIdHandler(c *gin.Context) {
+	pathParam, ok := c.Params.Get("username")
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": "username is not given",
+		})
+		return
+	}
+	response, err := handler.ServiceInterface.GetUserId(pathParam)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, response)
+	return
 }
 
 func (handler Handler) GetAllUserHandler(c *gin.Context) {
