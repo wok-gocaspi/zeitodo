@@ -477,28 +477,33 @@ func TestLoginUserHandler(t *testing.T) {
 }
 
 func TestLogoutUserHandler(t *testing.T) {
-	expDate := time.Now().Add(time.Minute * 5)
-	fakeCookie := http.Cookie{
-		Name:     "token",
-		Value:    "this is  sample token",
-		Expires:  expDate,
-		Path:     "/",
-		Domain:   "localhost",
-		Secure:   false,
-		HttpOnly: true,
-	}
+	/*
+		expDate := time.Now().Add(time.Minute * 5)
 
-	fakeCookieHeader := "token=; Path=/; HttpOnly; Secure"
 
+		fakeCookie := http.Cookie{
+			Name:     "token",
+			Value:    "this is  sample token",
+			Expires:  expDate,
+			Path:     "/",
+			Domain:   "localhost",
+			Secure:   false,
+			HttpOnly: true,
+		}
+
+		fakeCookieHeader := "token=; Path=/; HttpOnly; Secure"
+
+	*/
+	fakeToken := "fakeToken"
 	var tests = []struct {
 		hasValidToken       bool
-		reqCookie           http.Cookie
+		reqCookie           string
 		expectedStatus      int
 		expectedCookieCount int
 		expectedCookie      string
 	}{
-		{true, fakeCookie, http.StatusOK, 1, fakeCookieHeader},
-		{false, fakeCookie, http.StatusUnauthorized, 0, ""},
+		{true, fakeToken, http.StatusOK, 1, fakeToken},
+		{false, fakeToken, http.StatusUnauthorized, 0, ""},
 	}
 
 	for _, tt := range tests {
@@ -507,7 +512,8 @@ func TestLogoutUserHandler(t *testing.T) {
 		fakeContext, _ := gin.CreateTestContext(responseRecorder)
 		fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/user/logout", nil)
 		if tt.hasValidToken {
-			fakeContext.Request.AddCookie(&tt.reqCookie)
+			//	fakeContext.Request.AddCookie(&tt.reqCookie)
+			fakeContext.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tt.reqCookie))
 		}
 
 		fakeService := &handlerfakes.FakeServiceInterface{}
@@ -515,7 +521,8 @@ func TestLogoutUserHandler(t *testing.T) {
 		handlerInstance.LogoutUserHandler(fakeContext)
 
 		assert.Equal(t, tt.expectedStatus, responseRecorder.Code)
-		assert.Equal(t, tt.expectedCookieCount, len(responseRecorder.Header()["Set-Cookie"]))
+		//	assert.Equal(t, tt.expectedCookieCount, len(responseRecorder.Header()["Set-Cookie"]))
+		assert.Contains(t, responseRecorder.Body.String(), tt.expectedCookie)
 		if tt.expectedCookieCount > 0 {
 			assert.Equal(t, tt.expectedCookie, responseRecorder.Header()["Set-Cookie"][0])
 		}
@@ -523,33 +530,36 @@ func TestLogoutUserHandler(t *testing.T) {
 }
 
 func TestRefreshTokenHandler(t *testing.T) {
-	expDate := time.Now().Add(time.Minute * 5)
-	fakeCookie := http.Cookie{
-		Name:     "token",
-		Value:    "this is  sample token",
-		Expires:  expDate,
-		Path:     "/",
-		Domain:   "localhost",
-		Secure:   false,
-		HttpOnly: true,
-	}
-	fakeServiceToken := "serviceToken"
+	/*
+		expDate := time.Now().Add(time.Minute * 5)
+		fakeCookie := http.Cookie{
+			Name:     "token",
+			Value:    "this is  sample token",
+			Expires:  expDate,
+			Path:     "/",
+			Domain:   "localhost",
+			Secure:   false,
+			HttpOnly: true,
+		}
+		fakeServiceToken := "serviceToken"
 
-	fakeCookieHeader := "token=" + fakeServiceToken + "; Path=/; Max-Age=3600; HttpOnly"
+		fakeCookieHeader := "token=" + fakeServiceToken + "; Path=/; Max-Age=3600; HttpOnly"
+
+	*/
 	fakeServiceErr := errors.New("fake unauthorized user")
-
+	fakeToken := "fakeToken"
 	var tests = []struct {
 		hasValidToken       bool
-		reqCookie           http.Cookie
+		reqCookie           string
 		serviceToken        string
 		serviceErr          error
 		expectedStatus      int
 		expectedCookieCount int
 		expectedCookie      string
 	}{
-		{false, fakeCookie, "", nil, http.StatusUnauthorized, 0, ""},
-		{true, fakeCookie, "", fakeServiceErr, http.StatusUnauthorized, 0, ""},
-		{true, fakeCookie, fakeServiceToken, nil, http.StatusOK, 1, fakeCookieHeader},
+		{false, fakeToken, "", nil, http.StatusUnauthorized, 0, ""},
+		{true, fakeToken, "", fakeServiceErr, http.StatusUnauthorized, 0, ""},
+		{true, fakeToken, fakeToken, nil, http.StatusOK, 1, fakeToken},
 	}
 
 	for _, tt := range tests {
@@ -558,7 +568,8 @@ func TestRefreshTokenHandler(t *testing.T) {
 		fakeContext, _ := gin.CreateTestContext(responseRecorder)
 		fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/user/refresh", nil)
 		if tt.hasValidToken {
-			fakeContext.Request.AddCookie(&tt.reqCookie)
+			//			fakeContext.Request.AddCookie(&tt.reqCookie)
+			fakeContext.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tt.reqCookie))
 		}
 
 		fakeService := &handlerfakes.FakeServiceInterface{}
@@ -567,10 +578,14 @@ func TestRefreshTokenHandler(t *testing.T) {
 		handlerInstance.RefreshTokenHandler(fakeContext)
 
 		assert.Equal(t, tt.expectedStatus, responseRecorder.Code)
-		assert.Equal(t, tt.expectedCookieCount, len(responseRecorder.Header()["Set-Cookie"]))
-		if tt.expectedCookieCount > 0 {
-			assert.Equal(t, tt.expectedCookie, responseRecorder.Header()["Set-Cookie"][0])
-		}
+		//	assert.Equal(t, tt.expectedCookieCount, len(responseRecorder.Header()["Set-Cookie"]))
+		assert.Contains(t, responseRecorder.Body.String(), tt.expectedCookie)
+		/*
+			if tt.expectedCookieCount > 0 {
+				assert.Equal(t, tt.expectedCookie, responseRecorder.Header()["Set-Cookie"][0])
+			}
+
+		*/
 	}
 }
 
