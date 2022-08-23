@@ -37,7 +37,6 @@ func TestGetUserHandler_Return_valid_200(t *testing.T) {
 
 }
 
-
 func TestGetUserHandler_Return_invalid_400(t *testing.T) {
 	responseRecoder := httptest.NewRecorder()
 
@@ -249,123 +248,29 @@ func TestCreateUser_Return_invalid_500_invalid_json(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, responseRecorder.Code)
 }
 
-func TestUpdateUserHandler_Return_valid_200_single(t *testing.T) {
-	var fakeUserSignupPayload = model.User{
-		FirstName: "Peter", ID: primitive.ObjectID{},
+func TestUpdateUserHandler(t *testing.T) {
+	var userid = primitive.NewObjectID()
+	var tests = []struct {
+		isSingleUserRequest     bool
+		singleUser              model.UpdateUserPayload
+		isMultiUserRequest      bool
+		multiUser               []model.UpdateUserPayload
+		UpdateUserServiceReturn []model.UserUpdateResult
+		UpdateUserServiceError  error
+		StatusCode              int
+	}{
+		{isSingleUserRequest: true, isMultiUserRequest: false, singleUser: model.UpdateUserPayload{Username: "peter1", ID: userid}, multiUser: nil, UpdateUserServiceReturn: []model.UserUpdateResult{{Success: true}}, UpdateUserServiceError: nil, StatusCode: 200},
 	}
+	for _, tt := range tests {
+		responseRecorder := httptest.NewRecorder()
+		fakeContext, _ := gin.CreateTestContext(responseRecorder)
+		fakeService := &handlerfakes.FakeServiceInterface{}
+		fakeService.UpdateUsersReturns(tt.UpdateUserServiceReturn, tt.UpdateUserServiceError)
+		handlerInstance := handler.NewHandler(fakeService)
+		handlerInstance.UpdateUserHandler(fakeContext)
+		assert.Equal(t, responseRecorder.Code, tt.StatusCode)
 
-	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
-	responseRecorder := httptest.NewRecorder()
-
-	fakeContext, _ := gin.CreateTestContext(responseRecorder)
-	body := bytes.NewBufferString(string(fakeUserSignupPayloadString))
-	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/user/update", body)
-
-	fakeService := &handlerfakes.FakeServiceInterface{}
-	fakeService.UpdateUsersReturns([]model.UserUpdateResult{}, nil)
-	responseRecorder.Body = body
-
-	handlerInstance := handler.NewHandler(fakeService)
-	handlerInstance.UpdateUserHandler(fakeContext)
-
-	assert.Equal(t, http.StatusOK, responseRecorder.Code)
-}
-
-func TestUpdateUserHandler_Return_invalid_json(t *testing.T) {
-	var fakeJSONString = `
-		[
-			{
-				"id": "123",
-				"email": "p.mueller@gmx.com"
-			,
-			{
-				"id": "456",
-				"email": "p.mueller2@gmx.com"
-			}
-		]
-	`
-	responseRecorder := httptest.NewRecorder()
-
-	fakeContext, _ := gin.CreateTestContext(responseRecorder)
-	body := bytes.NewBufferString(fakeJSONString)
-	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/user/update", body)
-
-	fakeService := &handlerfakes.FakeServiceInterface{}
-	fakeService.UpdateUsersReturns([]model.UserUpdateResult{}, nil)
-	responseRecorder.Body = body
-
-	handlerInstance := handler.NewHandler(fakeService)
-	handlerInstance.UpdateUserHandler(fakeContext)
-
-	assert.Equal(t, http.StatusBadRequest, responseRecorder.Code)
-}
-
-func TestUpdateUserHandler_Return_invalid_500_multi_update_unsuccessful(t *testing.T) {
-	var fakeUserSignupPayload = []model.User{
-		{FirstName: "Peter", ID: primitive.NewObjectID()},
-		{FirstName: "Peter", ID: primitive.NewObjectID()},
 	}
-
-	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
-	responseRecorder := httptest.NewRecorder()
-
-	fakeContext, _ := gin.CreateTestContext(responseRecorder)
-	body := bytes.NewBufferString(string(fakeUserSignupPayloadString))
-	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/user/update", body)
-
-	fakeService := &handlerfakes.FakeServiceInterface{}
-	fakeService.UpdateUsersReturns([]model.UserUpdateResult{}, errors.New("a few users couldn't be updated"))
-	responseRecorder.Body = body
-
-	handlerInstance := handler.NewHandler(fakeService)
-	handlerInstance.UpdateUserHandler(fakeContext)
-
-	assert.Equal(t, http.StatusInternalServerError, responseRecorder.Code)
-}
-
-func TestUpdateUserHandler_Return_valid_200_multi(t *testing.T) {
-	var fakeUserSignupPayload = []model.User{
-		{FirstName: "Peter", ID: primitive.ObjectID{}},
-		{FirstName: "Peter", ID: primitive.ObjectID{}},
-	}
-
-	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
-	responseRecorder := httptest.NewRecorder()
-
-	fakeContext, _ := gin.CreateTestContext(responseRecorder)
-	body := bytes.NewBufferString(string(fakeUserSignupPayloadString))
-	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/user/update", body)
-
-	fakeService := &handlerfakes.FakeServiceInterface{}
-	fakeService.UpdateUsersReturns([]model.UserUpdateResult{}, nil)
-	responseRecorder.Body = body
-
-	handlerInstance := handler.NewHandler(fakeService)
-	handlerInstance.UpdateUserHandler(fakeContext)
-
-	assert.Equal(t, http.StatusOK, responseRecorder.Code)
-}
-
-func TestUpdateUserHandler_Return_invalid_500_single_update_unsuccessful(t *testing.T) {
-	var fakeUserSignupPayload = model.User{
-		FirstName: "Peter", ID: primitive.NewObjectID(),
-	}
-
-	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
-	responseRecorder := httptest.NewRecorder()
-
-	fakeContext, _ := gin.CreateTestContext(responseRecorder)
-	body := bytes.NewBufferString(string(fakeUserSignupPayloadString))
-	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/user/update", body)
-
-	fakeService := &handlerfakes.FakeServiceInterface{}
-	fakeService.UpdateUsersReturns([]model.UserUpdateResult{}, errors.New("a few users couldn't be updated"))
-	responseRecorder.Body = body
-
-	handlerInstance := handler.NewHandler(fakeService)
-	handlerInstance.UpdateUserHandler(fakeContext)
-
-	assert.Equal(t, http.StatusInternalServerError, responseRecorder.Code)
 }
 
 func TestDeleteUserHandler_Return_valid_200_delete(t *testing.T) {
@@ -585,10 +490,12 @@ func TestPermissionMiddleware(t *testing.T) {
 	var tests = []struct {
 		hasValidToken  bool
 		reqCookie      http.Cookie
-		serviceOk      bool
 		serviceErr     error
 		expectedStatus int
+		userid         string
+		group          string
 	}{
+		{true, fakeCookie, false},
 		{false, fakeCookie, false, nil, http.StatusUnauthorized},
 		{true, fakeCookie, false, fakeServiceErr, http.StatusUnauthorized},
 	}
@@ -612,7 +519,6 @@ func TestPermissionMiddleware(t *testing.T) {
 		assert.Equal(t, tt.expectedStatus, responseRecorder.Code)
 	}
 }
-
 
 func TestHandler_GetProposalsById(t *testing.T) {
 
