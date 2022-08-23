@@ -29,6 +29,11 @@ type FakeHandlerInterface struct {
 	deleteProposalHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
+	DeleteTimeEntryStub        func(*gin.Context)
+	deleteTimeEntryMutex       sync.RWMutex
+	deleteTimeEntryArgsForCall []struct {
+		arg1 *gin.Context
+	}
 	DeleteUserHandlerStub        func(*gin.Context)
 	deleteUserHandlerMutex       sync.RWMutex
 	deleteUserHandlerArgsForCall []struct {
@@ -203,6 +208,38 @@ func (fake *FakeHandlerInterface) DeleteProposalHandlerArgsForCall(i int) *gin.C
 	fake.deleteProposalHandlerMutex.RLock()
 	defer fake.deleteProposalHandlerMutex.RUnlock()
 	argsForCall := fake.deleteProposalHandlerArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeHandlerInterface) DeleteTimeEntry(arg1 *gin.Context) {
+	fake.deleteTimeEntryMutex.Lock()
+	fake.deleteTimeEntryArgsForCall = append(fake.deleteTimeEntryArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.DeleteTimeEntryStub
+	fake.recordInvocation("DeleteTimeEntry", []interface{}{arg1})
+	fake.deleteTimeEntryMutex.Unlock()
+	if stub != nil {
+		fake.DeleteTimeEntryStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) DeleteTimeEntryCallCount() int {
+	fake.deleteTimeEntryMutex.RLock()
+	defer fake.deleteTimeEntryMutex.RUnlock()
+	return len(fake.deleteTimeEntryArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) DeleteTimeEntryCalls(stub func(*gin.Context)) {
+	fake.deleteTimeEntryMutex.Lock()
+	defer fake.deleteTimeEntryMutex.Unlock()
+	fake.DeleteTimeEntryStub = stub
+}
+
+func (fake *FakeHandlerInterface) DeleteTimeEntryArgsForCall(i int) *gin.Context {
+	fake.deleteTimeEntryMutex.RLock()
+	defer fake.deleteTimeEntryMutex.RUnlock()
+	argsForCall := fake.deleteTimeEntryArgsForCall[i]
 	return argsForCall.arg1
 }
 
@@ -505,6 +542,8 @@ func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	defer fake.createUserHandlerMutex.RUnlock()
 	fake.deleteProposalHandlerMutex.RLock()
 	defer fake.deleteProposalHandlerMutex.RUnlock()
+	fake.deleteTimeEntryMutex.RLock()
+	defer fake.deleteTimeEntryMutex.RUnlock()
 	fake.deleteUserHandlerMutex.RLock()
 	defer fake.deleteUserHandlerMutex.RUnlock()
 	fake.getAllUserHandlerMutex.RLock()

@@ -24,6 +24,8 @@ type DatabaseInterface interface {
 	CreatTimeEntryById(te model.TimeEntry) (interface{}, error)
 	UpdateTimeEntryById(update model.TimeEntry) (*mongo.UpdateResult, error)
 	GetTimeEntryByID(id string) []model.TimeEntry
+	DeleteTimeEntryById(id string) (interface{}, error)
+	GetAllTimeEntry() ([]model.TimeEntry, error)
 }
 
 type EmployeeService struct {

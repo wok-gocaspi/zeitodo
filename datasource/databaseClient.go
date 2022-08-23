@@ -315,14 +315,16 @@ func (c Client) UpdateProposal(update model.Proposal, date string) (*mongo.Updat
 	return result, nil
 }
 func (c Client) CreatTimeEntryById(te model.TimeEntry) (interface{}, error) {
+
 	result, err := c.TimeEntries.InsertOne(context.TODO(), te)
 	if err != nil {
 		return nil, err
 	}
 	return result, nil
 }
+
 func (c Client) UpdateTimeEntryById(update model.TimeEntry) (*mongo.UpdateResult, error) {
-	filter := bson.M{"userId": update.UserId}
+	filter := bson.M{"userId": update.UserId, "start": update.Start}
 
 	if update.UserId == "" {
 		IdMissing := fmt.Sprintf("ID %v got no User", update.UserId)
@@ -331,7 +333,9 @@ func (c Client) UpdateTimeEntryById(update model.TimeEntry) (*mongo.UpdateResult
 	courser := c.TimeEntries.FindOne(context.TODO(), filter)
 	var User model.TimeEntry
 	err := courser.Decode(&User)
-
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println(update)
 	var setElements bson.D
 
@@ -363,6 +367,7 @@ func (c Client) UpdateTimeEntryById(update model.TimeEntry) (*mongo.UpdateResult
 		fmt.Sprintf(update.End.String())
 		setElements = append(setElements, bson.E{Key: "end", Value: update.End})
 	}
+
 	setMap := bson.D{
 		{"$set", setElements},
 	}
@@ -391,4 +396,43 @@ func (c Client) GetTimeEntryByID(id string) []model.TimeEntry {
 		timeEntries = append(timeEntries, timeEntry)
 	}
 	return timeEntries
+}
+func (c Client) DeleteTimeEntryById(id string) (interface{}, error) {
+	filter := bson.M{"userId": id}
+
+	results, err := c.TimeEntries.DeleteOne(context.TODO(), filter)
+
+	if err != nil {
+
+		return nil, err
+	}
+	if results.DeletedCount == 0 {
+		deleterror := errors.New(" Time not existing")
+		return nil, deleterror
+	}
+	return results.DeletedCount, nil
+}
+func (c Client) GetAllTimeEntry() ([]model.TimeEntry, error) {
+
+	filter := bson.M{}
+	var timeEntries []model.TimeEntry
+	courser, err := c.TimeEntries.Find(context.TODO(), filter)
+
+	if err != nil {
+		return nil, err
+	}
+	for courser.Next(context.TODO()) {
+		var timeEntry model.TimeEntry
+		err := courser.Decode(&timeEntry)
+		if err != nil {
+			return timeEntries, err
+		}
+		timeEntries = append(timeEntries, timeEntry)
+	}
+	if len(timeEntries) == 0 {
+		noTimeError := errors.New("no Time exist")
+		return timeEntries, noTimeError
+
+	}
+	return timeEntries, nil
 }

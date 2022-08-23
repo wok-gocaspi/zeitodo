@@ -62,6 +62,19 @@ type FakeServiceInterface struct {
 	deleteProposalsByIDReturnsOnCall map[int]struct {
 		result1 error
 	}
+	DeleteTimeEntriesStub        func(string) (interface{}, error)
+	deleteTimeEntriesMutex       sync.RWMutex
+	deleteTimeEntriesArgsForCall []struct {
+		arg1 string
+	}
+	deleteTimeEntriesReturns struct {
+		result1 interface{}
+		result2 error
+	}
+	deleteTimeEntriesReturnsOnCall map[int]struct {
+		result1 interface{}
+		result2 error
+	}
 	DeleteUsersStub        func(string) (interface{}, error)
 	deleteUsersMutex       sync.RWMutex
 	deleteUsersArgsForCall []struct {
@@ -452,6 +465,70 @@ func (fake *FakeServiceInterface) DeleteProposalsByIDReturnsOnCall(i int, result
 	fake.deleteProposalsByIDReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
+}
+
+func (fake *FakeServiceInterface) DeleteTimeEntries(arg1 string) (interface{}, error) {
+	fake.deleteTimeEntriesMutex.Lock()
+	ret, specificReturn := fake.deleteTimeEntriesReturnsOnCall[len(fake.deleteTimeEntriesArgsForCall)]
+	fake.deleteTimeEntriesArgsForCall = append(fake.deleteTimeEntriesArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.DeleteTimeEntriesStub
+	fakeReturns := fake.deleteTimeEntriesReturns
+	fake.recordInvocation("DeleteTimeEntries", []interface{}{arg1})
+	fake.deleteTimeEntriesMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeServiceInterface) DeleteTimeEntriesCallCount() int {
+	fake.deleteTimeEntriesMutex.RLock()
+	defer fake.deleteTimeEntriesMutex.RUnlock()
+	return len(fake.deleteTimeEntriesArgsForCall)
+}
+
+func (fake *FakeServiceInterface) DeleteTimeEntriesCalls(stub func(string) (interface{}, error)) {
+	fake.deleteTimeEntriesMutex.Lock()
+	defer fake.deleteTimeEntriesMutex.Unlock()
+	fake.DeleteTimeEntriesStub = stub
+}
+
+func (fake *FakeServiceInterface) DeleteTimeEntriesArgsForCall(i int) string {
+	fake.deleteTimeEntriesMutex.RLock()
+	defer fake.deleteTimeEntriesMutex.RUnlock()
+	argsForCall := fake.deleteTimeEntriesArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeServiceInterface) DeleteTimeEntriesReturns(result1 interface{}, result2 error) {
+	fake.deleteTimeEntriesMutex.Lock()
+	defer fake.deleteTimeEntriesMutex.Unlock()
+	fake.DeleteTimeEntriesStub = nil
+	fake.deleteTimeEntriesReturns = struct {
+		result1 interface{}
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) DeleteTimeEntriesReturnsOnCall(i int, result1 interface{}, result2 error) {
+	fake.deleteTimeEntriesMutex.Lock()
+	defer fake.deleteTimeEntriesMutex.Unlock()
+	fake.DeleteTimeEntriesStub = nil
+	if fake.deleteTimeEntriesReturnsOnCall == nil {
+		fake.deleteTimeEntriesReturnsOnCall = make(map[int]struct {
+			result1 interface{}
+			result2 error
+		})
+	}
+	fake.deleteTimeEntriesReturnsOnCall[i] = struct {
+		result1 interface{}
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeServiceInterface) DeleteUsers(arg1 string) (interface{}, error) {
@@ -1100,6 +1177,8 @@ func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	defer fake.createUserMutex.RUnlock()
 	fake.deleteProposalsByIDMutex.RLock()
 	defer fake.deleteProposalsByIDMutex.RUnlock()
+	fake.deleteTimeEntriesMutex.RLock()
+	defer fake.deleteTimeEntriesMutex.RUnlock()
 	fake.deleteUsersMutex.RLock()
 	defer fake.deleteUsersMutex.RUnlock()
 	fake.getAllUserMutex.RLock()

@@ -27,6 +27,10 @@ type ServiceInterface interface {
 	CreatTimeEntries(te model.TimeEntry) (interface{}, error)
 	UpdateTimeEntries(update model.TimeEntry) (interface{}, error)
 	GetTimeEntries(id string) []model.TimeEntry
+	DeleteTimeEntries(id string) (interface{}, error)
+	GetAllTimeEntries() ([]model.TimeEntry, error)
+	CollideTimeEntry(a, b model.TimeEntry) bool
+	CalcultimeEntry(userid string) (map[string]float64, error)
 }
 
 type Handler struct {
@@ -41,6 +45,7 @@ func NewHandler(serviceInterface ServiceInterface) Handler {
 
 //Creat TimeEntries
 func (handler Handler) CreatTimeEntry(c *gin.Context) {
+
 	var timeEntry model.TimeEntry
 	err := c.BindJSON(&timeEntry)
 
@@ -60,8 +65,28 @@ func (handler Handler) CreatTimeEntry(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, response)
 }
+func (handler Handler) CalcultimeEntry(context *gin.Context) {
+	pathParam, ok := context.Params.Get("id")
+	if !ok {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": "time is not given",
+		})
+		return
+	}
 
-//Update TimeEntries
+	response, err := handler.ServiceInterface.CalcultimeEntry(pathParam)
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": err.Error(),
+		})
+	}
+	dt := time.Now()
+	{
+		fmt.Println("Current date and time is : ", dt.String())
+	}
+	context.JSON(http.StatusOK, response)
+
+}
 
 func (handler Handler) UpdateTimeEntry(context *gin.Context) {
 	id, ok := context.Params.Get("id")
@@ -105,6 +130,44 @@ func (handler Handler) GetTimeEntry(c *gin.Context) {
 		fmt.Println("Current date and time is : ", dt.String())
 	}
 	c.JSON(http.StatusOK, response)
+
+}
+
+//Delete TimeEntry
+func (handler Handler) DeleteTimeEntry(c *gin.Context) {
+	pathParam, ok := c.Params.Get("id")
+
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+
+			"errorMessage": "TimeEntry is not existing",
+		})
+		return
+	}
+	response, err := handler.ServiceInterface.DeleteTimeEntries(pathParam)
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, response)
+}
+
+//GetAllTimeEntry
+
+func (handler Handler) GetAllTimeEntry(c *gin.Context) {
+
+	response, err := handler.ServiceInterface.GetAllTimeEntries()
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, response)
+	return
 
 }
 
