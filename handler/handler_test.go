@@ -275,22 +275,22 @@ func TestUpdateUserHandler(t *testing.T) {
 			jsonByte, _ := json.Marshal(&tt.singleUser)
 			jsonString := string(jsonByte)
 			jsonString = jsonString[2:]
-			json := bytes.NewBufferString(jsonString)
-			fakeContext.Request, _ = http.NewRequest("PATCH", "/user", json)
+			body := bytes.NewBufferString(jsonString)
+			fakeContext.Request, _ = http.NewRequest("PATCH", "/user", body)
 		} else if !tt.validJSON && tt.isMultiUserRequest {
 			jsonByte, _ := json.Marshal(&tt.multiUser)
 			jsonString := string(jsonByte)
 			jsonString = jsonString[2:]
-			json := bytes.NewBufferString(jsonString)
-			fakeContext.Request, _ = http.NewRequest("PATCH", "/user", json)
+			body := bytes.NewBufferString(jsonString)
+			fakeContext.Request, _ = http.NewRequest("PATCH", "/user", body)
 		} else if tt.isMultiUserRequest {
 			jsonByte, _ := json.Marshal(&tt.multiUser)
-			json := bytes.NewBufferString(string(jsonByte))
-			fakeContext.Request, _ = http.NewRequest("PATCH", "/user", json)
+			body := bytes.NewBufferString(string(jsonByte))
+			fakeContext.Request, _ = http.NewRequest("PATCH", "/user", body)
 		} else {
 			jsonByte, _ := json.Marshal(&tt.singleUser)
-			json := bytes.NewBufferString(string(jsonByte))
-			fakeContext.Request, _ = http.NewRequest("PATCH", "/user", json)
+			body := bytes.NewBufferString(string(jsonByte))
+			fakeContext.Request, _ = http.NewRequest("PATCH", "/user", body)
 		}
 
 		fakeService := &handlerfakes.FakeServiceInterface{}
