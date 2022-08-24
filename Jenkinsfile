@@ -10,9 +10,10 @@ pipeline {
     }
 
     parameters {
-            gitParameter name: 'BRANCH_TAG',
+            gitParameter branchFilter: 'origin.*/(.*)',
+                         name: 'BRANCH_TAG',
                          type: 'PT_BRANCH_TAG',
-                         defaultValue: 'master'
+                         defaultValue: 'main'
         }
 
     stages {
@@ -21,7 +22,6 @@ pipeline {
                 echo 'Building..'
                 sh " go version"
                 checkout([$class: 'GitSCM',
-                    //branches: [[name: '*/main']],
                     branches: [[name: "${params.BRANCH_TAG}"]],
                     userRemoteConfigs: [[url: 'https://github.com/wok-gocaspi/zeitodo.git']]])
                 sh "go build"
@@ -41,7 +41,9 @@ pipeline {
             steps {
                 echo 'Deploying....'
                 script{
-                    docker.build "zeitodo:${env.BUILD_TAG}"
+                    docker.withRegistry('https://zeitodoreg.azurecr.io', 'ZeiToDoAzure') {
+                      docker.build("zeitodoreg.azurecr.io/zeitodobackend").push("${env.BRANCH_TAG}-${env.BUILD_NUMBER}")
+                    }
                 }
             }
         }
