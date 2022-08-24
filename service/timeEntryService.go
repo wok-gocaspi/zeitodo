@@ -5,6 +5,15 @@ import (
 	"example-project/model"
 )
 
+func (s EmployeeService) GetTimeEntries(id string) []model.TimeEntry {
+	return s.DbService.GetTimeEntryByID(id)
+}
+func (s EmployeeService) DeleteTimeEntries(id string) (interface{}, error) {
+	return s.DbService.DeleteTimeEntryById(id)
+}
+func (s EmployeeService) GetAllTimeEntries() ([]model.TimeEntry, error) {
+	return s.DbService.GetAllTimeEntry()
+}
 func (s EmployeeService) CreatTimeEntries(te model.TimeEntry) (interface{}, error) {
 	var timeentriesDb []model.TimeEntry
 
@@ -26,6 +35,7 @@ func (s EmployeeService) CreatTimeEntries(te model.TimeEntry) (interface{}, erro
 	return s.DbService.CreatTimeEntryById(te)
 }
 func (s EmployeeService) UpdateTimeEntries(update model.TimeEntry) (interface{}, error) {
+
 	var timeentriesDb []model.TimeEntry
 
 	timeentriesDb, err := s.DbService.GetAllTimeEntry()
@@ -48,15 +58,6 @@ func (s EmployeeService) UpdateTimeEntries(update model.TimeEntry) (interface{},
 	return s.DbService.UpdateTimeEntryById(update)
 }
 
-func (s EmployeeService) GetTimeEntries(id string) []model.TimeEntry {
-	return s.DbService.GetTimeEntryByID(id)
-}
-func (s EmployeeService) DeleteTimeEntries(id string) (interface{}, error) {
-	return s.DbService.DeleteTimeEntryById(id)
-}
-func (s EmployeeService) GetAllTimeEntries() ([]model.TimeEntry, error) {
-	return s.DbService.GetAllTimeEntry()
-}
 func (s EmployeeService) CollideTimeEntry(timevor, timenach model.TimeEntry) bool {
 
 	if timevor.Start.Before(timenach.Start) && timevor.End.After(timenach.Start) {

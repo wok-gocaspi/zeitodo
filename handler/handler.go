@@ -107,7 +107,6 @@ func (handler Handler) UpdateTimeEntry(context *gin.Context) {
 		})
 		return
 	}
-	//update := model.TimeEntry{}
 	result, err := handler.ServiceInterface.UpdateTimeEntries(payLoad)
 	if err != nil {
 		context.AbortWithStatusJSON(400, err.Error())
