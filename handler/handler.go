@@ -80,6 +80,7 @@ func (handler Handler) CalcultimeEntry(context *gin.Context) {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"errorMessage": err.Error(),
 		})
+		return
 	}
 	dt := time.Now()
 	{
