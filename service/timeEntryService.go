@@ -14,7 +14,34 @@ func (s EmployeeService) DeleteTimeEntries(id string) (interface{}, error) {
 func (s EmployeeService) GetAllTimeEntries() ([]model.TimeEntry, error) {
 	return s.DbService.GetAllTimeEntry()
 }
+
+func (s EmployeeService) CollideTimeEntry(timevor, timenach model.TimeEntry) bool {
+
+	if timevor.End == timenach.End {
+		return true
+	}
+	if timevor.Start == timenach.Start {
+		return true
+	}
+
+	if timevor.Start.Before(timenach.Start) && timevor.End.After(timenach.Start) {
+		return true
+	}
+
+	if timevor.Start.Before(timenach.End) && timevor.End.After(timenach.End) {
+		return true
+	}
+
+	if timenach.Start.Before(timevor.Start) && timenach.End.After(timevor.Start) {
+		return true
+	}
+	if timenach.Start.Before(timevor.End) && timenach.End.After(timevor.End) {
+		return true
+	}
+	return false
+}
 func (s EmployeeService) CreatTimeEntries(te model.TimeEntry) (interface{}, error) {
+
 	var timeentriesDb []model.TimeEntry
 
 	timeentriesDb, err := s.DbService.GetAllTimeEntry()
@@ -58,31 +85,6 @@ func (s EmployeeService) UpdateTimeEntries(update model.TimeEntry) (interface{},
 	return s.DbService.UpdateTimeEntryById(update)
 }
 
-func (s EmployeeService) CollideTimeEntry(timevor, timenach model.TimeEntry) bool {
-
-	if timevor.Start.Before(timenach.Start) && timevor.End.After(timenach.Start) {
-		return true
-	}
-
-	if timevor.Start.Before(timenach.End) && timevor.End.After(timenach.End) {
-		return true
-	}
-
-	if timenach.Start.Before(timevor.Start) && timenach.End.After(timevor.Start) {
-		return true
-	}
-
-	if timenach.Start.Before(timevor.End) && timenach.End.After(timevor.End) {
-		return true
-	}
-	if timevor.Start == timenach.Start {
-		return true
-	}
-	if timevor.End == timenach.End {
-		return true
-	}
-	return false
-}
 func (s EmployeeService) CalcultimeEntry(userid string) (map[string]float64, error) {
 
 	m := make(map[string]float64)
