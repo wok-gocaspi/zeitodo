@@ -37,7 +37,6 @@ func TestGetUserHandler_Return_valid_200(t *testing.T) {
 
 }
 
-
 func TestGetUserHandler_Return_invalid_400(t *testing.T) {
 	responseRecoder := httptest.NewRecorder()
 
@@ -613,7 +612,6 @@ func TestPermissionMiddleware(t *testing.T) {
 	}
 }
 
-
 func TestHandler_GetProposalsById(t *testing.T) {
 
 	filterReturn := []model.Proposal{
@@ -891,5 +889,435 @@ func TestHandler_DeleteProposalHandler(t *testing.T) {
 			assert.Equal(t, fakeRecorder.Body.String(), "\"\"")
 		}
 	}
+
+}
+func TestDeleteTimeEntry_(t *testing.T) {
+
+	responseRecorder := httptest.NewRecorder()
+
+	fakeContext, _ := gin.CreateTestContext(responseRecorder)
+	fakeContext.Params = append(fakeContext.Params, gin.Param{Key: "id", Value: "1"})
+	//fakeContext.Request.URL.RawQuery = "userId=1" //&starttime=2022-08-01T06:00:00.801+00:00"
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakeService.DeleteTimeEntriesReturns(&mongo.DeleteResult{DeletedCount: 1}, nil)
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.DeleteTimeEntry(fakeContext)
+
+	assert.Equal(t, 200, responseRecorder.Code)
+}
+
+func TestDeleteTimeEntry_Return_invalid(t *testing.T) {
+
+	responseRecorder := httptest.NewRecorder()
+
+	fakeContext, _ := gin.CreateTestContext(responseRecorder)
+	fakeContext.Params = append(fakeContext.Params, gin.Param{Key: "i", Value: "1"})
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakeService.DeleteTimeEntriesReturns(&mongo.DeleteResult{DeletedCount: 1}, nil)
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.DeleteTimeEntry(fakeContext)
+
+	assert.Equal(t, 400, responseRecorder.Code)
+}
+
+func TestDeleteTimeEntries_user(t *testing.T) {
+
+	responseRecorder := httptest.NewRecorder()
+
+	fakeContext, _ := gin.CreateTestContext(responseRecorder)
+	fakeContext.Params = append(fakeContext.Params, gin.Param{Key: "id", Value: "1"})
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakeService.DeleteTimeEntriesReturns(&mongo.DeleteResult{DeletedCount: 0}, errors.New("no Timeuser have been deleted, please check the id"))
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.DeleteTimeEntry(fakeContext)
+
+	assert.Equal(t, 500, responseRecorder.Code)
+}
+
+func TestGetTimeEntry_Return_invalid(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "id", Value: "1"})
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakeService.GetTimeEntriesReturns([]model.TimeEntry{})
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.GetTimeEntry(fakeContest)
+
+	assert.Equal(t, 200, responseRecoder.Code)
+
+}
+
+func TestGetTimeEntry_Return(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.GetTimeEntry(fakeContest)
+
+	assert.Equal(t, 400, responseRecoder.Code)
+}
+
+func TestGetTimeEntries_user(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "id", Value: "1"})
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakeService.GetTimeEntriesReturns([]model.TimeEntry{})
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.GetTimeEntry(fakeContest)
+
+	assert.Equal(t, 404, responseRecoder.Code)
+
+}
+
+func TestTimeEntry_UpdateById(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	jsonPayload := `{
+		"userId": "123456789",
+        "start": "2021-08-01T12:00:00.801Z",
+       "end": "2021-08-01T17:00:00.801Z",
+       "breakStart": "2021-08-01T12:00:06.801Z",
+       "breakEnd": "2021-08-01T13:00:00.801Z",
+        "project": "EmployeeRegister"
+		    }`
+	body := bytes.NewBufferString(jsonPayload)
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/timeentry/1/update", body)
+	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "Id", Value: "1"})
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	var mongo mongo.UpdateResult
+	fakeService.UpdateTimeEntriesReturns(&mongo, errors.New(""))
+
+	expectedErrorMsg := ""
+
+	handlerInstance := handler.NewHandler(fakeService)
+
+	handlerInstance.UpdateTimeEntry(fakeContest)
+
+	assert.Contains(t, responseRecoder.Body.String(), expectedErrorMsg)
+
+	assert.Equal(t, responseRecoder.Code, 401)
+
+}
+func TestTimeEntry_Update(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	jsonPayload := `{
+		"userId": "123456789",
+    "start": "2021-08-01T12:00:00.801Z",
+    "end": "2021-08-01T17:00:00.801Z",
+    "breakStart": "2021-08-01T12:00:06.801Z",
+    "breakEnd": "2021-08-01T13:00:00.801Z",
+    "project": "EmployeeRegister"
+		    }`
+
+	var mockDate model.TimeEntry
+	json.Unmarshal([]byte(jsonPayload), &mockDate)
+	body := bytes.NewBufferString(jsonPayload)
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/timeentry/1/update", body)
+	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "id", Value: "1"})
+	fakeService := &handlerfakes.FakeServiceInterface{}
+
+	fakeService.GetTimeEntriesReturns(nil)
+
+	expectedErrorMsg := ""
+
+	handlerInstance := handler.NewHandler(fakeService)
+
+	handlerInstance.UpdateTimeEntry(fakeContest)
+
+	assert.Contains(t, responseRecoder.Body.String(), expectedErrorMsg)
+
+	assert.Equal(t, responseRecoder.Code, 400)
+
+}
+func TestTimeEntry_Update_user(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	jsonPayload := `{
+		"userId": "123456789",
+    "start": "2021-08-01T12:00:00.801Z",
+    "end": "2021-08-01T17:00:00.801Z",
+    "breakStart": "2021-08-01T12:00:06.801Z",
+    "breakEnd": "2021-08-01T13:00:00.801Z",
+    "project": "EmployeeRegister"
+		    }`
+
+	var mockDate model.TimeEntry
+
+	json.Unmarshal([]byte(jsonPayload), &mockDate)
+
+	body := bytes.NewBufferString(jsonPayload)
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+
+	fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/timeentry/1/update", body)
+
+	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "id", Value: "1"})
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+
+	fakeService.GetTimeEntriesReturns([]model.TimeEntry{})
+
+	expectedErrorMsg := ""
+
+	handlerInstance := handler.NewHandler(fakeService)
+
+	handlerInstance.UpdateTimeEntry(fakeContest)
+
+	assert.Contains(t, responseRecoder.Body.String(), expectedErrorMsg)
+
+	assert.Equal(t, responseRecoder.Code, 400)
+
+}
+func Test_TimeEntry_Upd(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	jsonPayload := `{
+		"userId": "123456789",
+    "start": "2021-08-01T12:00:00.801Z",
+    "end": "2021-08-01T17:00:00.801Z",
+    "breakStart": "2021-08-01T12:00:06.801Z",
+    "breakEnd": "2021-08-01T13:00:00.801Z",
+    "project": "EmployeeRegister"
+		    }`
+
+	var mockDate model.TimeEntry
+
+	json.Unmarshal([]byte(jsonPayload), &mockDate)
+
+	body := bytes.NewBufferString(jsonPayload)
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+
+	fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/timeentry/1/update", body)
+
+	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "id", Value: "1"})
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+
+	fakeService.GetTimeEntriesReturns([]model.TimeEntry{})
+
+	fakeService.UpdateTimeEntriesReturns(&mongo.UpdateResult{}, errors.New(""))
+
+	expectedErrorMsg := ""
+
+	handlerInstance := handler.NewHandler(fakeService)
+
+	handlerInstance.UpdateTimeEntry(fakeContest)
+
+	assert.Contains(t, responseRecoder.Body.String(), expectedErrorMsg)
+
+	assert.Equal(t, responseRecoder.Code, 200)
+
+}
+func Test_TimeEntry_res(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	jsonPayload := `{
+		"id":"2222",
+		    }`
+
+	var mockDate model.TimeEntry
+
+	json.Unmarshal([]byte(jsonPayload), &mockDate)
+
+	body := bytes.NewBufferString(jsonPayload)
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+
+	fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/timeentry/1/update", body)
+
+	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "id", Value: "1"})
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+
+	fakeService.GetTimeEntriesReturns([]model.TimeEntry{})
+
+	fakeService.UpdateTimeEntriesReturns(&mongo.UpdateResult{}, nil)
+
+	expectedErrorMsg := ""
+
+	handlerInstance := handler.NewHandler(fakeService)
+
+	handlerInstance.UpdateTimeEntry(fakeContest)
+
+	assert.Contains(t, responseRecoder.Body.String(), expectedErrorMsg)
+
+	assert.Equal(t, responseRecoder.Code, 200)
+
+}
+
+func Test_GetAllTimeEntries(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "id", Value: "1"})
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakeService.GetAllTimeEntriesReturns([]model.TimeEntry{}, errors.New("some db error"))
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.GetAllTimeEntry(fakeContest)
+
+	assert.Equal(t, 200, responseRecoder.Code)
+
+}
+
+func Test_GetAllTimeEntry(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.GetAllTimeEntry(fakeContest)
+
+	assert.Equal(t, 400, responseRecoder.Code)
+}
+
+func Test_GettAllTimeEntry(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "id", Value: "1"})
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakeService.GetTimeEntriesReturns([]model.TimeEntry{})
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.GetAllTimeEntry(fakeContest)
+
+	assert.Equal(t, 404, responseRecoder.Code)
+
+}
+
+func Test_CreateTimeentry(t *testing.T) {
+	//Return_valid_201_single(
+	var fakeUserSignupPayload = model.TimeEntry{
+		UserId: "123", Start: time.Time{}, End: time.Time{}, BreakStart: time.Time{}, BreakEnd: time.Time{}, Project: "135"}
+
+	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
+	fmt.Println(string(fakeUserSignupPayloadString))
+	responseRecorder := httptest.NewRecorder()
+
+	fakeContext, _ := gin.CreateTestContext(responseRecorder)
+	body := bytes.NewBufferString(string(fakeUserSignupPayloadString))
+	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/createtime", body)
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakeService.CreatTimeEntriesReturns(mongo.InsertManyResult{}.InsertedIDs, nil)
+
+	responseRecorder.Body = body
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.CreatTimeEntry(fakeContext)
+
+	assert.Equal(t, http.StatusCreated, responseRecorder.Code)
+}
+
+func Test_CreateTimeEntry(t *testing.T) {
+	//_Return_invalid_500_single_insufficent_data
+	var fakeUserSignupPayload = model.TimeEntry{
+		UserId: "123", Start: time.Time{}, End: time.Time{}, BreakStart: time.Time{}, BreakEnd: time.Time{}, Project: "135"}
+
+	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
+	fmt.Println(string(fakeUserSignupPayloadString))
+	responseRecorder := httptest.NewRecorder()
+
+	fakeContext, _ := gin.CreateTestContext(responseRecorder)
+	body := bytes.NewBufferString(string(fakeUserSignupPayloadString))
+	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/createtime", body)
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakeService.CreatTimeEntriesReturns(nil, errors.New("insufficent user data"))
+	responseRecorder.Body = body
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.CreatTimeEntry(fakeContext)
+
+	assert.Equal(t, http.StatusInternalServerError, responseRecorder.Code)
+}
+
+func TestCreateTimeEntry(t *testing.T) {
+	//Return_invalid_500_invalid_json
+	var fakeJSONString = `
+		[
+			{
+				"userId": "123456789",
+                "start": "2021-08-01T08:00:00.801Z",
+                "end": "2021-08-01T12:00:00.801Z",
+                "breakStart": "2021-08-01T12:00:06.801Z",
+                "breakEnd": "2021-08-01T13:00:00.801Z",
+                "project": "Register"
+
+			{
+		]
+	`
+
+	responseRecorder := httptest.NewRecorder()
+
+	fakeContext, _ := gin.CreateTestContext(responseRecorder)
+	body := bytes.NewBufferString(fakeJSONString)
+	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/createtime", body)
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakeService.CreatTimeEntriesReturns(nil, errors.New("insufficent user data"))
+	responseRecorder.Body = body
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.CreatTimeEntry(fakeContext)
+
+	assert.Equal(t, http.StatusBadRequest, responseRecorder.Code)
+}
+
+func Test_Calcul_TimeEntries(t *testing.T) {
+	//Return_invalid
+	responseRecoder := httptest.NewRecorder()
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "id", Value: "1"})
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakeService.CalcultimeEntryReturns(map[string]float64{}, errors.New("no Timeuser have been deleted, please check the id"))
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.CalcultimeEntry(fakeContest)
+
+	assert.Equal(t, 200, responseRecoder.Code)
+
+}
+func Test_Calcul_TimeEntry(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "MIL", Value: "1"})
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakeService.CalcultimeEntryReturns(map[string]float64{}, errors.New("no Timeuser have been deleted, please check the id"))
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.CalcultimeEntry(fakeContest)
+
+	assert.Equal(t, 200, responseRecoder.Code)
 
 }
