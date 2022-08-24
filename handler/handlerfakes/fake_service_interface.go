@@ -5,6 +5,7 @@ import (
 	"example-project/handler"
 	"example-project/model"
 	"sync"
+	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -87,10 +88,11 @@ type FakeServiceInterface struct {
 	deleteProposalsByIDReturnsOnCall map[int]struct {
 		result1 error
 	}
-	DeleteTimeEntriesStub        func(string) (interface{}, error)
+	DeleteTimeEntriesStub        func(string, time.Time) (interface{}, error)
 	deleteTimeEntriesMutex       sync.RWMutex
 	deleteTimeEntriesArgsForCall []struct {
 		arg1 string
+		arg2 time.Time
 	}
 	deleteTimeEntriesReturns struct {
 		result1 interface{}
@@ -630,18 +632,19 @@ func (fake *FakeServiceInterface) DeleteProposalsByIDReturnsOnCall(i int, result
 	}{result1}
 }
 
-func (fake *FakeServiceInterface) DeleteTimeEntries(arg1 string) (interface{}, error) {
+func (fake *FakeServiceInterface) DeleteTimeEntries(arg1 string, arg2 time.Time) (interface{}, error) {
 	fake.deleteTimeEntriesMutex.Lock()
 	ret, specificReturn := fake.deleteTimeEntriesReturnsOnCall[len(fake.deleteTimeEntriesArgsForCall)]
 	fake.deleteTimeEntriesArgsForCall = append(fake.deleteTimeEntriesArgsForCall, struct {
 		arg1 string
-	}{arg1})
+		arg2 time.Time
+	}{arg1, arg2})
 	stub := fake.DeleteTimeEntriesStub
 	fakeReturns := fake.deleteTimeEntriesReturns
-	fake.recordInvocation("DeleteTimeEntries", []interface{}{arg1})
+	fake.recordInvocation("DeleteTimeEntries", []interface{}{arg1, arg2})
 	fake.deleteTimeEntriesMutex.Unlock()
 	if stub != nil {
-		return stub(arg1)
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -655,17 +658,17 @@ func (fake *FakeServiceInterface) DeleteTimeEntriesCallCount() int {
 	return len(fake.deleteTimeEntriesArgsForCall)
 }
 
-func (fake *FakeServiceInterface) DeleteTimeEntriesCalls(stub func(string) (interface{}, error)) {
+func (fake *FakeServiceInterface) DeleteTimeEntriesCalls(stub func(string, time.Time) (interface{}, error)) {
 	fake.deleteTimeEntriesMutex.Lock()
 	defer fake.deleteTimeEntriesMutex.Unlock()
 	fake.DeleteTimeEntriesStub = stub
 }
 
-func (fake *FakeServiceInterface) DeleteTimeEntriesArgsForCall(i int) string {
+func (fake *FakeServiceInterface) DeleteTimeEntriesArgsForCall(i int) (string, time.Time) {
 	fake.deleteTimeEntriesMutex.RLock()
 	defer fake.deleteTimeEntriesMutex.RUnlock()
 	argsForCall := fake.deleteTimeEntriesArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *FakeServiceInterface) DeleteTimeEntriesReturns(result1 interface{}, result2 error) {

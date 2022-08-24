@@ -5,6 +5,7 @@ import (
 	"example-project/model"
 	"example-project/service"
 	"sync"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -51,10 +52,11 @@ type FakeDatabaseInterface struct {
 		result1 *mongo.DeleteResult
 		result2 error
 	}
-	DeleteTimeEntryByIdStub        func(string) (interface{}, error)
+	DeleteTimeEntryByIdStub        func(string, time.Time) (interface{}, error)
 	deleteTimeEntryByIdMutex       sync.RWMutex
 	deleteTimeEntryByIdArgsForCall []struct {
 		arg1 string
+		arg2 time.Time
 	}
 	deleteTimeEntryByIdReturns struct {
 		result1 interface{}
@@ -438,18 +440,19 @@ func (fake *FakeDatabaseInterface) DeleteProposalByIdAndDateReturnsOnCall(i int,
 	}{result1, result2}
 }
 
-func (fake *FakeDatabaseInterface) DeleteTimeEntryById(arg1 string) (interface{}, error) {
+func (fake *FakeDatabaseInterface) DeleteTimeEntryById(arg1 string, arg2 time.Time) (interface{}, error) {
 	fake.deleteTimeEntryByIdMutex.Lock()
 	ret, specificReturn := fake.deleteTimeEntryByIdReturnsOnCall[len(fake.deleteTimeEntryByIdArgsForCall)]
 	fake.deleteTimeEntryByIdArgsForCall = append(fake.deleteTimeEntryByIdArgsForCall, struct {
 		arg1 string
-	}{arg1})
+		arg2 time.Time
+	}{arg1, arg2})
 	stub := fake.DeleteTimeEntryByIdStub
 	fakeReturns := fake.deleteTimeEntryByIdReturns
-	fake.recordInvocation("DeleteTimeEntryById", []interface{}{arg1})
+	fake.recordInvocation("DeleteTimeEntryById", []interface{}{arg1, arg2})
 	fake.deleteTimeEntryByIdMutex.Unlock()
 	if stub != nil {
-		return stub(arg1)
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -463,17 +466,17 @@ func (fake *FakeDatabaseInterface) DeleteTimeEntryByIdCallCount() int {
 	return len(fake.deleteTimeEntryByIdArgsForCall)
 }
 
-func (fake *FakeDatabaseInterface) DeleteTimeEntryByIdCalls(stub func(string) (interface{}, error)) {
+func (fake *FakeDatabaseInterface) DeleteTimeEntryByIdCalls(stub func(string, time.Time) (interface{}, error)) {
 	fake.deleteTimeEntryByIdMutex.Lock()
 	defer fake.deleteTimeEntryByIdMutex.Unlock()
 	fake.DeleteTimeEntryByIdStub = stub
 }
 
-func (fake *FakeDatabaseInterface) DeleteTimeEntryByIdArgsForCall(i int) string {
+func (fake *FakeDatabaseInterface) DeleteTimeEntryByIdArgsForCall(i int) (string, time.Time) {
 	fake.deleteTimeEntryByIdMutex.RLock()
 	defer fake.deleteTimeEntryByIdMutex.RUnlock()
 	argsForCall := fake.deleteTimeEntryByIdArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *FakeDatabaseInterface) DeleteTimeEntryByIdReturns(result1 interface{}, result2 error) {

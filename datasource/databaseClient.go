@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
+	"time"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . MongoDBInterface
@@ -397,8 +398,9 @@ func (c Client) GetTimeEntryByID(id string) []model.TimeEntry {
 	}
 	return timeEntries
 }
-func (c Client) DeleteTimeEntryById(id string) (interface{}, error) {
-	filter := bson.M{"userId": id}
+func (c Client) DeleteTimeEntryById(userId string, starttime time.Time) (interface{}, error) {
+
+	filter := bson.M{"userId": userId, "start": starttime}
 
 	results, err := c.TimeEntries.DeleteOne(context.TODO(), filter)
 
@@ -429,10 +431,10 @@ func (c Client) GetAllTimeEntry() ([]model.TimeEntry, error) {
 		}
 		timeEntries = append(timeEntries, timeEntry)
 	}
-	if len(timeEntries) == 0 {
+	/*if len(timeEntries) == 0 {
 		noTimeError := errors.New("no Time exist")
 		return timeEntries, noTimeError
 
-	}
+	}*/
 	return timeEntries, nil
 }

@@ -3,7 +3,6 @@ package servicefakes_test
 import (
 	"bytes"
 	"errors"
-	"example-project/handler/handlerfakes"
 	"example-project/model"
 	"example-project/service"
 	"example-project/service/servicefakes"
@@ -19,19 +18,19 @@ func TestDeleteTimeEntry(t *testing.T) {
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
 	fakeDB.DeleteTimeEntryByIdReturns(&mongo.DeleteResult{DeletedCount: 1}, nil)
 	serviceInstance := service.NewEmployeeService(fakeDB)
-	result, err := serviceInstance.DeleteTimeEntries(primitive.NewObjectID().Hex())
+	result, err := serviceInstance.DeleteTimeEntries(primitive.NewObjectID().Hex(), time.Now())
 	assert.Nil(t, err)
 	assert.Equal(t, &mongo.DeleteResult{DeletedCount: 1}, result)
 }
 func TestGetTimeEntry_userId(t *testing.T) {
 
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
-	fakeDB.GetTimeEntryByIDReturns([]model.TimeEntry{})
+	fakeDB.GetTimeEntryByIDReturns([]model.TimeEntry{{UserId: "147", Start: time.Time{}, End: time.Time{}, BreakStart: time.Time{}, BreakEnd: time.Time{}, Project: "145"}})
 
 	servicefakes := service.NewEmployeeService(fakeDB)
 	result := servicefakes.GetTimeEntries("1")
 
-	assert.Equal(t, model.TimeEntry{UserId: "147", Start: time.Time{}, End: time.Time{}, BreakStart: time.Time{}, BreakEnd: time.Time{}, Project: "145"}, result)
+	assert.Equal(t, []model.TimeEntry{{UserId: "147", Start: time.Time{}, End: time.Time{}, BreakStart: time.Time{}, BreakEnd: time.Time{}, Project: "145"}}, result)
 
 }
 func TestGetAll_TimeEntries(t *testing.T) {
@@ -42,7 +41,7 @@ func TestGetAll_TimeEntries(t *testing.T) {
 	servicefakes := service.NewEmployeeService(fakeDB)
 	result, err := servicefakes.GetAllTimeEntries()
 	assert.Nil(t, err)
-	assert.Equal(t, model.TimeEntry{}, result)
+	assert.Equal(t, []model.TimeEntry{}, result)
 
 }
 
@@ -110,8 +109,8 @@ func TestCreate_timeEntries_UserId(t *testing.T) {
 	serviceInstance := service.NewEmployeeService(fakeDB)
 	result, err := serviceInstance.CreatTimeEntries(model.TimeEntry{})
 
-	assert.Equal(t, result, err)
-	assert.Nil(t, nil)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, result, model.TimeEntry{})
 }
 
 func TestCreate_TimeEntries_if(t *testing.T) {
@@ -141,14 +140,34 @@ func TestCreate_TimeEntries_if(t *testing.T) {
 func TestCreate_timeEntries_(t *testing.T) {
 
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
-	fakeDB.CreatTimeEntryByIdReturns(model.TimeEntry{}, nil)
-	fakeService := &handlerfakes.FakeServiceInterface{}
-	fakeService.CreatTimeEntriesReturns(nil, errors.New("insufficent user data"))
-	serviceInstance := service.NewEmployeeService(fakeDB)
-	result, err := serviceInstance.CreatTimeEntries(model.TimeEntry{})
-	assert.Nil(t, err)
-	assert.Equal(t, model.TimeEntry{}, result)
+	servicefakes := service.NewEmployeeService(fakeDB)
 
+	faketimeentries := []model.TimeEntry{
+		{
+			UserId: "1",
+		},
+	}
+	fakeDB.GetAllTimeEntryReturns(faketimeentries, nil)
+	result, err := servicefakes.CreatTimeEntries(model.TimeEntry{UserId: "2"})
+
+	assert.Equal(t, nil, err)
+	assert.Nil(t, result)
+}
+func TestCreate_timeEntries_coll(t *testing.T) {
+
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	servicefakes := service.NewEmployeeService(fakeDB)
+
+	faketimeentries := []model.TimeEntry{
+		{
+			UserId: "1",
+		},
+	}
+	fakeDB.GetAllTimeEntryReturns(faketimeentries, nil)
+	result, err := servicefakes.CreatTimeEntries(model.TimeEntry{UserId: "1"})
+
+	assert.NotNil(t, err)
+	assert.Nil(t, result)
 }
 func TestUpdateTimeEntry(t *testing.T) {
 
@@ -168,13 +187,52 @@ func TestUpdate_TimeEntry_Coll(t *testing.T) {
 	fakeDB.UpdateTimeEntryByIdReturns(&mongo.UpdateResult{}, errors.New(""))
 
 	servicefakes := service.NewEmployeeService(fakeDB)
-	result, err := servicefakes.UpdateTimeEntries(model.TimeEntry{})
+	_, err := servicefakes.UpdateTimeEntries(model.TimeEntry{})
 
-	assert.Equal(t, &mongo.UpdateResult{UpsertedCount: 1}, result)
-	assert.Nil(t, err)
+	assert.NotNil(t, err)
 
 }
-func TestUpdate_TimeEntries_err(t *testing.T) {
+func TestUpdate_timeEntries_(t *testing.T) {
+
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	servicefakes := service.NewEmployeeService(fakeDB)
+	fakeresult := mongo.UpdateResult{}
+
+	faketimeentries := []model.TimeEntry{
+		{
+			UserId: "1",
+		},
+	}
+	fakeDB.GetAllTimeEntryReturns(faketimeentries, nil)
+	fakeDB.UpdateTimeEntryByIdReturns(&fakeresult, nil)
+	result, err := servicefakes.UpdateTimeEntries(model.TimeEntry{UserId: "2"})
+
+	assert.Equal(t, nil, err)
+	assert.Equal(t, &fakeresult, result)
+}
+func TestUpdate_timeEntries_coll(t *testing.T) {
+
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	servicefakes := service.NewEmployeeService(fakeDB)
+	fakeresult := mongo.UpdateResult{}
+	starttime1, _ := time.Parse(time.RFC3339, "2021-08-01T08:00:00.801Z")
+	starttime2, _ := time.Parse(time.RFC3339, "2021-08-01T09:00:00.801Z")
+	endtime, _ := time.Parse(time.RFC3339, "2021-08-01T10:00:00.801Z")
+	faketimeentries := []model.TimeEntry{
+		{
+			UserId: "1",
+			Start:  starttime1, End: endtime,
+		},
+	}
+	fakeDB.GetAllTimeEntryReturns(faketimeentries, nil)
+	fakeDB.UpdateTimeEntryByIdReturns(&fakeresult, nil)
+
+	_, err := servicefakes.UpdateTimeEntries(model.TimeEntry{UserId: "1", Start: starttime2, End: endtime})
+
+	assert.NotNil(t, err)
+}
+
+/*func TestUpdate_TimeEntries_err(t *testing.T) {
 
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
 	fakeDB.UpdateTimeEntryByIdReturns(&mongo.UpdateResult{UpsertedCount: 1}, nil)
@@ -182,7 +240,7 @@ func TestUpdate_TimeEntries_err(t *testing.T) {
 	result, _ := servicefakes.UpdateTimeEntries(model.TimeEntry{})
 	assert.Equal(t, &mongo.UpdateResult{UpsertedCount: 1}, nil)
 	assert.Nil(t, result)
-}
+}*/
 
 func TestCalcultimeEntry_err(t *testing.T) {
 
@@ -199,23 +257,49 @@ func TestCalcultimeEntry_err(t *testing.T) {
 
 func TestCalcultimeEntry(t *testing.T) {
 
-	fakestart1, _ := time.Parse(time.RFC3339, "2021-08-01T08:00:00.801Z")
-	fakeend1, _ := time.Parse(time.RFC3339, "2021-08-01T17:00:00.801Z")
-
-	faketimeentries := []model.TimeEntry{
-		{
-			UserId: "123456789",
-			Start:  fakestart1,
-			End:    fakeend1,
-		},
-	}
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
 	servicefakes := service.NewEmployeeService(fakeDB)
 
-	fakeerr := errors.New("fakeDB err")
-	fakeDB.GetAllTimeEntryReturns(nil, fakeerr)
+	//fakeerr := errors.New("fakeDB err")
+	faketimeentries := []model.TimeEntry{
+		model.TimeEntry{
+			UserId: "123", Start: time.Time{}, End: time.Time{}, BreakStart: time.Time{}, BreakEnd: time.Time{}, Project: "135"},
+	}
+	fakeDB.GetAllTimeEntryReturns(faketimeentries, nil)
 	result, err := servicefakes.CalcultimeEntry("1")
 
-	assert.Equal(t, faketimeentries, err)
-	assert.Nil(t, result)
+	assert.Equal(t, nil, err)
+	assert.NotNil(t, result)
+}
+func TestCalcultimeEntryend(t *testing.T) {
+
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	servicefakes := service.NewEmployeeService(fakeDB)
+
+	//fakeerr := errors.New("fakeDB err")
+	faketimeentries := []model.TimeEntry{
+		model.TimeEntry{
+			UserId: "1", Start: time.Time{}, End: time.Time{}, BreakStart: time.Time{}, BreakEnd: time.Time{}, Project: "135"},
+	}
+	fakeDB.GetAllTimeEntryReturns(faketimeentries, nil)
+	result, err := servicefakes.CalcultimeEntry("1")
+
+	assert.Equal(t, nil, err)
+	assert.NotNil(t, result)
+}
+func TestCalcul_timeEntry_end(t *testing.T) {
+
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	servicefakes := service.NewEmployeeService(fakeDB)
+
+	//fakeerr := errors.New("fakeDB err")
+	faketimeentries := []model.TimeEntry{
+		model.TimeEntry{
+			UserId: "1", Start: time.Time{}, End: time.Time{}, BreakStart: time.Time{}, BreakEnd: time.Time{}, Project: "135"},
+	}
+	fakeDB.GetAllTimeEntryReturns(faketimeentries, nil)
+	result, err := servicefakes.CalcultimeEntry("1")
+
+	assert.Equal(t, nil, err)
+	assert.NotNil(t, result)
 }

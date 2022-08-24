@@ -3,13 +3,14 @@ package service
 import (
 	"errors"
 	"example-project/model"
+	"time"
 )
 
 func (s EmployeeService) GetTimeEntries(id string) []model.TimeEntry {
 	return s.DbService.GetTimeEntryByID(id)
 }
-func (s EmployeeService) DeleteTimeEntries(id string) (interface{}, error) {
-	return s.DbService.DeleteTimeEntryById(id)
+func (s EmployeeService) DeleteTimeEntries(userId string, starttime time.Time) (interface{}, error) {
+	return s.DbService.DeleteTimeEntryById(userId, starttime)
 }
 func (s EmployeeService) GetAllTimeEntries() ([]model.TimeEntry, error) {
 	return s.DbService.GetAllTimeEntry()
@@ -35,9 +36,9 @@ func (s EmployeeService) CollideTimeEntry(timevor, timenach model.TimeEntry) boo
 	if timenach.Start.Before(timevor.Start) && timenach.End.After(timevor.Start) {
 		return true
 	}
-	if timenach.Start.Before(timevor.End) && timenach.End.After(timevor.End) {
-		return true
-	}
+	//if timenach.Start.Before(timevor.End) && timenach.End.After(timevor.End) {
+	//	return true
+	//}
 	return false
 }
 func (s EmployeeService) CreatTimeEntries(te model.TimeEntry) (interface{}, error) {

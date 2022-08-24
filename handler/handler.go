@@ -27,7 +27,7 @@ type ServiceInterface interface {
 	CreatTimeEntries(te model.TimeEntry) (interface{}, error)
 	UpdateTimeEntries(update model.TimeEntry) (interface{}, error)
 	GetTimeEntries(id string) []model.TimeEntry
-	DeleteTimeEntries(id string) (interface{}, error)
+	DeleteTimeEntries(userId string, starttime time.Time) (interface{}, error)
 	GetAllTimeEntries() ([]model.TimeEntry, error)
 	CollideTimeEntry(a, b model.TimeEntry) bool
 	CalcultimeEntry(userid string) (map[string]float64, error)
@@ -134,16 +134,34 @@ func (handler Handler) GetTimeEntry(c *gin.Context) {
 
 //Delete TimeEntry
 func (handler Handler) DeleteTimeEntry(c *gin.Context) {
-	pathParam, ok := c.Params.Get("id")
+	userId, ok := c.GetQuery("userId")
 
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 
-			"errorMessage": "TimeEntry is not existing",
+			"errorMessage": "UserId not given",
 		})
 		return
 	}
-	response, err := handler.ServiceInterface.DeleteTimeEntries(pathParam)
+	starttime_string, ok := c.GetQuery("starttime")
+
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+
+			"errorMessage": "Starttime is not given",
+		})
+		return
+	}
+	starttime, err := time.Parse(time.RFC3339, starttime_string)
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+
+			"errorMessage": "can not read start time",
+		})
+		return
+	}
+	response, err := handler.ServiceInterface.DeleteTimeEntries(userId, starttime)
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{

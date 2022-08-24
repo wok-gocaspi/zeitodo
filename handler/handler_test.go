@@ -701,7 +701,7 @@ func TestDeleteTimeEntry_(t *testing.T) {
 
 	fakeContext, _ := gin.CreateTestContext(responseRecorder)
 	fakeContext.Params = append(fakeContext.Params, gin.Param{Key: "id", Value: "1"})
-
+	//fakeContext.Request.URL.RawQuery = "userId=1" //&starttime=2022-08-01T06:00:00.801+00:00"
 	fakeService := &handlerfakes.FakeServiceInterface{}
 	fakeService.DeleteTimeEntriesReturns(&mongo.DeleteResult{DeletedCount: 1}, nil)
 

@@ -4,6 +4,7 @@ import (
 	"example-project/model"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"time"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . DatabaseInterface
@@ -24,7 +25,7 @@ type DatabaseInterface interface {
 	CreatTimeEntryById(te model.TimeEntry) (interface{}, error)
 	UpdateTimeEntryById(update model.TimeEntry) (*mongo.UpdateResult, error)
 	GetTimeEntryByID(id string) []model.TimeEntry
-	DeleteTimeEntryById(id string) (interface{}, error)
+	DeleteTimeEntryById(userId string, starttime time.Time) (interface{}, error)
 	GetAllTimeEntry() ([]model.TimeEntry, error)
 }
 
