@@ -155,38 +155,82 @@ func TestCreateUser_Return_existing_user(t *testing.T) {
 	assert.Error(t, err, "user already exists, please choose another username")
 }
 
-func TestUpdateUser_Return_valid(t *testing.T) {
-	fakeUserArray := []model.User{
-		{ID: primitive.NewObjectID(), LastName: "Hans"},
-		{ID: primitive.NewObjectID(), Email: "test@gmail.com"},
+func TestUpdateUser_Service(t *testing.T) {
+	type UserByIDCalls struct {
+		callIteration int
+		userReturn    model.UserPayload
+		err           error
 	}
-	fakeUserUpdateResults := []model.UserUpdateResult{
-		{Success: true, User: fakeUserArray[0]},
-		{Success: true, User: fakeUserArray[1]},
-	}
-	fakeDB := &servicefakes.FakeDatabaseInterface{}
-	fakeDB.UpdateManyUserByIDReturns(fakeUserUpdateResults)
-	serviceInstance := service.NewEmployeeService(fakeDB)
-	result, err := serviceInstance.UpdateUsers(fakeUserArray)
-	assert.Nil(t, err)
-	assert.Equal(t, fakeUserUpdateResults, result)
-}
+	fakeUserID := primitive.NewObjectID()
+	fakeNexUserID := primitive.NewObjectID()
 
-func TestUpdateUser_Return_Unsuccessful(t *testing.T) {
-	fakeUserArray := []model.User{
-		{ID: primitive.NewObjectID(), LastName: "Hans"},
-		{ID: primitive.NewObjectID(), Email: "test@gmail.com"},
+	var tests = []struct {
+		users             []model.UpdateUserPayload
+		group             string
+		userid            string
+		firstUserSuccess  bool
+		secondUserSuccess bool
+		isStatusError     bool
+		isDBError         bool
+		DBError           error
+		DBReturn          *mongo.UpdateResult
+		UserByIDCalls     []UserByIDCalls
+	}{
+		{[]model.UpdateUserPayload{{ID: fakeUserID, Username: "jochen1"}, {ID: fakeNexUserID, Username: "peter2"}}, "admin", fakeUserID.Hex(), true, false, true, false, nil, &mongo.UpdateResult{},
+			[]UserByIDCalls{{callIteration: 0, userReturn: model.UserPayload{Username: "jochen1"}, err: nil},
+				{callIteration: 1, userReturn: model.UserPayload{}, err: errors.New("some error")},
+			},
+		},
+		{[]model.UpdateUserPayload{{ID: fakeUserID, Username: "jochen1", FirstName: "jochen", LastName: "schweizer", Email: "j.schweizer@gmail.com", Team: "unkreativername", Projects: []string{"team1", "team2"}, TotalWorkingHours: 10, VacationDays: 20},
+			{ID: fakeNexUserID, Username: "peter1", FirstName: "Peter", LastName: "Vogel", Email: "p.vogel@outlook.com", Team: "unkreativername", Projects: []string{"team1, team2"}, Group: "admin", Password: "1234567"}},
+			"admin", fakeUserID.Hex(), true, true, true, false, nil, &mongo.UpdateResult{}, []UserByIDCalls{
+				{callIteration: 0, userReturn: model.UserPayload{Username: "jochen1"}, err: nil},
+				{callIteration: 1, userReturn: model.UserPayload{Username: "peter1"}, err: nil},
+			},
+		},
+		{[]model.UpdateUserPayload{{ID: fakeUserID},
+			{ID: fakeNexUserID, Username: "peter1", FirstName: "Peter", LastName: "Vogel"}},
+			"admin", fakeUserID.Hex(), false, true, true, false, nil, &mongo.UpdateResult{}, []UserByIDCalls{
+				{callIteration: 0, userReturn: model.UserPayload{Username: "jochen1"}, err: nil},
+				{callIteration: 1, userReturn: model.UserPayload{Username: "peter1"}, err: nil},
+			},
+		},
+		{[]model.UpdateUserPayload{{ID: fakeUserID, Username: "jochen1", FirstName: "jochen", LastName: "schweizer", Email: "j.schweizer@gmail.com", Team: "unkreativername", Projects: []string{"team1", "team2"}, TotalWorkingHours: 10, VacationDays: 20},
+			{ID: fakeNexUserID, Username: "peter1", FirstName: "Peter", LastName: "Vogel", Email: "p.vogel@outlook.com", Team: "unkreativername", Projects: []string{"team1, team2"}, Password: "1234567"}},
+			"user", fakeUserID.Hex(), true, false, true, false, nil, &mongo.UpdateResult{}, []UserByIDCalls{
+				{callIteration: 0, userReturn: model.UserPayload{Username: "jochen1"}, err: nil},
+				{callIteration: 1, userReturn: model.UserPayload{Username: "peter1"}, err: nil},
+			},
+		},
+		{[]model.UpdateUserPayload{{ID: fakeUserID, Username: "jochen1", FirstName: "jochen", LastName: "schweizer", Email: "j.schweizer@gmail.com", Team: "unkreativername", Projects: []string{"team1", "team2"}, TotalWorkingHours: 10, VacationDays: 20},
+			{ID: fakeNexUserID, Username: "peter1", FirstName: "Peter", LastName: "Vogel", Email: "p.vogel@outlook.com", Team: "unkreativername", Projects: []string{"team1, team2"}, Group: "admin", Password: "1234567"}},
+			"admin", fakeUserID.Hex(), true, true, false, true, errors.New("some db error"), &mongo.UpdateResult{}, []UserByIDCalls{
+				{callIteration: 0, userReturn: model.UserPayload{Username: "jochen1"}, err: nil},
+				{callIteration: 1, userReturn: model.UserPayload{Username: "peter1"}, err: nil},
+			},
+		},
 	}
-	fakeUserUpdateResults := []model.UserUpdateResult{
-		{Success: false, User: fakeUserArray[0]},
-		{Success: true, User: fakeUserArray[1]},
+	for _, tt := range tests {
+		fakeDB := &servicefakes.FakeDatabaseInterface{}
+
+		fakeDB.UpdateUserByIDReturns(tt.DBReturn, tt.DBError)
+		serviceInstance := service.NewEmployeeService(fakeDB)
+		for _, call := range tt.UserByIDCalls {
+			fakeDB.GetUserByIDReturnsOnCall(call.callIteration, call.userReturn, call.err)
+		}
+		actual, err := serviceInstance.UpdateUsers(tt.users, tt.userid, tt.group)
+		fmt.Println(actual)
+		actualObj := actual.([]model.UserUpdateResult)
+		if tt.isStatusError {
+			assert.Equal(t, actualObj[0].Success, tt.firstUserSuccess)
+			assert.Equal(t, actualObj[1].Success, tt.secondUserSuccess)
+		}
+		if tt.isDBError {
+			assert.NotNil(t, err)
+		}
+		fakeDB = nil
+
 	}
-	fakeDB := &servicefakes.FakeDatabaseInterface{}
-	fakeDB.UpdateManyUserByIDReturns(fakeUserUpdateResults)
-	serviceInstance := service.NewEmployeeService(fakeDB)
-	result, err := serviceInstance.UpdateUsers(fakeUserArray)
-	assert.Error(t, err, "a few users couldn't be updated")
-	assert.Equal(t, []model.UserUpdateResult{{User: fakeUserUpdateResults[0].User, Success: false}}, result)
 }
 
 func TestDeleteUser_Return_Success(t *testing.T) {
@@ -339,9 +383,8 @@ func TestAuthenticateUser(t *testing.T) {
 	for _, tt := range tests {
 		fakeDB.GetUserByIDReturns(tt.userPayload, nil)
 
-		actualResult, actualErr := serviceInstance.AuthenticateUser(tt.url, tt.method, tt.token)
+		_, _, actualErr := serviceInstance.AuthenticateUser(tt.url, tt.method, tt.token)
 
-		assert.Equal(t, tt.expectedResult, actualResult)
 		assert.Equal(t, tt.doExpectErr, actualErr != nil)
 	}
 }
@@ -359,8 +402,7 @@ func TestAuthenticateUserErrorGetUserByID(t *testing.T) {
 
 	fakeDB.GetUserByIDReturns(model.UserPayload{}, fakeError)
 
-	actualResult, actualErr := serviceInstance.AuthenticateUser("/user/", "GET", fakeToken)
+	_, _, actualErr := serviceInstance.AuthenticateUser("/user/", "GET", fakeToken)
 
-	assert.Equal(t, false, actualResult)
 	assert.Equal(t, fakeError, actualErr)
 }

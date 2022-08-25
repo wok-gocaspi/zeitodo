@@ -1,0 +1,9 @@
+
+FROM jenkins/ssh-agent:4.2.1-jdk8
+
+USER root
+RUN apt-get update && apt-get install -y git wget tar
+
+RUN wget https://github.com/jstemmer/go-junit-report/releases/download/v2.0.0/go-junit-report-v2.0.0-linux-amd64.tar.gz && \
+    tar -C /usr/local/ -xzf go-junit-report-v2.0.0-linux-amd64.tar.gz
+
