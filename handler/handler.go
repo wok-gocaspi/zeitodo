@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . ServiceInterface
@@ -18,7 +19,7 @@ type ServiceInterface interface {
 	UpdateUsers(users []model.UpdateUserPayload, id string, group string) (interface{}, error)
 	GetTeamMembersByName(name string) (interface{}, error)
 	DeleteUsers(id string) (interface{}, error)
-	LoginUser(username string, password string) (http.Cookie, error)
+	LoginUser(username string, password string) (string, error)
 	RefreshToken(token string) (string, error)
 	AuthenticateUser(url string, method string, token string) (string, string, error)
 	GetProposalsByID(id string) ([]model.Proposal, error)
@@ -197,10 +198,12 @@ func (handler Handler) LoginUserHandler(c *gin.Context) {
 		})
 		return
 	}
-	c.SetCookie(response.Name, response.Value, 3600, response.Path, response.Domain, response.Secure, response.HttpOnly)
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{
+		"token": response,
+	})
 }
 
+/*
 func (handler Handler) LogoutUserHandler(c *gin.Context) {
 	_, err := c.Request.Cookie("token")
 	if err != nil {
@@ -214,34 +217,41 @@ func (handler Handler) LogoutUserHandler(c *gin.Context) {
 	return
 }
 
+*/
+
 func (handler Handler) RefreshTokenHandler(c *gin.Context) {
-	cookie, err := c.Request.Cookie("token")
+	tokenHeader := c.Request.Header.Get("Authorization")
+	if tokenHeader == "" {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"errorMessage": "user isnt logged in/no auth header found",
+		})
+		return
+	}
+	splitToken := strings.Split(tokenHeader, "Bearer ")
+	tokenHeader = splitToken[1]
+	token, err := handler.ServiceInterface.RefreshToken(tokenHeader)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"errorMessage": err.Error(),
 		})
 		return
 	}
-	token, err := handler.ServiceInterface.RefreshToken(cookie.Value)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"errorMessage": err.Error(),
-		})
-		return
-	}
-	c.SetCookie("token", token, 3600, "/", "localhost", false, true)
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{
+		"token": token,
+	})
 }
 
 func (handler Handler) PermissionMiddleware(c *gin.Context) {
-	tokenCookie, err := c.Request.Cookie("token")
-	if err != nil {
+	tokenHeader := c.Request.Header.Get("Authorization")
+	if tokenHeader == "" {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"errorMessage": err.Error(),
+			"errorMessage": "user isnt logged in/no auth header found",
 		})
 		return
 	}
-	userID, userGroup, err := handler.ServiceInterface.AuthenticateUser(c.Request.RequestURI, c.Request.Method, tokenCookie.Value)
+  splitToken := strings.Split(tokenHeader, "Bearer ")
+	tokenHeader = splitToken[1]
+	userID, userGroup, err := handler.ServiceInterface.AuthenticateUser(c.Request.RequestURI, c.Request.Method, tokenHeader)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"errorMessage": err.Error(),

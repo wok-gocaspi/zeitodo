@@ -4,7 +4,6 @@ package handlerfakes
 import (
 	"example-project/handler"
 	"example-project/model"
-	"net/http"
 	"sync"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -144,18 +143,18 @@ type FakeServiceInterface struct {
 		result1 model.UserPayload
 		result2 error
 	}
-	LoginUserStub        func(string, string) (http.Cookie, error)
+	LoginUserStub        func(string, string) (string, error)
 	loginUserMutex       sync.RWMutex
 	loginUserArgsForCall []struct {
 		arg1 string
 		arg2 string
 	}
 	loginUserReturns struct {
-		result1 http.Cookie
+		result1 string
 		result2 error
 	}
 	loginUserReturnsOnCall map[int]struct {
-		result1 http.Cookie
+		result1 string
 		result2 error
 	}
 	RefreshTokenStub        func(string) (string, error)
@@ -845,7 +844,7 @@ func (fake *FakeServiceInterface) GetUserByIDReturnsOnCall(i int, result1 model.
 	}{result1, result2}
 }
 
-func (fake *FakeServiceInterface) LoginUser(arg1 string, arg2 string) (http.Cookie, error) {
+func (fake *FakeServiceInterface) LoginUser(arg1 string, arg2 string) (string, error) {
 	fake.loginUserMutex.Lock()
 	ret, specificReturn := fake.loginUserReturnsOnCall[len(fake.loginUserArgsForCall)]
 	fake.loginUserArgsForCall = append(fake.loginUserArgsForCall, struct {
@@ -871,7 +870,7 @@ func (fake *FakeServiceInterface) LoginUserCallCount() int {
 	return len(fake.loginUserArgsForCall)
 }
 
-func (fake *FakeServiceInterface) LoginUserCalls(stub func(string, string) (http.Cookie, error)) {
+func (fake *FakeServiceInterface) LoginUserCalls(stub func(string, string) (string, error)) {
 	fake.loginUserMutex.Lock()
 	defer fake.loginUserMutex.Unlock()
 	fake.LoginUserStub = stub
@@ -884,28 +883,28 @@ func (fake *FakeServiceInterface) LoginUserArgsForCall(i int) (string, string) {
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *FakeServiceInterface) LoginUserReturns(result1 http.Cookie, result2 error) {
+func (fake *FakeServiceInterface) LoginUserReturns(result1 string, result2 error) {
 	fake.loginUserMutex.Lock()
 	defer fake.loginUserMutex.Unlock()
 	fake.LoginUserStub = nil
 	fake.loginUserReturns = struct {
-		result1 http.Cookie
+		result1 string
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeServiceInterface) LoginUserReturnsOnCall(i int, result1 http.Cookie, result2 error) {
+func (fake *FakeServiceInterface) LoginUserReturnsOnCall(i int, result1 string, result2 error) {
 	fake.loginUserMutex.Lock()
 	defer fake.loginUserMutex.Unlock()
 	fake.LoginUserStub = nil
 	if fake.loginUserReturnsOnCall == nil {
 		fake.loginUserReturnsOnCall = make(map[int]struct {
-			result1 http.Cookie
+			result1 string
 			result2 error
 		})
 	}
 	fake.loginUserReturnsOnCall[i] = struct {
-		result1 http.Cookie
+		result1 string
 		result2 error
 	}{result1, result2}
 }

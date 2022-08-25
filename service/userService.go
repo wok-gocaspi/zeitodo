@@ -9,8 +9,6 @@ import (
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"net/http"
-	"time"
 )
 
 var SessionMap = make(map[string]string)
@@ -184,27 +182,17 @@ func (s EmployeeService) DeleteUsers(id string) (interface{}, error) {
 	return result, err
 }
 
-func (s EmployeeService) LoginUser(username string, password string) (http.Cookie, error) {
+func (s EmployeeService) LoginUser(username string, password string) (string, error) {
 	userObj, err := s.DbService.GetUserByUsername(username)
 	if err != nil {
-		return http.Cookie{}, errors.New("invalid login")
+		return "", errors.New("invalid login")
 	}
 	hashedPassword := sha256.Sum256([]byte(password))
 	if hashedPassword != userObj.Password {
-		return http.Cookie{}, errors.New("invalid login")
+		return "", errors.New("invalid login")
 	}
 	token := utils.GenerateToken(userObj.ID)
-	expDate := time.Now().Add(time.Minute * 5)
-	tokenPayload := http.Cookie{
-		Name:     "token",
-		Value:    token,
-		Expires:  expDate,
-		Path:     "/",
-		Domain:   "localhost",
-		Secure:   false,
-		HttpOnly: true,
-	}
-	return tokenPayload, nil
+	return token, nil
 }
 
 func (s EmployeeService) LogoutUser(userid string) bool {
