@@ -531,7 +531,7 @@ func TestRefreshTokenHandler(t *testing.T) {
 }
 
 func TestPermissionMiddleware(t *testing.T) {
-/*
+	/*
 		expDate := time.Now().Add(time.Minute * 5)
 		fakeCookie := http.Cookie{
 			Name:     "token",
@@ -543,18 +543,20 @@ func TestPermissionMiddleware(t *testing.T) {
 			HttpOnly: true,
 		}
 	*/
-	fakeServiceErr := errors.New("fake unauthorized user")
-
 	fakeToken := "fakeToken"
+	userID := primitive.NewObjectID()
+	const userG = "user"
 	var tests = []struct {
 		hasValidToken  bool
 		reqCookie      string
-		serviceOk      bool
 		serviceErr     error
 		expectedStatus int
+		userid         string
+		userGroup      string
 	}{
-		{false, fakeToken, false, nil, http.StatusUnauthorized},
-		{true, fakeToken, false, fakeServiceErr, http.StatusUnauthorized},
+		{true, fakeToken, errors.New("some service error"), http.StatusUnauthorized, "", ""},
+		{true, fakeToken, nil, http.StatusOK, userID.Hex(), userG},
+		{false, "", nil, http.StatusUnauthorized, userID.Hex(), userG},
 	}
 
 	for _, tt := range tests {
@@ -566,9 +568,8 @@ func TestPermissionMiddleware(t *testing.T) {
 		fakeService := &handlerfakes.FakeServiceInterface{}
 
 		if tt.hasValidToken {
-			//	fakeContext.Request.AddCookie(&tt.reqCookie)
 			fakeContext.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tt.reqCookie))
-			fakeService.AuthenticateUserReturns(tt.serviceOk, tt.serviceErr)
+			fakeService.AuthenticateUserReturns(tt.userid, tt.userGroup, tt.serviceErr)
 		}
 
 		handlerInstance := handler.NewHandler(fakeService)
