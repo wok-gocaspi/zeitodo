@@ -7,6 +7,7 @@ import (
 	"example-project/routes"
 	"example-project/utils"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -58,7 +59,6 @@ func (s EmployeeService) CreateUser(userPayload model.UserSignupPayload) (interf
 	hashedPassword := sha256.Sum256([]byte(userPayload.Password))
 	user := model.UserSignup{Username: userPayload.Username, Password: hashedPassword, Email: userPayload.Email, FirstName: userPayload.FirstName, LastName: userPayload.LastName, Group: "user"}
 	checkDBEmpty, _ := s.DbService.GetAllUser()
-	fmt.Println(len(checkDBEmpty))
 	if len(checkDBEmpty) == 0 {
 		user.Group = "admin"
 	}
@@ -80,18 +80,97 @@ func (s EmployeeService) CreateUser(userPayload model.UserSignupPayload) (interf
 	return userResult, nil
 }
 
-func (s EmployeeService) UpdateUsers(users []model.User) (interface{}, error) {
-	result := s.DbService.UpdateManyUserByID(users)
-	var errorUser []model.UserUpdateResult
-	for _, updateResult := range result {
-		if updateResult.Success == false {
-			errorUser = append(errorUser, updateResult)
+func (s EmployeeService) UpdateUsers(users []model.UpdateUserPayload, userID string, userGroup string) (interface{}, error) {
+	var totalSuccess = true
+	var userUpdateResults []model.UserUpdateResult
+	for _, user := range users {
+		var UMR model.UserUpdateResult
+		searchUser, err := s.DbService.GetUserByID(user.ID)
+		if err != nil || len(searchUser.Username) == 0 {
+			UMR.Error = "no correlating user found"
+			UMR.Success = false
+			UMR.ID = user.ID
+			userUpdateResults = append(userUpdateResults, UMR)
+			continue
+		}
+		filter := bson.M{"_id": user.ID}
+		var setElements bson.D
+		if user.ID.Hex() == userID || userGroup == "admin" {
+			if user.FirstName != "" {
+				setElements = append(setElements, bson.E{Key: "firstname", Value: user.FirstName})
+			}
+			if user.LastName != "" {
+				setElements = append(setElements, bson.E{Key: "lastname", Value: user.LastName})
+			}
+			if user.Email != "" {
+				setElements = append(setElements, bson.E{Key: "email", Value: user.Email})
+			}
+			if user.Team != "" {
+				setElements = append(setElements, bson.E{Key: "team", Value: user.Team})
+			}
+			if user.TotalWorkingHours != 0 {
+				setElements = append(setElements, bson.E{Key: "totalWorkingHours", Value: user.TotalWorkingHours})
+			}
+			if user.VacationDays != 0 {
+				setElements = append(setElements, bson.E{Key: "vacationDays", Value: user.VacationDays})
+			}
+			if user.Username != "" {
+				setElements = append(setElements, bson.E{Key: "username", Value: user.Username})
+			}
+			if user.Password != "" {
+				setElements = append(setElements, bson.E{Key: "password", Value: sha256.Sum256([]byte(user.Password))})
+			}
+			if userGroup == "admin" && user.Group != "" {
+				setElements = append(setElements, bson.E{Key: "group", Value: user.Group})
+			}
+			if len(user.Projects) != 0 {
+				setElements = append(setElements, bson.E{Key: "projects", Value: user.Projects})
+			} else if len(setElements) == 0 {
+				UMR.Success = false
+				UMR.ID = user.ID
+				UMR.Error = "no items changed"
+				userUpdateResults = append(userUpdateResults, UMR)
+				continue
+			}
+			setMap := bson.D{
+				{"$set", setElements},
+			}
+			updateResult, err := s.DbService.UpdateUserByID(filter, setMap)
+			if err != nil {
+				UMR.Error = err.Error()
+				UMR.Success = false
+				UMR.UpdateResult = updateResult
+				UMR.ID = user.ID
+				userUpdateResults = append(userUpdateResults, UMR)
+				continue
+			} else {
+				UMR.Success = true
+				UMR.UpdateResult = updateResult
+				UMR.ID = user.ID
+				userUpdateResults = append(userUpdateResults, UMR)
+				continue
+			}
+		} else {
+			UMR.Success = false
+			UMR.ID = user.ID
+			UMR.Error = "unauthorized user update, users can only update themself"
+			userUpdateResults = append(userUpdateResults, UMR)
+			continue
+		}
+
+	}
+	var resultInterface interface{}
+	resultInterface = userUpdateResults
+	for _, ur := range userUpdateResults {
+		if ur.Success == false {
+			totalSuccess = false
 		}
 	}
-	if len(errorUser) > 0 {
-		return errorUser, errors.New("a few users couldn't be updated")
+	if !totalSuccess {
+		return resultInterface, errors.New("users couldn't be updated")
 	}
-	return result, nil
+	return resultInterface, nil
+
 }
 
 func (s EmployeeService) DeleteUsers(id string) (interface{}, error) {
@@ -148,25 +227,25 @@ func (s EmployeeService) RefreshToken(token string) (string, error) {
 	return tokenString, nil
 }
 
-func (s EmployeeService) AuthenticateUser(requestedURI string, requestMethod string, token string) (bool, error) {
+func (s EmployeeService) AuthenticateUser(requestedURI string, requestMethod string, token string) (string, string, error) {
 	_, claims, err := utils.ValidateToken(token)
 	if err != nil {
-		return false, err
+		return "", "", err
 	}
 	var userID string
+
 	for key, val := range claims {
 		if key == "userID" {
 			userID = fmt.Sprint(val)
 		}
 	}
-
 	userObj, err := s.GetUserByID(userID)
 	if err != nil {
-		return false, err
+		return userID, "", err
 	}
 	_, err = routes.PermissionList.CheckPolicy(requestedURI, requestMethod, userObj.Group, userID)
 	if err != nil {
-		return false, err
+		return userID, userObj.Group, err
 	}
-	return true, nil
+	return userID, userObj.Group, nil
 }

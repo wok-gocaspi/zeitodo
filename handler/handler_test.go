@@ -247,123 +247,59 @@ func TestCreateUser_Return_invalid_500_invalid_json(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, responseRecorder.Code)
 }
 
-func TestUpdateUserHandler_Return_valid_200_single(t *testing.T) {
-	var fakeUserSignupPayload = model.User{
-		FirstName: "Peter", ID: primitive.ObjectID{},
+func TestUpdateUserHandler(t *testing.T) {
+	var userid = primitive.NewObjectID()
+	var tests = []struct {
+		isSingleUserRequest     bool
+		singleUser              model.UpdateUserPayload
+		isMultiUserRequest      bool
+		multiUser               []model.UpdateUserPayload
+		UpdateUserServiceReturn []model.UserUpdateResult
+		UpdateUserServiceError  error
+		StatusCode              int
+		validJSON               bool
+	}{
+		{isSingleUserRequest: true, isMultiUserRequest: false, singleUser: model.UpdateUserPayload{Username: "peter1", ID: userid}, multiUser: nil, UpdateUserServiceReturn: []model.UserUpdateResult{{Success: true}}, UpdateUserServiceError: nil, StatusCode: 200, validJSON: true},
+		{isSingleUserRequest: true, isMultiUserRequest: false, singleUser: model.UpdateUserPayload{Username: "peter1", ID: userid}, multiUser: nil, UpdateUserServiceReturn: []model.UserUpdateResult{{Success: false}}, UpdateUserServiceError: nil, StatusCode: 400, validJSON: false},
+		{isSingleUserRequest: true, isMultiUserRequest: false, singleUser: model.UpdateUserPayload{Username: "peter1", ID: userid}, multiUser: nil, UpdateUserServiceReturn: []model.UserUpdateResult{{Success: false}}, UpdateUserServiceError: errors.New("some service error"), StatusCode: 500, validJSON: true},
+
+		{isSingleUserRequest: false, isMultiUserRequest: true, singleUser: model.UpdateUserPayload{}, multiUser: []model.UpdateUserPayload{{Username: "peter1", ID: userid}}, UpdateUserServiceReturn: []model.UserUpdateResult{{Success: true}}, UpdateUserServiceError: nil, StatusCode: 200, validJSON: true},
+		{isSingleUserRequest: false, isMultiUserRequest: true, singleUser: model.UpdateUserPayload{}, multiUser: []model.UpdateUserPayload{{Username: "peter1", ID: userid}}, UpdateUserServiceReturn: []model.UserUpdateResult{{Success: false}}, UpdateUserServiceError: errors.New("some service error"), StatusCode: 500, validJSON: true},
 	}
+	for _, tt := range tests {
 
-	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
-	responseRecorder := httptest.NewRecorder()
+		responseRecorder := httptest.NewRecorder()
+		fakeContext, _ := gin.CreateTestContext(responseRecorder)
+		if !tt.validJSON && tt.isSingleUserRequest {
+			jsonByte, _ := json.Marshal(&tt.singleUser)
+			jsonString := string(jsonByte)
+			jsonString = jsonString[2:]
+			body := bytes.NewBufferString(jsonString)
+			fakeContext.Request, _ = http.NewRequest("PATCH", "/user", body)
+		} else if !tt.validJSON && tt.isMultiUserRequest {
+			jsonByte, _ := json.Marshal(&tt.multiUser)
+			jsonString := string(jsonByte)
+			jsonString = jsonString[2:]
+			body := bytes.NewBufferString(jsonString)
+			fakeContext.Request, _ = http.NewRequest("PATCH", "/user", body)
+		} else if tt.isMultiUserRequest {
+			jsonByte, _ := json.Marshal(&tt.multiUser)
+			body := bytes.NewBufferString(string(jsonByte))
+			fakeContext.Request, _ = http.NewRequest("PATCH", "/user", body)
+		} else {
+			jsonByte, _ := json.Marshal(&tt.singleUser)
+			body := bytes.NewBufferString(string(jsonByte))
+			fakeContext.Request, _ = http.NewRequest("PATCH", "/user", body)
+		}
 
-	fakeContext, _ := gin.CreateTestContext(responseRecorder)
-	body := bytes.NewBufferString(string(fakeUserSignupPayloadString))
-	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/user/update", body)
+		fakeService := &handlerfakes.FakeServiceInterface{}
+		fakeService.UpdateUsersReturns(tt.UpdateUserServiceReturn, tt.UpdateUserServiceError)
+		handlerInstance := handler.NewHandler(fakeService)
+		handlerInstance.UpdateUserHandler(fakeContext)
+		fmt.Println(responseRecorder.Code)
+		assert.Equal(t, responseRecorder.Code, tt.StatusCode)
 
-	fakeService := &handlerfakes.FakeServiceInterface{}
-	fakeService.UpdateUsersReturns([]model.UserUpdateResult{}, nil)
-	responseRecorder.Body = body
-
-	handlerInstance := handler.NewHandler(fakeService)
-	handlerInstance.UpdateUserHandler(fakeContext)
-
-	assert.Equal(t, http.StatusOK, responseRecorder.Code)
-}
-
-func TestUpdateUserHandler_Return_invalid_json(t *testing.T) {
-	var fakeJSONString = `
-		[
-			{
-				"id": "123",
-				"email": "p.mueller@gmx.com"
-			,
-			{
-				"id": "456",
-				"email": "p.mueller2@gmx.com"
-			}
-		]
-	`
-	responseRecorder := httptest.NewRecorder()
-
-	fakeContext, _ := gin.CreateTestContext(responseRecorder)
-	body := bytes.NewBufferString(fakeJSONString)
-	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/user/update", body)
-
-	fakeService := &handlerfakes.FakeServiceInterface{}
-	fakeService.UpdateUsersReturns([]model.UserUpdateResult{}, nil)
-	responseRecorder.Body = body
-
-	handlerInstance := handler.NewHandler(fakeService)
-	handlerInstance.UpdateUserHandler(fakeContext)
-
-	assert.Equal(t, http.StatusBadRequest, responseRecorder.Code)
-}
-
-func TestUpdateUserHandler_Return_invalid_500_multi_update_unsuccessful(t *testing.T) {
-	var fakeUserSignupPayload = []model.User{
-		{FirstName: "Peter", ID: primitive.NewObjectID()},
-		{FirstName: "Peter", ID: primitive.NewObjectID()},
 	}
-
-	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
-	responseRecorder := httptest.NewRecorder()
-
-	fakeContext, _ := gin.CreateTestContext(responseRecorder)
-	body := bytes.NewBufferString(string(fakeUserSignupPayloadString))
-	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/user/update", body)
-
-	fakeService := &handlerfakes.FakeServiceInterface{}
-	fakeService.UpdateUsersReturns([]model.UserUpdateResult{}, errors.New("a few users couldn't be updated"))
-	responseRecorder.Body = body
-
-	handlerInstance := handler.NewHandler(fakeService)
-	handlerInstance.UpdateUserHandler(fakeContext)
-
-	assert.Equal(t, http.StatusInternalServerError, responseRecorder.Code)
-}
-
-func TestUpdateUserHandler_Return_valid_200_multi(t *testing.T) {
-	var fakeUserSignupPayload = []model.User{
-		{FirstName: "Peter", ID: primitive.ObjectID{}},
-		{FirstName: "Peter", ID: primitive.ObjectID{}},
-	}
-
-	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
-	responseRecorder := httptest.NewRecorder()
-
-	fakeContext, _ := gin.CreateTestContext(responseRecorder)
-	body := bytes.NewBufferString(string(fakeUserSignupPayloadString))
-	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/user/update", body)
-
-	fakeService := &handlerfakes.FakeServiceInterface{}
-	fakeService.UpdateUsersReturns([]model.UserUpdateResult{}, nil)
-	responseRecorder.Body = body
-
-	handlerInstance := handler.NewHandler(fakeService)
-	handlerInstance.UpdateUserHandler(fakeContext)
-
-	assert.Equal(t, http.StatusOK, responseRecorder.Code)
-}
-
-func TestUpdateUserHandler_Return_invalid_500_single_update_unsuccessful(t *testing.T) {
-	var fakeUserSignupPayload = model.User{
-		FirstName: "Peter", ID: primitive.NewObjectID(),
-	}
-
-	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
-	responseRecorder := httptest.NewRecorder()
-
-	fakeContext, _ := gin.CreateTestContext(responseRecorder)
-	body := bytes.NewBufferString(string(fakeUserSignupPayloadString))
-	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/user/update", body)
-
-	fakeService := &handlerfakes.FakeServiceInterface{}
-	fakeService.UpdateUsersReturns([]model.UserUpdateResult{}, errors.New("a few users couldn't be updated"))
-	responseRecorder.Body = body
-
-	handlerInstance := handler.NewHandler(fakeService)
-	handlerInstance.UpdateUserHandler(fakeContext)
-
-	assert.Equal(t, http.StatusInternalServerError, responseRecorder.Code)
 }
 
 func TestDeleteUserHandler_Return_valid_200_delete(t *testing.T) {
@@ -607,18 +543,20 @@ func TestPermissionMiddleware(t *testing.T) {
 			HttpOnly: true,
 		}
 	*/
-	fakeServiceErr := errors.New("fake unauthorized user")
-
 	fakeToken := "fakeToken"
+	userID := primitive.NewObjectID()
+	const userG = "user"
 	var tests = []struct {
 		hasValidToken  bool
 		reqCookie      string
-		serviceOk      bool
 		serviceErr     error
 		expectedStatus int
+		userid         string
+		userGroup      string
 	}{
-		{false, fakeToken, false, nil, http.StatusUnauthorized},
-		{true, fakeToken, false, fakeServiceErr, http.StatusUnauthorized},
+		{true, fakeToken, errors.New("some service error"), http.StatusUnauthorized, "", ""},
+		{true, fakeToken, nil, http.StatusOK, userID.Hex(), userG},
+		{false, "", nil, http.StatusUnauthorized, userID.Hex(), userG},
 	}
 
 	for _, tt := range tests {
@@ -630,9 +568,8 @@ func TestPermissionMiddleware(t *testing.T) {
 		fakeService := &handlerfakes.FakeServiceInterface{}
 
 		if tt.hasValidToken {
-			//	fakeContext.Request.AddCookie(&tt.reqCookie)
 			fakeContext.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tt.reqCookie))
-			fakeService.AuthenticateUserReturns(tt.serviceOk, tt.serviceErr)
+			fakeService.AuthenticateUserReturns(tt.userid, tt.userGroup, tt.serviceErr)
 		}
 
 		handlerInstance := handler.NewHandler(fakeService)
@@ -645,8 +582,8 @@ func TestPermissionMiddleware(t *testing.T) {
 func TestHandler_GetProposalsById(t *testing.T) {
 
 	filterReturn := []model.Proposal{
-		model.Proposal{UserId: "1", Approved: false},
-		model.Proposal{UserId: "2", Approved: true},
+		{UserId: "1", Approved: false},
+		{UserId: "2", Approved: true},
 	}
 
 	filterEmptyReturn := []model.Proposal{}

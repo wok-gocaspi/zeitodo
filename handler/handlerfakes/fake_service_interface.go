@@ -10,7 +10,7 @@ import (
 )
 
 type FakeServiceInterface struct {
-	AuthenticateUserStub        func(string, string, string) (bool, error)
+	AuthenticateUserStub        func(string, string, string) (string, string, error)
 	authenticateUserMutex       sync.RWMutex
 	authenticateUserArgsForCall []struct {
 		arg1 string
@@ -18,12 +18,14 @@ type FakeServiceInterface struct {
 		arg3 string
 	}
 	authenticateUserReturns struct {
-		result1 bool
-		result2 error
+		result1 string
+		result2 string
+		result3 error
 	}
 	authenticateUserReturnsOnCall map[int]struct {
-		result1 bool
-		result2 error
+		result1 string
+		result2 string
+		result3 error
 	}
 	CreateProposalsStub        func([]model.ProposalPayload, string) (interface{}, error)
 	createProposalsMutex       sync.RWMutex
@@ -182,10 +184,12 @@ type FakeServiceInterface struct {
 		result1 *mongo.UpdateResult
 		result2 error
 	}
-	UpdateUsersStub        func([]model.User) (interface{}, error)
+	UpdateUsersStub        func([]model.UpdateUserPayload, string, string) (interface{}, error)
 	updateUsersMutex       sync.RWMutex
 	updateUsersArgsForCall []struct {
-		arg1 []model.User
+		arg1 []model.UpdateUserPayload
+		arg2 string
+		arg3 string
 	}
 	updateUsersReturns struct {
 		result1 interface{}
@@ -199,7 +203,7 @@ type FakeServiceInterface struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeServiceInterface) AuthenticateUser(arg1 string, arg2 string, arg3 string) (bool, error) {
+func (fake *FakeServiceInterface) AuthenticateUser(arg1 string, arg2 string, arg3 string) (string, string, error) {
 	fake.authenticateUserMutex.Lock()
 	ret, specificReturn := fake.authenticateUserReturnsOnCall[len(fake.authenticateUserArgsForCall)]
 	fake.authenticateUserArgsForCall = append(fake.authenticateUserArgsForCall, struct {
@@ -215,9 +219,9 @@ func (fake *FakeServiceInterface) AuthenticateUser(arg1 string, arg2 string, arg
 		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
-		return ret.result1, ret.result2
+		return ret.result1, ret.result2, ret.result3
 	}
-	return fakeReturns.result1, fakeReturns.result2
+	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3
 }
 
 func (fake *FakeServiceInterface) AuthenticateUserCallCount() int {
@@ -226,7 +230,7 @@ func (fake *FakeServiceInterface) AuthenticateUserCallCount() int {
 	return len(fake.authenticateUserArgsForCall)
 }
 
-func (fake *FakeServiceInterface) AuthenticateUserCalls(stub func(string, string, string) (bool, error)) {
+func (fake *FakeServiceInterface) AuthenticateUserCalls(stub func(string, string, string) (string, string, error)) {
 	fake.authenticateUserMutex.Lock()
 	defer fake.authenticateUserMutex.Unlock()
 	fake.AuthenticateUserStub = stub
@@ -239,30 +243,33 @@ func (fake *FakeServiceInterface) AuthenticateUserArgsForCall(i int) (string, st
 	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
-func (fake *FakeServiceInterface) AuthenticateUserReturns(result1 bool, result2 error) {
+func (fake *FakeServiceInterface) AuthenticateUserReturns(result1 string, result2 string, result3 error) {
 	fake.authenticateUserMutex.Lock()
 	defer fake.authenticateUserMutex.Unlock()
 	fake.AuthenticateUserStub = nil
 	fake.authenticateUserReturns = struct {
-		result1 bool
-		result2 error
-	}{result1, result2}
+		result1 string
+		result2 string
+		result3 error
+	}{result1, result2, result3}
 }
 
-func (fake *FakeServiceInterface) AuthenticateUserReturnsOnCall(i int, result1 bool, result2 error) {
+func (fake *FakeServiceInterface) AuthenticateUserReturnsOnCall(i int, result1 string, result2 string, result3 error) {
 	fake.authenticateUserMutex.Lock()
 	defer fake.authenticateUserMutex.Unlock()
 	fake.AuthenticateUserStub = nil
 	if fake.authenticateUserReturnsOnCall == nil {
 		fake.authenticateUserReturnsOnCall = make(map[int]struct {
-			result1 bool
-			result2 error
+			result1 string
+			result2 string
+			result3 error
 		})
 	}
 	fake.authenticateUserReturnsOnCall[i] = struct {
-		result1 bool
-		result2 error
-	}{result1, result2}
+		result1 string
+		result2 string
+		result3 error
+	}{result1, result2, result3}
 }
 
 func (fake *FakeServiceInterface) CreateProposals(arg1 []model.ProposalPayload, arg2 string) (interface{}, error) {
@@ -1031,23 +1038,25 @@ func (fake *FakeServiceInterface) UpdateProposalByDateReturnsOnCall(i int, resul
 	}{result1, result2}
 }
 
-func (fake *FakeServiceInterface) UpdateUsers(arg1 []model.User) (interface{}, error) {
-	var arg1Copy []model.User
+func (fake *FakeServiceInterface) UpdateUsers(arg1 []model.UpdateUserPayload, arg2 string, arg3 string) (interface{}, error) {
+	var arg1Copy []model.UpdateUserPayload
 	if arg1 != nil {
-		arg1Copy = make([]model.User, len(arg1))
+		arg1Copy = make([]model.UpdateUserPayload, len(arg1))
 		copy(arg1Copy, arg1)
 	}
 	fake.updateUsersMutex.Lock()
 	ret, specificReturn := fake.updateUsersReturnsOnCall[len(fake.updateUsersArgsForCall)]
 	fake.updateUsersArgsForCall = append(fake.updateUsersArgsForCall, struct {
-		arg1 []model.User
-	}{arg1Copy})
+		arg1 []model.UpdateUserPayload
+		arg2 string
+		arg3 string
+	}{arg1Copy, arg2, arg3})
 	stub := fake.UpdateUsersStub
 	fakeReturns := fake.updateUsersReturns
-	fake.recordInvocation("UpdateUsers", []interface{}{arg1Copy})
+	fake.recordInvocation("UpdateUsers", []interface{}{arg1Copy, arg2, arg3})
 	fake.updateUsersMutex.Unlock()
 	if stub != nil {
-		return stub(arg1)
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -1061,17 +1070,17 @@ func (fake *FakeServiceInterface) UpdateUsersCallCount() int {
 	return len(fake.updateUsersArgsForCall)
 }
 
-func (fake *FakeServiceInterface) UpdateUsersCalls(stub func([]model.User) (interface{}, error)) {
+func (fake *FakeServiceInterface) UpdateUsersCalls(stub func([]model.UpdateUserPayload, string, string) (interface{}, error)) {
 	fake.updateUsersMutex.Lock()
 	defer fake.updateUsersMutex.Unlock()
 	fake.UpdateUsersStub = stub
 }
 
-func (fake *FakeServiceInterface) UpdateUsersArgsForCall(i int) []model.User {
+func (fake *FakeServiceInterface) UpdateUsersArgsForCall(i int) ([]model.UpdateUserPayload, string, string) {
 	fake.updateUsersMutex.RLock()
 	defer fake.updateUsersMutex.RUnlock()
 	argsForCall := fake.updateUsersArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *FakeServiceInterface) UpdateUsersReturns(result1 interface{}, result2 error) {
