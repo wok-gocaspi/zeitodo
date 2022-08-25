@@ -79,11 +79,6 @@ type FakeHandlerInterface struct {
 	loginUserHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
-	LogoutUserHandlerStub        func(*gin.Context)
-	logoutUserHandlerMutex       sync.RWMutex
-	logoutUserHandlerArgsForCall []struct {
-		arg1 *gin.Context
-	}
 	PermissionMiddlewareStub        func(*gin.Context)
 	permissionMiddlewareMutex       sync.RWMutex
 	permissionMiddlewareArgsForCall []struct {
@@ -561,38 +556,6 @@ func (fake *FakeHandlerInterface) LoginUserHandlerArgsForCall(i int) *gin.Contex
 	return argsForCall.arg1
 }
 
-func (fake *FakeHandlerInterface) LogoutUserHandler(arg1 *gin.Context) {
-	fake.logoutUserHandlerMutex.Lock()
-	fake.logoutUserHandlerArgsForCall = append(fake.logoutUserHandlerArgsForCall, struct {
-		arg1 *gin.Context
-	}{arg1})
-	stub := fake.LogoutUserHandlerStub
-	fake.recordInvocation("LogoutUserHandler", []interface{}{arg1})
-	fake.logoutUserHandlerMutex.Unlock()
-	if stub != nil {
-		fake.LogoutUserHandlerStub(arg1)
-	}
-}
-
-func (fake *FakeHandlerInterface) LogoutUserHandlerCallCount() int {
-	fake.logoutUserHandlerMutex.RLock()
-	defer fake.logoutUserHandlerMutex.RUnlock()
-	return len(fake.logoutUserHandlerArgsForCall)
-}
-
-func (fake *FakeHandlerInterface) LogoutUserHandlerCalls(stub func(*gin.Context)) {
-	fake.logoutUserHandlerMutex.Lock()
-	defer fake.logoutUserHandlerMutex.Unlock()
-	fake.LogoutUserHandlerStub = stub
-}
-
-func (fake *FakeHandlerInterface) LogoutUserHandlerArgsForCall(i int) *gin.Context {
-	fake.logoutUserHandlerMutex.RLock()
-	defer fake.logoutUserHandlerMutex.RUnlock()
-	argsForCall := fake.logoutUserHandlerArgsForCall[i]
-	return argsForCall.arg1
-}
-
 func (fake *FakeHandlerInterface) PermissionMiddleware(arg1 *gin.Context) {
 	fake.permissionMiddlewareMutex.Lock()
 	fake.permissionMiddlewareArgsForCall = append(fake.permissionMiddlewareArgsForCall, struct {
@@ -784,8 +747,6 @@ func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	defer fake.getUserHandlerMutex.RUnlock()
 	fake.loginUserHandlerMutex.RLock()
 	defer fake.loginUserHandlerMutex.RUnlock()
-	fake.logoutUserHandlerMutex.RLock()
-	defer fake.logoutUserHandlerMutex.RUnlock()
 	fake.permissionMiddlewareMutex.RLock()
 	defer fake.permissionMiddlewareMutex.RUnlock()
 	fake.refreshTokenHandlerMutex.RLock()
