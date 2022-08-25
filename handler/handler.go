@@ -41,6 +41,8 @@ type Handler struct {
 	ServiceInterface ServiceInterface
 }
 
+const errorMsg_invalidPayload = "invalid payload"
+
 func NewHandler(serviceInterface ServiceInterface) Handler {
 	return Handler{
 		ServiceInterface: serviceInterface,
@@ -106,7 +108,7 @@ func (handler Handler) UpdateTimeEntry(context *gin.Context) {
 	err := context.ShouldBindJSON(&payLoad)
 	if err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"errorMessage": "invalid payload",
+			"errorMessage": errorMsg_invalidPayload,
 		})
 		return
 	}
@@ -482,7 +484,7 @@ func (handler Handler) CreateProposalsHandler(c *gin.Context) {
 	err := c.BindJSON(&payLoad)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"errorMessage": "invalid payload",
+			"errorMessage": errorMsg_invalidPayload,
 		})
 		return
 	}
@@ -512,7 +514,7 @@ func (handler Handler) UpdateProposalsHandler(c *gin.Context) {
 	err := c.BindJSON(&payLoad)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"errorMessage": "invalid payload",
+			"errorMessage": errorMsg_invalidPayload,
 		})
 		return
 	}
