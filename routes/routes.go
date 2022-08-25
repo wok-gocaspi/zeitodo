@@ -16,31 +16,37 @@ type HandlerInterface interface {
 	DeleteUserHandler(c *gin.Context)
 	PermissionMiddleware(c *gin.Context)
 	LoginUserHandler(c *gin.Context)
-	LogoutUserHandler(c *gin.Context)
+	//	LogoutUserHandler(c *gin.Context)
 	RefreshTokenHandler(c *gin.Context)
 	GetProposalsById(c *gin.Context)
 	CreateProposalsHandler(c *gin.Context)
 	DeleteProposalHandler(c *gin.Context)
 	UpdateProposalsHandler(c *gin.Context)
+	CreatTimeEntry(c *gin.Context)
+	UpdateTimeEntry(c *gin.Context)
+	GetTimeEntry(c *gin.Context)
+	DeleteTimeEntry(c *gin.Context)
+	GetAllTimeEntry(c *gin.Context)
+	CalcultimeEntry(c *gin.Context)
 }
 
 var Handler HandlerInterface
 var PermissionList model.PermissionList
 
 func CreateRoutes(group *gin.RouterGroup) {
-	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET"}, GetSameUser: true, Group: "user"})
+	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "PATCH"}, GetSameUser: true, Group: "user"})
 
-	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "POST", "PUT", "DELETE"}, GetSameUser: false, Group: "admin"})
+	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "POST", "PUT", "DELETE", "PATCH"}, GetSameUser: false, Group: "admin"})
 	group.Use(CORS)
 	group.POST("/login", Handler.LoginUserHandler)
-	group.POST("/logout", Handler.LogoutUserHandler)
+	//	group.POST("/logout", Handler.LogoutUserHandler)
 	group.POST("/refresh", Handler.RefreshTokenHandler)
 	user := group.Group("/user")
 	user.GET("/:id", Handler.PermissionMiddleware, Handler.GetUserHandler)
 	user.GET("/", Handler.PermissionMiddleware, Handler.GetAllUserHandler)
 	user.POST("/", Handler.CreateUserHandler)
 	user.GET("/team", Handler.PermissionMiddleware, Handler.GetTeamMemberHandler)
-	user.PUT("/", Handler.PermissionMiddleware, Handler.UpdateUserHandler)
+	user.PATCH("/", Handler.PermissionMiddleware, Handler.UpdateUserHandler)
 	user.DELETE("/:id", Handler.PermissionMiddleware, Handler.DeleteUserHandler)
 	route := group.Group("/proposals")
 	route.Use(CORS)
@@ -48,6 +54,13 @@ func CreateRoutes(group *gin.RouterGroup) {
 	route.POST("/:id", Handler.CreateProposalsHandler)
 	route.DELETE("/:id", Handler.DeleteProposalHandler)
 	route.PATCH("/", Handler.UpdateProposalsHandler)
+	timeentry := group.Group("/timeentry")
+	timeentry.POST("/createtime", Handler.CreatTimeEntry)
+	timeentry.PUT("/:id/update", Handler.UpdateTimeEntry)
+	timeentry.GET("/:id/gettime", Handler.GetTimeEntry)
+	timeentry.DELETE("/:id/delete", Handler.DeleteTimeEntry)
+	timeentry.GET("/", Handler.GetAllTimeEntry)
+	timeentry.GET("/:id/calcul", Handler.CalcultimeEntry)
 }
 func CORS(c *gin.Context) {
 

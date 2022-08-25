@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
+	"time"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . MongoDBInterface
@@ -137,70 +138,12 @@ func (c Client) CreateUser(docs interface{}) (interface{}, error) {
 	return results.InsertedID, nil
 }
 
-func (c Client) UpdateManyUserByID(docs []model.User) []model.UserUpdateResult {
-	var UMR []model.UserUpdateResult
-	for _, user := range docs {
-		var UpdateResult model.UserUpdateResult
-		filter := bson.M{"_id": user.ID}
-		if user.ID.String() == "" {
-			UpdateResult.User = user
-			UpdateResult.Success = false
-			UMR = append(UMR, UpdateResult)
-			continue
-		}
-		courser := c.Users.FindOne(context.TODO(), filter)
-		var userDoc model.User
-		err := courser.Decode(&userDoc)
-		if err != nil || userDoc.ID.String() == "" {
-			UpdateResult.Success = false
-			UpdateResult.User = user
-			UMR = append(UMR, UpdateResult)
-			continue
-		}
-
-		var setElements bson.D
-		if user.FirstName != "" {
-			fmt.Println(user.FirstName)
-			setElements = append(setElements, bson.E{Key: "firstname", Value: user.FirstName})
-		}
-		if user.LastName != "" {
-			setElements = append(setElements, bson.E{Key: "lastname", Value: user.LastName})
-		}
-		if user.Email != "" {
-			setElements = append(setElements, bson.E{Key: "email", Value: user.Email})
-		}
-		if user.Team != "" {
-			setElements = append(setElements, bson.E{Key: "team", Value: user.Team})
-		}
-		if user.TotalWorkingHours != 0 {
-			setElements = append(setElements, bson.E{Key: "totalWorkingHours", Value: user.TotalWorkingHours})
-		}
-		if user.VacationDays != 0 {
-			setElements = append(setElements, bson.E{Key: "vacationDays", Value: user.VacationDays})
-		}
-		if user.Username != "" {
-			setElements = append(setElements, bson.E{Key: "username", Value: user.Username})
-		}
-		fmt.Println(len(user.Projects))
-		if len(user.Projects) != 0 {
-			setElements = append(setElements, bson.E{Key: "projects", Value: user.Projects})
-		}
-		setMap := bson.D{
-			{"$set", setElements},
-		}
-		result, err := c.Users.UpdateOne(context.TODO(), filter, setMap)
-		if err != nil {
-			UpdateResult.Success = false
-			UpdateResult.User = user
-			UMR = append(UMR, UpdateResult)
-			continue
-		}
-		UpdateResult.Success = true
-		UpdateResult.UpdateResult = result
-		UpdateResult.User = user
-		UMR = append(UMR, UpdateResult)
+func (c Client) UpdateUserByID(filter bson.M, setter bson.D) (*mongo.UpdateResult, error) {
+	result, err := c.Users.UpdateOne(context.TODO(), filter, setter)
+	if err != nil {
+		return result, err
 	}
-	return UMR
+	return result, nil
 }
 
 func (c Client) DeleteUser(id primitive.ObjectID) (interface{}, error) {
@@ -302,4 +245,128 @@ func (c Client) UpdateProposal(update model.Proposal, date string) (*mongo.Updat
 
 	}
 	return result, nil
+}
+
+func (c Client) CreatTimeEntryById(te model.TimeEntry) (interface{}, error) {
+
+	result, err := c.TimeEntries.InsertOne(context.TODO(), te)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (c Client) UpdateTimeEntryById(update model.TimeEntry) (*mongo.UpdateResult, error) {
+	filter := bson.M{"userId": update.UserId, "start": update.Start}
+
+	if update.UserId == "" {
+		IdMissing := fmt.Sprintf("ID %v got no User", update.UserId)
+		return nil, errors.New(IdMissing)
+	}
+	courser := c.TimeEntries.FindOne(context.TODO(), filter)
+	var User model.TimeEntry
+	err := courser.Decode(&User)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(update)
+	var setElements bson.D
+
+	if update.Project != "" {
+		fmt.Sprintf(update.Project)
+		setElements = append(setElements, bson.E{Key: "project", Value: update.Project})
+	}
+
+	if update.UserId != "" {
+		fmt.Sprintf(update.UserId)
+		setElements = append(setElements, bson.E{Key: "userId", Value: update.UserId})
+	}
+
+	if !update.Start.IsZero() {
+		fmt.Sprintf(update.Start.String())
+		setElements = append(setElements, bson.E{Key: "start", Value: update.Start})
+	}
+
+	if !update.BreakStart.IsZero() {
+		fmt.Sprintf(update.BreakStart.String())
+		setElements = append(setElements, bson.E{Key: "breakStart", Value: update.BreakStart})
+	}
+
+	if !update.BreakEnd.IsZero() {
+		fmt.Sprintf(update.BreakEnd.String())
+		setElements = append(setElements, bson.E{Key: "breakEnd", Value: update.BreakEnd})
+	}
+	if !update.End.IsZero() {
+		fmt.Sprintf(update.End.String())
+		setElements = append(setElements, bson.E{Key: "end", Value: update.End})
+	}
+
+	setMap := bson.D{
+		{"$set", setElements},
+	}
+	result, err := c.TimeEntries.UpdateOne(context.TODO(), filter, setMap)
+
+	if err != nil {
+		return nil, err
+
+	}
+	return result, nil
+}
+func (c Client) GetTimeEntryByID(id string) []model.TimeEntry {
+
+	filter := bson.M{"userId": id}
+	var timeEntries []model.TimeEntry
+	courser, err := c.TimeEntries.Find(context.TODO(), filter)
+	if err != nil {
+		return nil
+	}
+	for courser.Next(context.TODO()) {
+		var timeEntry model.TimeEntry
+		err := courser.Decode(&timeEntry)
+		if err != nil {
+			return timeEntries
+		}
+		timeEntries = append(timeEntries, timeEntry)
+	}
+	return timeEntries
+}
+func (c Client) DeleteTimeEntryById(userId string, starttime time.Time) (interface{}, error) {
+
+	filter := bson.M{"userId": userId, "start": starttime}
+
+	results, err := c.TimeEntries.DeleteOne(context.TODO(), filter)
+
+	if err != nil {
+
+		return nil, err
+	}
+	if results.DeletedCount == 0 {
+		deleterror := errors.New(" Time not existing")
+		return nil, deleterror
+	}
+	return results.DeletedCount, nil
+}
+func (c Client) GetAllTimeEntry() ([]model.TimeEntry, error) {
+
+	filter := bson.M{}
+	var timeEntries []model.TimeEntry
+	courser, err := c.TimeEntries.Find(context.TODO(), filter)
+
+	if err != nil {
+		return nil, err
+	}
+	for courser.Next(context.TODO()) {
+		var timeEntry model.TimeEntry
+		err := courser.Decode(&timeEntry)
+		if err != nil {
+			return timeEntries, err
+		}
+		timeEntries = append(timeEntries, timeEntry)
+	}
+	/*if len(timeEntries) == 0 {
+		noTimeError := errors.New("no Time exist")
+		return timeEntries, noTimeError
+
+	}*/
+	return timeEntries, nil
 }
