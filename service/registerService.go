@@ -5,6 +5,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"time"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . DatabaseInterface
@@ -21,6 +22,11 @@ type DatabaseInterface interface {
 	SaveProposals(docs []interface{}) (interface{}, error)
 	DeleteProposalByIdAndDate(id string, date string) (*mongo.DeleteResult, error)
 	UpdateProposal(update model.Proposal, date string) (*mongo.UpdateResult, error)
+	CreatTimeEntryById(te model.TimeEntry) (interface{}, error)
+	UpdateTimeEntryById(update model.TimeEntry) (*mongo.UpdateResult, error)
+	GetTimeEntryByID(id string) []model.TimeEntry
+	DeleteTimeEntryById(userId string, starttime time.Time) (interface{}, error)
+	GetAllTimeEntry() ([]model.TimeEntry, error)
 }
 
 type EmployeeService struct {
