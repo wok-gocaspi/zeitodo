@@ -37,13 +37,11 @@ pipeline {
                 sh "go test ./..."
             }
         }
-        stage('Deploy') {
+        stage('Docker Image') {
             steps {
-                echo 'Deploying....'
+                echo 'Building Docker Image....'
                 script{
-                    docker.withRegistry('https://zeitodoreg.azurecr.io', 'ZeiToDoAzure') {
-                      docker.build("zeitodoreg.azurecr.io/zeitodobackend").push("${env.BRANCH_TAG}-${env.BUILD_NUMBER}")
-                    }
+                    docker.build("zeitodoreg.azurecr.io/zeitodobackend:${env.BRANCH_TAG}-${env.BUILD_NUMBER}")
                 }
             }
         }
