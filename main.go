@@ -23,8 +23,6 @@ func main() {
 		port = "9090"
 	}
 	databaseClient := datasource.NewDbClient(model.DbConfig{
-
-		//URL:      "mongodb://on4tdb:BMZQuk6pIL39nq46fOQPzygHtrhad5MFQMxs8YBQDW6YsJQSgbsIwO3aeOzlXXEnTjoz7ADVVr9jE1PKzU6GyQ==@on4tdb.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@on4tdb@",
 		URL:      os.Getenv("MONGO_URL"),
 		Database: "zeitodo",
 	})
