@@ -1,0 +1,3760 @@
+{
+	"info": {
+		"_postman_id": "58d9f2e1-f167-42ba-bdfb-31e1719e7a20",
+		"name": "ZeiToDo",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21612803"
+	},
+	"item": [
+		{
+			"name": "GetProposalsById",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create proposal to the user with id {{PUserID}}\", function(){",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"var body1 = JSON.stringify([{",
+							"    \"userId\": \"62eb8ba621c88b9be608b757\",",
+							"    \"startDate\": \"2013-Nov-14\",",
+							"    \"endDate\":  \"2013-Nov-17\",",
+							"    \"type\": \"sick\"",
+							"}])",
+							"",
+							"",
+							"pm.sendRequest({",
+							"    url:pm.environment.get(\"host\")+\"/employee/62eb8ba621c88b97/proposals\",",
+							"    method: \"GET\",",
+							"    body: body1,",
+							"}, (err, res) => {",
+							"    pm.test(\"No proposals to that id in the database\", function(){",
+							"        pm.expect(res).to.have.status(404)",
+							"    })",
+							"    ",
+							"})",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/proposals/{{PUserID}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"proposals",
+						"{{PUserID}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "GetProposalsById - Success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/proposals/{{PUserID}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"proposals",
+								"{{PUserID}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 13:32:51 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "180"
+						}
+					],
+					"cookie": [],
+					"body": "[\n    {\n        \"userId\": \"62eb8ba621c88b9be608b757\",\n        \"startDate\": \"2013-Nov-10\",\n        \"endDate\": \"2013-Nov-13\",\n        \"approved\": false,\n        \"type\": \"vacation\",\n        \"timeObject\": {\n            \"Duration\": 259200000000000,\n            \"Interval\": {}\n        }\n    }\n]"
+				},
+				{
+					"name": "GetProposalsById - No Proposals found",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/proposals/{{PUserID}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"proposals",
+								"{{PUserID}}"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 13:33:55 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "58"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"No results could be found to your query\"\n}"
+				}
+			]
+		},
+		{
+			"name": "GetUserByID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status check\", () => {",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: pm.environment.get(\"host\") + \"/user/\" + pm.environment.get(\"userID2\"),",
+							"    method: \"GET\",",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.environment.get(\"userToken2\")",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Users can fetch personal Data\", () => {",
+							"        pm.expect(res).to.have.status(200)",
+							"    })",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: pm.environment.get(\"host\") + \"/user/\" + pm.environment.get(\"userID3\"),",
+							"    method: \"GET\",",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.environment.get(\"userToken2\")",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Users can't fetch data of other users\", () => {",
+							"        pm.expect(res).to.have.status(401)",
+							"    })",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: pm.environment.get(\"host\") + \"/user/\" + \"123\",",
+							"    method: \"GET\",",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.environment.get(\"userToken1\")",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Invalid ID\", () => {",
+							"        pm.expect(res).to.have.status(404)",
+							"        pm.expect(res.json()).to.have.property(\"errorMessage\", \"encoding/hex: odd length hex string\")",
+							"    })",
+							"})",
+							"",
+							"var randomObjectID = \"62fbb528b287a1511f014acf\"",
+							"",
+							"pm.sendRequest({",
+							"    url: pm.environment.get(\"host\") + \"/user/\" + randomObjectID,",
+							"    method: \"GET\",",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.environment.get(\"userToken1\")",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Not existing user\", () => {",
+							"        pm.expect(res).to.have.status(404)",
+							"        pm.expect(res.json()).to.have.property(\"errorMessage\", \"mongo: no documents in result\")",
+							"    })",
+							"})",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.request.headers.add({",
+							"    key: \"Authorization\",",
+							"    value: \"Bearer \" + pm.environment.get(\"userToken1\")",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{userToken1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/user/{{userID1}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"user",
+						"{{userID1}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "GetUserByID - Success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/user/{{userid}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user",
+								"{{userid}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 13:25:23 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "169"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"username\": \"Peter\",\n    \"firstname\": \"Peter\",\n    \"lastname\": \"Müller\",\n    \"email\": \"p.mueller@gmx.com\",\n    \"team\": \"\",\n    \"projects\": null,\n    \"totalWorkingHours\": 0,\n    \"vacationDays\": 0,\n    \"group\": \"user\"\n}"
+				},
+				{
+					"name": "GetUserByID - Request from other User forbidden",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/user/{{userid}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user",
+								"{{userid}}"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 13:26:31 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "69"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"requesting user data of other users is not allowed\"\n}"
+				},
+				{
+					"name": "GetUserByID - Not logged in",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/user/{{userid}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user",
+								"{{userid}}"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 13:29:13 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "49"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"http: named cookie not present\"\n}"
+				}
+			]
+		},
+		{
+			"name": "GetAllUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status check\", () => {",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: pm.environment.get(\"host\") + \"/user\",",
+							"    method: \"GET\",",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.environment.get(\"userToken2\") ",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Check Unauthorized User\", () => {",
+							"        pm.expect(res).to.have.status(401)",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{userToken1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/user",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"user"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "GetAllUser - Unauthorized",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/user/all",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user",
+								"all"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 13:22:58 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "49"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"http: named cookie not present\"\n}"
+				},
+				{
+					"name": "GetAllUser - Request as User",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/user/all",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user",
+								"all"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 13:23:37 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "69"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"requesting user data of other users is not allowed\"\n}"
+				},
+				{
+					"name": "GetAllUser - Success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/user/all",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user",
+								"all"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 14:30:49 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "348"
+						}
+					],
+					"cookie": [],
+					"body": "[\n    {\n        \"username\": \"Hans\",\n        \"firstname\": \"Hans\",\n        \"lastname\": \"Müller\",\n        \"email\": \"h.mueller@gmx.com\",\n        \"team\": \"employee\",\n        \"projects\": null,\n        \"totalWorkingHours\": 0,\n        \"vacationDays\": 0,\n        \"group\": \"admin\"\n    },\n    {\n        \"username\": \"Peter\",\n        \"firstname\": \"Peter\",\n        \"lastname\": \"Müller\",\n        \"email\": \"p.mueller@gmx.com\",\n        \"team\": \"\",\n        \"projects\": null,\n        \"totalWorkingHours\": 0,\n        \"vacationDays\": 0,\n        \"group\": \"user\"\n    }\n]"
+				}
+			]
+		},
+		{
+			"name": "CreateUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create User 1\", () => {",
+							"    pm.response.to.have.status(201)",
+							"})",
+							"",
+							"var jsonBody = pm.response.json()",
+							"",
+							"pm.environment.set(\"userID1\", jsonBody.id)",
+							"",
+							"var user2 = {",
+							"    \"username\": pm.environment.get(\"userUsername2\"),",
+							"    \"password\": pm.environment.get(\"userPassword2\"),",
+							"    \"email\": pm.environment.get(\"userEmail2\"),",
+							"    \"firstname\": pm.environment.get(\"userFirstname2\"),",
+							"    \"lastname\": pm.environment.get(\"userLastname2\")",
+							"}",
+							"",
+							"var user3 = {",
+							"    \"username\": pm.environment.get(\"userUsername3\"),",
+							"    \"password\": pm.environment.get(\"userPassword3\"),",
+							"    \"email\": pm.environment.get(\"userEmail3\"),",
+							"    \"firstname\": pm.environment.get(\"userFirstname3\"),",
+							"    \"lastname\": pm.environment.get(\"userLastname3\")",
+							"}",
+							"",
+							"var errorInsufficentData = {",
+							"    \"username\": \"{{userUsername1}}\",",
+							"    \"password\": \"{{userPassword1}}\",",
+							"    \"firstname\": \"{{userFirstname1}}\",",
+							"    \"lastname\": \"{{userLastname1}}\",",
+							"}",
+							"",
+							"var errorInvalidPayload = \"{'username': 'Babo123', password:}\"",
+							"",
+							"pm.sendRequest({",
+							"    url: pm.environment.get(\"host\") + \"/user\",",
+							"    method: \"POST\",",
+							"    body: JSON.stringify(user2)",
+							"}, (err, res) => {",
+							"    var jsonBody = res.json()",
+							"    pm.environment.set(\"userID2\", jsonBody.id)",
+							"    pm.test(\"Create User 2\", () => {",
+							"        pm.expect(res).to.have.status(201)",
+							"    })",
+							"    ",
+							"    pm.sendRequest({",
+							"        url: pm.environment.get(\"host\") + \"/user\",",
+							"        method: \"POST\",",
+							"        body: JSON.stringify(user2)",
+							"    }, (err, res) => {",
+							"        pm.test(\"User already exists\", () => {",
+							"            pm.expect(res).to.have.status(500)",
+							"    })",
+							"        ",
+							"})",
+							"    ",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: pm.environment.get(\"host\") + \"/user\",",
+							"    method: \"POST\",",
+							"    body: JSON.stringify(user3)",
+							"}, (err, res) => {",
+							"    var jsonBody = res.json()",
+							"    pm.environment.set(\"userID3\", jsonBody.id)",
+							"    pm.test(\"Create User 3\", () => {",
+							"        pm.expect(res).to.have.status(201)",
+							"    })",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: pm.environment.get(\"host\") + \"/user\",",
+							"    method: \"POST\",",
+							"    body: JSON.stringify(errorInsufficentData)",
+							"}, (err, res) => {",
+							"    pm.test(\"Insufficent Data\", () => {",
+							"        pm.expect(res).to.have.status(500)",
+							"    })",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: pm.environment.get(\"host\") + \"/user\",",
+							"    method: \"POST\",",
+							"    body: errorInvalidPayload",
+							"}, (err, res) => {",
+							"    pm.test(\"Invalid Payload\", () => {",
+							"        pm.expect(res).to.have.status(400)",
+							"    })",
+							"})",
+							"",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{userUsername1}}\",\n    \"password\": \"{{userPassword1}}\",\n    \"firstname\": \"{{userFirstname1}}\",\n    \"lastname\": \"{{userLastname1}}\",\n    \"email\": \"{{userEmail1}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/user",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"user"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "CreateUser - Success",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{userUsername1}}\",\n    \"password\": \"{{userPassword1}}\",\n    \"firstname\": \"{{userFirstname1}}\",\n    \"lastname\": \"{{userLastname1}}\",\n    \"email\": \"{{userEmail1}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/user/",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user",
+								""
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 06:20:52 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "26"
+						}
+					],
+					"cookie": [],
+					"body": "\"62f5f144598de88f67a88fba\""
+				},
+				{
+					"name": "CreateUser - Already Exists",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{userUsername1}}\",\n    \"password\": \"{{userPassword1}}\",\n    \"firstname\": \"{{userFirstname1}}\",\n    \"lastname\": \"{{userLastname1}}\",\n    \"email\": \"{{userEmail1}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/user/",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user",
+								""
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 13:13:39 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "57"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"user already exists with this username\"\n}"
+				},
+				{
+					"name": "CreateUser - Invalid",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"password\": \"{{userPassword2}}\",\n    \"firstname\": \"{{userFirstname2}}\",\n    \"lastname\": \"{{userLastname2}}\",\n    \"email\": \"{{userEmail2}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/user/",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user",
+								""
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 13:22:21 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "40"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"invalid register form\"\n}"
+				}
+			]
+		},
+		{
+			"name": "CreateProposals",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let PUserId = \"62eb8ba621c88b9be608b757\"",
+							"pm.environment.set('PUserId',PUserId)"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create proposal to the user with id {{PUserID}}\", function(){",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"var body1 = JSON.stringify([{",
+							"    \"userId\": \"62eb8ba621c88b9be608b757\",",
+							"    \"startDate\": \"2013-Nov-14\",",
+							"    \"endDate\":  \"2013-Nov-17\",",
+							"    \"type\": \"sick\"",
+							"}])",
+							"",
+							"",
+							"pm.sendRequest({",
+							"    url:pm.environment.get(\"host\")+\"/proposals\"+\"/62eb8ba621c88b9be608b757\",",
+							"    method: \"POST\",",
+							"    body: body1,",
+							"}, (err, res) => {",
+							"    pm.test(\"Another proposal for the user, the time is approproate\", function(){",
+							"        pm.expect(res).to.have.status(200)",
+							"    })",
+							"    ",
+							"})",
+							"",
+							"var body2 = JSON.stringify([{",
+							"    \"userId\": \"62eb8ba621c88b9be608b757\",",
+							"    \"startDate\": \"2013-Nov-11\",",
+							"    \"endDate\":  \"2013-Nov-12\",",
+							"    \"type\": \"sick\"",
+							"}])",
+							"",
+							"",
+							"pm.sendRequest({",
+							"    url:pm.environment.get(\"host\")+\"/proposals\"+\"/62eb8ba621c88b9be608b757\",",
+							"    method: \"POST\",",
+							"    body: body2,",
+							"}, (err, res) => {",
+							"    pm.test(\"Another proposal for the user, the proposal time is included in an exsisting proposal\", function(){",
+							"        pm.expect(res).to.have.status(400)",
+							"        console.log(res)",
+							"       ",
+							"    })",
+							"    ",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"userId\": \"{{PUserID}}\",\n        \"startDate\": {{PUserStart}},\n        \"endDate\": {{PUserEnd}},\n        \"type\": {{PUserType}}\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/proposals/{{PUserID}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"proposals",
+						"{{PUserID}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "CreateProposals - Success",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"userId\": \"{{PUserID}}\",\n        \"startDate\": {{PUserStart}},\n        \"endDate\": {{PUserEnd}},\n        \"type\": {{PUserType}}\n    }\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/proposals/{{PUserID}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"proposals",
+								"{{PUserID}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 13:30:41 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "28"
+						}
+					],
+					"cookie": [],
+					"body": "[\n    \"62f656018abfa5d7a03af7ba\"\n]"
+				},
+				{
+					"name": "CreateProposals - Overlapping",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"userId\": \"{{PUserID}}\",\n        \"startDate\": \"2013-Nov-10\",\n        \"endDate\": \"2013-Nov-16\",\n        \"type\": {{PUserType}}\n    }\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/proposals/{{PUserID}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"proposals",
+								"{{PUserID}}"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 14:22:52 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "55"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"There cant be overlapping proposals.\"\n}"
+				},
+				{
+					"name": "CreateProposals - Invalid Payload",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"userId\": \"{{PUserID}}\",\n        \"startDate\": {{PUserStart}},\n        \"endDate\": {{PUserEnd}},\n    }\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/proposals/{{PUserID}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"proposals",
+								"{{PUserID}}"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 14:23:23 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "34"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"invalid payload\"\n}"
+				}
+			]
+		},
+		{
+			"name": "UpdateProposals",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create proposal to the user with id {{PUserID}}\", function(){",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"var body1 = JSON.stringify({",
+							"    \"userId\": \"62eb8ba621c88b9be608b757\",",
+							"    \"startDate\": \"2013-Nov-18\",",
+							"    \"endDate\":  \"2013-Nov-19\",",
+							"    \"type\": \"vacation\"",
+							"})",
+							"",
+							"",
+							"pm.sendRequest({",
+							"    url:pm.environment.get(\"host\")+\"/proposals?date=2013-Nov-14\",",
+							"    method: \"PATCH\",",
+							"    body: body1,",
+							"}, (err, res) => {",
+							"    pm.test(\"Another update for the user, the time is appropriate\", function(){",
+							"        pm.expect(res).to.have.status(200)",
+							"    })",
+							"    ",
+							"})",
+							"",
+							"var body2 = JSON.stringify([{",
+							"    \"userId\": \"62eb8ba621c88b9be608b757\",",
+							"    \"startDate\": \"2013-Nov-11\",",
+							"    \"endDate\":  \"2013-Nov-12\",",
+							"    \"type\": \"sick\"",
+							"}])",
+							"",
+							"",
+							"pm.sendRequest({",
+							"    url:pm.environment.get(\"host\")+\"/employee/proposals/patch\",",
+							"    method: \"POST\",",
+							"    body: body2,",
+							"}, (err, res) => {",
+							"    pm.test(\"Another proposal for the user, no date was provided in the query\", function(){",
+							"        pm.expect(res).to.have.status(404)",
+							"        console.log(res)",
+							"       ",
+							"    })",
+							"    ",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userId\": \"62eb8ba621c88b9be608b757\",\n    \"startDate\": \"2013-Nov-20\",\n    \"endDate\": \"2013-Nov-23\",\n    \"type\": \"sickness\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/proposals?date=2013-Nov-10",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"proposals"
+					],
+					"query": [
+						{
+							"key": "date",
+							"value": "2013-Nov-10"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "UpdateProposals - Update Success",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\n    \n        {\n         \"userId\": \"62eb8ba621c88b9be608b757\",\n        \"startDate\": \"2013-Nov-20\",\n        \"endDate\": \"2013-Nov-23\",\n        \"type\": \"sickness\"\n        }\n    \n    \n    \n\n        ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/proposals?date={{startDate}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"proposals"
+							],
+							"query": [
+								{
+									"key": "date",
+									"value": "{{startDate}}"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 09:48:03 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "72"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"MatchedCount\": 1,\n    \"ModifiedCount\": 1,\n    \"UpsertedCount\": 0,\n    \"UpsertedID\": null\n}"
+				},
+				{
+					"name": "UpdateProposals - No User ID Provided",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\n    \n        {\n         \"userId\": \"62eb8ba621c88b9be608b757\",\n        \"startDate\": \"2013-Nov-20\",\n        \"endDate\": \"2013-Nov-23\",\n        \"type\": \"sickness\"\n        }\n    \n    \n    \n\n        ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/proposals?date={{startDate}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"proposals"
+							],
+							"query": [
+								{
+									"key": "date",
+									"value": "{{startDate}}"
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 13:35:34 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "47"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"an userId has to be provided\"\n}"
+				},
+				{
+					"name": "UpdateProposals - Invalid Payload",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\n    \n        {\n        \"startDate\": \"2013-Nov-20\",\n        \"type\": \"sickness\n        }\n    \n    \n    \n\n        ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/proposals?date={{startDate}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"proposals"
+							],
+							"query": [
+								{
+									"key": "date",
+									"value": "{{startDate}}"
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 13:36:37 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "34"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"invalid payload\"\n}"
+				}
+			]
+		},
+		{
+			"name": "DeleteProposals",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Delete to the user with id {{PUserID}}\", function(){",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"var body1 = JSON.stringify([{",
+							"    \"userId\": \"62eb8ba621c88b9be608b757\",",
+							"    \"startDate\": \"2013-Nov-14\",",
+							"    \"endDate\":  \"2013-Nov-17\",",
+							"    \"type\": \"sick\"",
+							"}])",
+							"",
+							"",
+							"pm.sendRequest({",
+							"    url:pm.environment.get(\"host\")+\"/employee/62eb8ba621c88b97/proposals/delete?date=2013-Nov-21\",",
+							"    method: \"GET\",",
+							"    body: body1,",
+							"}, (err, res) => {",
+							"    pm.test(\"No proposals to that id in the database\", function(){",
+							"        pm.expect(res).to.have.status(404)",
+							"    })",
+							"    ",
+							"})",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "\n    [\n        {\n         \"userId\": \"62eb8ba621c88b9be608b757\",\n        \"startDate\": \"2013-Nov-10\",\n        \"endDate\": \"2013-Nov-11\",\n        \"type\": \"vacation\"\n        }\n    ]\n    \n    \n\n        ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/proposals/62eb8ba621c88b9be608b757?date=2013-Nov-18",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"proposals",
+						"62eb8ba621c88b9be608b757"
+					],
+					"query": [
+						{
+							"key": "date",
+							"value": "2013-Nov-18"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "DeleteProposals - Success",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\n    [\n        {\n         \"userId\": \"62eb8ba621c88b9be608b757\",\n        \"startDate\": \"2013-Nov-10\",\n        \"endDate\": \"2013-Nov-11\",\n        \"type\": \"vacation\"\n        }\n    ]\n    \n    \n\n        ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/proposals/{{userid}}?date={{date}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"proposals",
+								"{{userid}}"
+							],
+							"query": [
+								{
+									"key": "date",
+									"value": "{{date}}"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 13:37:07 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "2"
+						}
+					],
+					"cookie": [],
+					"body": "\"\""
+				},
+				{
+					"name": "DeleteProposals - Employee dosent exist",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\n    [\n        {\n         \"userId\": \"62eb8ba621c88b9be608b757\",\n        \"startDate\": \"2013-Nov-10\",\n        \"endDate\": \"2013-Nov-11\",\n        \"type\": \"vacation\"\n        }\n    ]\n    \n    \n\n        ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/proposals/62eb8ba621c88b9be608b757?date=2013-Nov-18",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"proposals",
+								"62eb8ba621c88b9be608b757"
+							],
+							"query": [
+								{
+									"key": "date",
+									"value": "2013-Nov-18"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Thu, 25 Aug 2022 12:56:21 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "50"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"the Employee id is not existing\"\n}"
+				}
+			]
+		},
+		{
+			"name": "GetTeamMembers",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check Valid Status\", () => {",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: pm.environment.get(\"host\") + \"/user/team?name=bestTeam\",",
+							"    method: \"GET\",",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.environment.get(\"userToken1\") ",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Check Team by Name valid\", () => {",
+							"        pm.expect(res).to.have.status(200)",
+							"    })",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: pm.environment.get(\"host\") + \"/user/team?id=\" + pm.environment.get(\"invalidID\"),",
+							"    method: \"GET\",",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.environment.get(\"userToken1\") ",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Check not existing user\", () => {",
+							"        pm.expect(res).to.have.status(500)",
+							"    })",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: pm.environment.get(\"host\") + \"/user/team?id=123\",",
+							"    method: \"GET\",",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.environment.get(\"userToken1\") ",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Invalid User ID\", () => {",
+							"        pm.expect(res).to.have.status(500)",
+							"    })",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: pm.environment.get(\"host\") + \"/user/team?name=123\",",
+							"    method: \"GET\",",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.environment.get(\"userToken1\") ",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Check Invalid Team Name\", () => {",
+							"        pm.expect(res).to.have.status(200)",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.request.headers.add({",
+							"    key: \"Authorization\",",
+							"    value: \"Bearer \" + pm.environment.get(\"userToken1\")",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/user/team?id={{userID2}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"user",
+						"team"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "{{userID2}}"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "GetTeamMembers - Not logged in",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/user/team?id={{userID1}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user",
+								"team"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "{{userID1}}"
+								}
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 13:39:01 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "49"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"http: named cookie not present\"\n}"
+				},
+				{
+					"name": "GetTeamMembers - Success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/user/team?id={{userID2}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user",
+								"team"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "{{userID2}}"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Thu, 25 Aug 2022 13:02:56 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "369"
+						}
+					],
+					"cookie": [],
+					"body": "[\n    {\n        \"id\": \"6307729b9d68f010d913de25\",\n        \"username\": \"Peter\",\n        \"firstname\": \"Peter\",\n        \"lastname\": \"Müller\",\n        \"email\": \"p.mueller@outlook.de\"\n    },\n    {\n        \"id\": \"6307729c9d68f010d913de26\",\n        \"username\": \"ganon\",\n        \"firstname\": \"Ganon\",\n        \"lastname\": \"Margarethe\",\n        \"email\": \"ganon@gmail.com\"\n    },\n    {\n        \"id\": \"6307729c9d68f010d913de27\",\n        \"username\": \"Hans\",\n        \"firstname\": \"Hans\",\n        \"lastname\": \"Müller\",\n        \"email\": \"h.mueller@gmx.com\"\n    }\n]"
+				}
+			]
+		},
+		{
+			"name": "CreatTimeEntry",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check if Timeuser creat\", () => {",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"var body1 = JSON.stringify({",
+							"    \"userId\": \"62ff87026b75ab5717808def\",",
+							"    \"start\": \"1999-08-01T06:00:00.801Z\",",
+							"    \"end\": \"1999-08-30T12:00:00.801Z\",",
+							"    \"breakStart\": \"2022-08-01T12:00:00.801Z\",",
+							"    \"breakEnd\": \"2022-08-30T13:00:00.801Z\",",
+							"    \"project\": \"Bremen\"",
+							"})",
+							"pm.sendRequest({",
+							"    url:pm.environment.get(\"host\")+\"/timeentry\"+\"/63060cb372387e2c36e58762\",",
+							"    method: \"POST\",",
+							"    body: body1,",
+							"}, (err, res) => {",
+							"    pm.test(\"Timeuser is with Another Time collited \", function(){",
+							"        pm.expect(res).to.have.status(404)",
+							"    })",
+							"    ",
+							"})",
+							"",
+							"var body2 = JSON.stringify({",
+							"   \"userId\": \"63060cb372387e2c36e58762\",",
+							"    \"start\": \"2000-08-01T06:00:00.801Z\",",
+							"    \"end\": \"2000-08-30T17:00:00.801Z\",",
+							"    \"breakStart\": \"2000-08-01T12:00:00.801Z\",",
+							"    \"breakEnd\": \"2000-08-30T13:00:00.801Z\",",
+							"    \"project\": \"Mercedes\"",
+							"})",
+							"",
+							"",
+							"pm.sendRequest({",
+							"    url:pm.environment.get(\"host\")+\"/timeentry\"+\"/63060cb372387e2c36e58762\",",
+							"    method: \"POST\",",
+							"    body: body2,",
+							"}, (err, res) => {",
+							"    pm.test(\"\", function(){",
+							"        pm.expect(res).to.have.status(404)",
+							"        console.log(res)",
+							"       ",
+							"    })",
+							"    ",
+							"})",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userId\": \"62ff87026b75ab5717808def\",\n    \"start\": \"1901-08-01T06:00:00.801Z\",\n    \"end\": \"1901-08-03T12:00:00.801Z\",\n    \"breakStart\": \"2022-08-01T12:00:00.801Z\",\n    \"breakEnd\": \"2022-08-30T13:00:00.801Z\",\n    \"project\": \"Bremen\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/timeentry/createtime",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"timeentry",
+						"createtime"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "CreatTimeEntry - Success",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"{{userID1}}\",\n    \"start\": \"2006-Jan-01\",\n    \"end\": \"2006-Jan-02\",\n    \"breakStart\": \"2006-Jan-01\",\n    \"breakEnd\": \"2006-Jan-02\",\n    \"project\": \"ProojectX\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/timeentry/createtime",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"timeentry",
+								"createtime"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 14:10:24 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "41"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"InsertedID\": \"62f65f50a2840dce1384003f\"\n}"
+				},
+				{
+					"name": "CreatTimeEntry - Invalid Payload",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"62ff87026b75ab5717808def\",\n    \"start\": \"1901-08-01T06:00:00.801Z\",\n    \"end\": \"1901-08-03T12:00:00.801Z\",\n    \"breakStart\": \"2022-08-01T12:00:00.801Z\",\n    \"breakEnd\": \"2022-08-30T13:00:00.801Z\",\n    \"project\": \"Bremen\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/timeentry/createtime",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"timeentry",
+								"createtime"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Thu, 25 Aug 2022 13:13:12 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "44"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"Time User is not created \"\n}"
+				}
+			]
+		},
+		{
+			"name": "UpdateTimeEntryunterst",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userId\": \"63060cb372387e2c36e58763\",\n    \"start\": \"1988-09-11T06:00:00.801Z\",\n    \"end\": \"1988-09-11T12:00:00.801Z\",\n    \"breakStart\": \"2022-08-01T12:00:00.801Z\",\n    \"breakEnd\": \"2022-08-30T13:00:00.801Z\",\n    \"project\": \"Bremen\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/timeentry/createtime",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"timeentry",
+						"createtime"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "CreatTimeEntry - Success",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"{{userID1}}\",\n    \"start\": \"2006-Jan-01\",\n    \"end\": \"2006-Jan-02\",\n    \"breakStart\": \"2006-Jan-01\",\n    \"breakEnd\": \"2006-Jan-02\",\n    \"project\": \"ProojectX\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/timeentry",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"timeentry"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 14:10:24 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "41"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"InsertedID\": \"62f65f50a2840dce1384003f\"\n}"
+				}
+			]
+		},
+		{
+			"name": "GetTimeEntry",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"check TimeUser existing\", () => {",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: \"http://localhost:9090/timeentry/gettime\",",
+							"    method: \"GET\",",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.environment.get(\"userToken2\") ",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"TimeUser is not existing\", () => {",
+							"        pm.expect(res).to.have.status(404)",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9090/timeentry/62ff87026b75ab5717808def/gettime",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"timeentry",
+						"62ff87026b75ab5717808def",
+						"gettime"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "GetTimeEntry - Success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/timeentry/{{userid}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"timeentry",
+								"{{userid}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 14:15:35 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "144"
+						}
+					],
+					"cookie": [],
+					"body": "[\n    {\n        \"userId\": \"62f65345164fd20dc70c4c2f\",\n        \"start\": \"2006-Jan-01\",\n        \"end\": \"2006-Jan-02\",\n        \"breakStart\": \"2006-Jan-01\",\n        \"breakEnd\": \"\",\n        \"project\": \"ProojectX\"\n    }\n]"
+				},
+				{
+					"name": "GetTimeEntry - No proposals found",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/timeentry/{{userid}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"timeentry",
+								"{{userid}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 14:16:05 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "4"
+						}
+					],
+					"cookie": [],
+					"body": "null"
+				}
+			]
+		},
+		{
+			"name": "GetAllTimeEntry",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Check Get all time \", () => {",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: \"http://localhost:9090/timeentry/5464\",",
+							"    method: \"GET\",",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.environment.get(\"userToken2\") ",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Check Unauthorized User\", () => {",
+							"        pm.expect(res).to.have.status(404)",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9090/timeentry/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"timeentry",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateTimeEntry",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Update time user without collited\", function(){",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"var body1 = JSON.stringify({",
+							"   ",
+							"})",
+							"",
+							"",
+							"pm.sendRequest({",
+							"    url:\"http://localhost:9090/timeentry/63060cb372387e2c36e58763/update\",",
+							"    method: \"PUT\",",
+							"    body: body1,",
+							"}, (err, res) => {",
+							"    pm.test(\"Time entries collited\", function(){",
+							"        pm.expect(res).to.have.status(400)",
+							"    })",
+							"    ",
+							"})",
+							"",
+							"var body2 = JSON.stringify([{",
+							"   \"userId\": \"63060cb372387e2c36e58762\",",
+							"    \"start\": \"2000-08-01T06:00:00.801Z\",",
+							"    \"end\": \"2000-08-30T17:00:00.801Z\",",
+							"    \"breakStart\": \"2000-08-01T12:00:00.801Z\",",
+							"    \"breakEnd\": \"2000-08-30T13:00:00.801Z\",",
+							"    \"project\": \"Mercedes\"",
+							"}])",
+							"",
+							"",
+							"pm.sendRequest({",
+							"    url:\"http://localhost:9090/timeentry/63060cb372387e2c36e58762/update\",",
+							"    method: \"POST\",",
+							"    body: body2,",
+							"}, (err, res) => {",
+							"    pm.test(\"No timeentry was existing\", function(){",
+							"        pm.expect(res).to.have.status(404)",
+							"        console.log(res)",
+							"       ",
+							"    })",
+							"    ",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userId\": \"62ff87026b75ab5717808def\",\n    \"start\": \"2000-08-03T14:08:00.801Z\",\n    \"end\": \"1988-09-0T12:00:00.801Z\",\n    \"breakStart\": \"2022-08-01T12:00:00.801Z\",\n    \"breakEnd\": \"2022-08-30T13:00:00.801Z\",\n    \"project\": \"Bremen\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/timeentry/62ff87026b75ab5717808def/update",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"timeentry",
+						"62ff87026b75ab5717808def",
+						"update"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "UpdateTimeEntry - Success",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"62ff87026b75ab5717808def\",\n    \"start\": \"2000-08-03T14:08:00.801Z\",\n    \"end\": \"1988-09-30T12:00:00.801Z\",\n    \"breakStart\": \"2022-08-01T12:00:00.801Z\",\n    \"breakEnd\": \"2022-08-30T13:00:00.801Z\",\n    \"project\": \"Bremen\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/timeentry/62ff87026b75ab5717808def/update",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"timeentry",
+								"62ff87026b75ab5717808def",
+								"update"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Thu, 25 Aug 2022 12:46:01 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "72"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"MatchedCount\": 1,\n    \"ModifiedCount\": 0,\n    \"UpsertedCount\": 0,\n    \"UpsertedID\": null\n}"
+				},
+				{
+					"name": "UpdateTimeEntry - User dosent exist",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"62ff87026b75ab5717808def\",\n    \"start\": \"2000-08-03T14:08:00.801Z\",\n    \"end\": \"1988-09-0T12:00:00.801Z\",\n    \"breakStart\": \"2022-08-01T12:00:00.801Z\",\n    \"breakEnd\": \"2022-08-30T13:00:00.801Z\",\n    \"project\": \"Bremen\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/timeentry/62ff87026b75ab5717808def/update",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"timeentry",
+								"62ff87026b75ab5717808def",
+								"update"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Thu, 25 Aug 2022 13:14:53 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "29"
+						}
+					],
+					"cookie": [],
+					"body": "\"Time user ist not existing \""
+				}
+			]
+		},
+		{
+			"name": "CalculTimeEntry",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Calcul timeuser with timuser_id\", function(){",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"",
+							"",
+							"pm.sendRequest({",
+							"    url:\"http://localhost:9090/timeentry/calcul\",",
+							"    method: \"GET\",",
+							"",
+							"}, (err, res) => {",
+							"    pm.test(\"Timeuser_id ist not exinsting  \", function(){",
+							"        pm.expect(res).to.have.status(404)",
+							"    })",
+							"    ",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/timeentry/62ff87026b75ab5717808def/calcul",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"timeentry",
+						"62ff87026b75ab5717808def",
+						"calcul"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "CalculTimeEntry - Success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/timeentry/62ff87026b75ab5717808def/calcul",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"timeentry",
+								"62ff87026b75ab5717808def",
+								"calcul"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Thu, 25 Aug 2022 12:47:55 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "13"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"Bremen\": 54\n}"
+				}
+			]
+		},
+		{
+			"name": "DeletTimeEntry",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"//http://localhost:9090/timeentry/63060cb372387e2c36e58762/delete?userId=63060cb372387e2c36e58762&starttime=2022-08-01T06:00:00.801%2b00:00"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Delete Timeuser with id and starttime\", function(){",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"var body1 = JSON.stringify([{",
+							"    \"userId\": \"62ff87026b75ab5717808def\",",
+							"    \"start\": \"2000-08-01T06:00:00.801Z\",",
+							"    \"end\": \"2000-08-30T17:00:00.801Z\",",
+							"    \"breakStart\": \"2000-08-01T12:00:00.801Z\",",
+							"    \"breakEnd\": \"2000-08-30T13:00:00.801Z\",",
+							"    \"project\": \"Mercedes\"",
+							"}])",
+							"",
+							"",
+							"pm.sendRequest({",
+							"    url:pm.environment.get(\"host\")+\"/timeentry/62ff87026b75ab5717808def/proposals/delete?date=2013-Nov-21\",",
+							"    method: \"GET\",",
+							"    body: body1,",
+							"}, (err, res) => {",
+							"    pm.test(\"time not exixting to the userid\", function(){",
+							"        pm.expect(res).to.have.status(404)",
+							"    })",
+							"    ",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/timeentry/62ff87026b75ab5717808def/delete?userId=62ff87026b75ab5717808def&starttime=1901-08-01T06:00:00.801Z",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"timeentry",
+						"62ff87026b75ab5717808def",
+						"delete"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "62ff87026b75ab5717808def"
+						},
+						{
+							"key": "starttime",
+							"value": "1901-08-01T06:00:00.801Z"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "DeletTimeEntry - Dosent Exist",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/timeentry/{{id}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"timeentry",
+								"{{id}}"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 14:07:23 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "37"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \" Time not existing\"\n}"
+				},
+				{
+					"name": "DeletTimeEntry - Invalid ID",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/timeentry/{{id}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"timeentry",
+								"{{id}}"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 14:07:58 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "54"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"encoding/hex: odd length hex string\"\n}"
+				},
+				{
+					"name": "DeletTimeEntry - Success",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/timeentry/{{id}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"timeentry",
+								"{{id}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 14:11:28 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "1"
+						}
+					],
+					"cookie": [],
+					"body": "1"
+				}
+			]
+		},
+		{
+			"name": "UpdateUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Update User Status\", () => {",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"var body2 = {",
+							"    \"id\": pm.environment.get(\"userID2\"),",
+							"    \"password\": \"123\"",
+							"}",
+							"",
+							"var body3 = {",
+							"    \"id\": pm.environment.get(\"userID3\"),",
+							"    \"group\": \"admin\"",
+							"}",
+							"",
+							"var body4 = `",
+							"    [",
+							"        {",
+							"            \"id\": \"${pm.environment.get(\"userID1\")}\",",
+							"            \"team\": \"bestTeam\"",
+							"        },",
+							"        {",
+							"            \"id\": \"${pm.environment.get(\"userID2\")}\",",
+							"            \"team\": \"bestTeam\"",
+							"        },",
+							"        {",
+							"            \"id\": \"${pm.environment.get(\"userID3\")}\",",
+							"            \"team\": \"bestTeam\"",
+							"        }",
+							"    ]",
+							"`",
+							"",
+							"pm.sendRequest({",
+							"    url: pm.environment.get(\"host\") + \"/user\",",
+							"    method: \"PATCH\",",
+							"    body: JSON.stringify(body2),",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.environment.get(\"userToken3\") ",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Check Password Update dosent work\", () => {",
+							"        pm.expect(res).to.have.status(500)",
+							"    })",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: pm.environment.get(\"host\") + \"/user\",",
+							"    method: \"PATCH\",",
+							"    body: JSON.stringify(body3),",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.environment.get(\"userToken2\") ",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Check Group Update dosent work\", () => {",
+							"        pm.expect(res).to.have.status(500)",
+							"    })",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: pm.environment.get(\"host\") + \"/user\",",
+							"    method: \"PATCH\",",
+							"    body: body4,",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.environment.get(\"userToken1\") ",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Update Groups from Users\", () => {",
+							"        pm.expect(res).to.have.status(200)",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.request.headers.add({",
+							"    key: \"Authorization\",",
+							"    value: \"Bearer \" + pm.environment.get(\"userToken1\")",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"id\": \"{{userID1}}\",\n        \"email\": \"{{userAltEmail1}}\"\n    },\n    {\n        \"id\": \"{{userID2}}\",\n        \"password\": \"12345678910\"\n    },\n    {\n        \"id\": \"{{userID3}}\",\n        \"lastname\": \"{{userAltLastname3}}\"\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/user",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"user"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "UpdateUser - Success",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\n    {\n    \"id\": \"{{userID2}}\",\n    \"team\": \"employee\"\n    }\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/user",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 13:43:40 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "345"
+						}
+					],
+					"cookie": [],
+					"body": "[\n    {\n        \"result\": {\n            \"MatchedCount\": 1,\n            \"ModifiedCount\": 1,\n            \"UpsertedCount\": 0,\n            \"UpsertedID\": null\n        },\n        \"user\": {\n            \"id\": \"62f65375dce7e126e4caae64\",\n            \"username\": \"\",\n            \"password\": [\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0,\n                0\n            ],\n            \"firstname\": \"\",\n            \"lastname\": \"\",\n            \"email\": \"\",\n            \"team\": \"employee\",\n            \"projects\": null,\n            \"totalWorkingHours\": 0,\n            \"vacationDays\": 0\n        },\n        \"success\": true\n    }\n]"
+				},
+				{
+					"name": "UpdateUser - Invalid ID in Payload",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\n    {\n    \"id\": \"222\",\n    \"team\": \"employee\"\n    }\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/user",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 13:44:07 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "83"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"json: cannot unmarshal object into Go value of type []model.User\"\n}"
+				},
+				{
+					"name": "UpdateUser - Error",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\n    {\n    \"id\": \"62f65375dce7e126e4caae65\",\n    \"team\": \"employee\"\n    }\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/user",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 13:45:03 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "341"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"a few users couldn't be updated\",\n    \"errorUser\": [\n        {\n            \"result\": null,\n            \"user\": {\n                \"id\": \"62f65375dce7e126e4caae65\",\n                \"username\": \"\",\n                \"password\": [\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0,\n                    0\n                ],\n                \"firstname\": \"\",\n                \"lastname\": \"\",\n                \"email\": \"\",\n                \"team\": \"employee\",\n                \"projects\": null,\n                \"totalWorkingHours\": 0,\n                \"vacationDays\": 0\n            },\n            \"success\": false\n        }\n    ]\n}"
+				}
+			]
+		},
+		{
+			"name": "DeleteUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"User 2 Status check\", () => {",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: pm.environment.get(\"host\") + \"/user/\" + pm.environment.get(\"userID3\"),",
+							"    method: \"DELETE\",",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.environment.get(\"userToken1\") ",
+							"    }",
+							"}, (err, res) =>{",
+							"    pm.test(\"User 3 Status check\", () => {",
+							"        pm.response.to.have.status(200)",
+							"    })",
+							"})",
+							"",
+							"",
+							"",
+							"pm.sendRequest({",
+							"    url: pm.environment.get(\"host\") + \"/user/\" + pm.environment.get(\"invalidID\"),",
+							"    method: \"DELETE\",",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.environment.get(\"userToken1\") ",
+							"    }",
+							"}, (err, res) =>{",
+							"    pm.test(\"Non existing user\", () => {",
+							"        pm.expect(res).to.have.status(500)",
+							"    })",
+							"    ",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"        url: pm.environment.get(\"host\") + \"/user/\" + \"123\",",
+							"        method: \"DELETE\",",
+							"        header: {",
+							"            Authorization: \"Bearer \" + pm.environment.get(\"userToken1\") ",
+							"        }",
+							"    }, (err, res) => {",
+							"        pm.test(\"Invalid ID\", () => {",
+							"            pm.expect(res).to.have.status(500)",
+							"        })",
+							"        ",
+							"",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"        url: pm.environment.get(\"host\") + \"/user/\" + pm.environment.get(\"userID1\"),",
+							"        method: \"DELETE\",",
+							"        header: {",
+							"            Authorization: \"Bearer \" + pm.environment.get(\"userToken1\") ",
+							"        }",
+							"    }, (err, res) =>{",
+							"        pm.test(\"User 1 Status check\", () => {",
+							"            pm.response.to.have.status(200)",
+							"        })",
+							" })",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.request.headers.add({",
+							"    key: \"Authorization\",",
+							"    value: \"Bearer \" + pm.environment.get(\"userToken1\")",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/user/{{userID2}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"user",
+						"{{userID2}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "DeleteUser - Success",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/user/{{userID1}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user",
+								"{{userID1}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 13:45:29 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "18"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"DeletedCount\": 1\n}"
+				},
+				{
+					"name": "DeleteUser - No matching users",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/user/{{userID1}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user",
+								"{{userID1}}"
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 13:45:48 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "65"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"no user have been deleted, please check the id\"\n}"
+				},
+				{
+					"name": "DeleteUser - Expired Token",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/user/{{userID1}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user",
+								"{{userID1}}"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 14:12:28 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "35"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"Token is expired\"\n}"
+				},
+				{
+					"name": "DeleteUser - No permission",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/user/{{userID1}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user",
+								"{{userID1}}"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 14:13:26 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "70"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"url dosent match to any permission, deny request...\"\n}"
+				},
+				{
+					"name": "DeleteUser - Not logged in",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/user/{{userID1}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"user",
+								"{{userID1}}"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 14:13:54 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "49"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"http: named cookie not present\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check for Successful Login\", () => {",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"pm.environment.set(\"userToken1\", pm.response.json().token)",
+							"",
+							"var body2 = {",
+							"    \"username\": pm.environment.get(\"userUsername2\"),",
+							"    \"password\": pm.environment.get(\"userPassword2\")",
+							"}",
+							"",
+							"var body3 = {",
+							"    \"username\": pm.environment.get(\"userUsername3\"),",
+							"    \"password\": pm.environment.get(\"userPassword3\")",
+							"}",
+							"",
+							"pm.sendRequest({",
+							"    url: pm.environment.get(\"host\") + \"/login\",",
+							"    method: \"POST\",",
+							"    body: JSON.stringify(body2)",
+							"}, (err, res) => {",
+							"    pm.test(\"Auth User 2\", () => {",
+							"        pm.expect(res).to.have.status(200)",
+							"        pm.environment.set(\"userToken2\", res.json().token) ",
+							"    })",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: pm.environment.get(\"host\") + \"/login\",",
+							"    method: \"POST\",",
+							"    body: JSON.stringify(body3)",
+							"}, (err, res) => {",
+							"    pm.test(\"Auth User 3\", () => {",
+							"        pm.expect(res).to.have.status(200)",
+							"        pm.environment.set(\"userToken3\", res.json().token) ",
+							"    })",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{userUsername1}}\",\n    \"password\": \"{{userPassword1}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/login",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Login - Invalid Credentials",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{userUsername1}}\",\n    \"password\": \"333\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 14:18:31 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "32"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"invalid login\"\n}"
+				},
+				{
+					"name": "Login - Invalid Payload",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{userUsername1}}\",\n    \"password\" \"{{userPassword1}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Thu, 25 Aug 2022 13:07:49 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "31"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"invalid data\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Refresh",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check for successful refresh\", () => {",
+							"    pm.response.to.have.status(200)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/refresh",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"refresh"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Refresh - No cookie present",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/refresh",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"refresh"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Access-Control-Allow-Headers",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Methods",
+							"value": "*"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 12 Aug 2022 14:24:31 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "49"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"http: named cookie not present\"\n}"
+				}
+			]
+		}
+	]
+}

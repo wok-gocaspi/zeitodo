@@ -7,7 +7,7 @@ import (
 	"example-project/routes"
 	"example-project/service"
 	"example-project/service/servicefakes"
-	"example-project/utils"
+	"example-project/utilities"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -331,7 +331,7 @@ func TestEmployeeService_LogoutUser(t *testing.T) {
 }
 
 func TestRefreshToken(t *testing.T) {
-	fakeToken := utils.GenerateToken(primitive.NewObjectID())
+	fakeToken := utilities.GenerateToken(primitive.NewObjectID())
 
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
 	serviceInstance := service.NewEmployeeService(fakeDB)
@@ -356,7 +356,7 @@ func TestRefreshToken(t *testing.T) {
 
 func TestAuthenticateUser(t *testing.T) {
 	fakeUserID := primitive.NewObjectID()
-	fakeToken := utils.GenerateToken(fakeUserID)
+	fakeToken := utilities.GenerateToken(fakeUserID)
 	fakeUser := model.UserPayload{Group: "user"}
 	fakeAdmin := model.UserPayload{Group: "admin"}
 
@@ -391,7 +391,7 @@ func TestAuthenticateUser(t *testing.T) {
 
 func TestAuthenticateUserErrorGetUserByID(t *testing.T) {
 	fakeUserID := primitive.NewObjectID()
-	fakeToken := utils.GenerateToken(fakeUserID)
+	fakeToken := utilities.GenerateToken(fakeUserID)
 
 	routes.PermissionList.Permissions = append(routes.PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET"}, GetSameUser: true, Group: "user"})
 	routes.PermissionList.Permissions = append(routes.PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "POST", "PUT", "DELETE"}, GetSameUser: false, Group: "admin"})

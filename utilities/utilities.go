@@ -3,8 +3,12 @@ package utilities
 import (
 	"errors"
 	"example-project/model"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/retailify/go-interval"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"os"
 	"strings"
+	"time"
 )
 
 func ProposalTimeIntersectsProposals(proposal model.Proposal, Arr []model.Proposal) bool {
@@ -89,4 +93,26 @@ func CraftProposalFromPayload(payload []model.ProposalPayload) ([]model.Proposal
 	}
 
 	return proposals, nil
+}
+
+func GenerateToken(userid primitive.ObjectID) string {
+	claims := jwt.MapClaims{
+		"exp":    time.Now().Add(time.Minute * 5).Unix(),
+		"iat":    time.Now().Unix(),
+		"userID": userid.Hex(),
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	t, _ := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	return t
+}
+
+func ValidateToken(token string) (*jwt.Token, jwt.MapClaims, error) {
+	claims := jwt.MapClaims{}
+	jwtoken, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+	return jwtoken, claims, nil
 }

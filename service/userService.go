@@ -5,7 +5,7 @@ import (
 	"errors"
 	"example-project/model"
 	"example-project/routes"
-	"example-project/utils"
+	"example-project/utilities"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -191,7 +191,7 @@ func (s EmployeeService) LoginUser(username string, password string) (string, er
 	if hashedPassword != userObj.Password {
 		return "", errors.New("invalid login")
 	}
-	token := utils.GenerateToken(userObj.ID)
+	token := utilities.GenerateToken(userObj.ID)
 	return token, nil
 }
 
@@ -206,7 +206,7 @@ func (s EmployeeService) LogoutUser(userid string) bool {
 }
 
 func (s EmployeeService) RefreshToken(token string) (string, error) {
-	tkn, claims, err := utils.ValidateToken(token)
+	tkn, claims, err := utilities.ValidateToken(token)
 	if err != nil {
 		return "", err
 	}
@@ -223,12 +223,12 @@ func (s EmployeeService) RefreshToken(token string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	tokenString := utils.GenerateToken(tokenObj)
+	tokenString := utilities.GenerateToken(tokenObj)
 	return tokenString, nil
 }
 
 func (s EmployeeService) AuthenticateUser(requestedURI string, requestMethod string, token string) (string, string, error) {
-	_, claims, err := utils.ValidateToken(token)
+	_, claims, err := utilities.ValidateToken(token)
 	if err != nil {
 		return "", "", err
 	}
