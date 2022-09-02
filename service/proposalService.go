@@ -4,11 +4,13 @@ import (
 	"errors"
 	"example-project/model"
 	"example-project/utilities"
+	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 	"strings"
 )
 
 func (s EmployeeService) GetProposalsByID(id string) ([]model.Proposal, error) {
+
 	result, err := s.DbService.GetProposals(id)
 	if err != nil {
 		return []model.Proposal{}, err
@@ -22,7 +24,9 @@ func (s EmployeeService) GetProposalsByID(id string) ([]model.Proposal, error) {
 }
 
 func (s EmployeeService) DeleteProposalsByID(id string, date string) error {
+
 	result, err := s.DbService.DeleteProposalByIdAndDate(id, date)
+
 	if err != nil {
 		return err
 	}
@@ -72,7 +76,14 @@ func (s EmployeeService) CreateProposals(proposalPayloadArr []model.ProposalPayl
 	return result, err
 }
 
-func (s EmployeeService) UpdateProposalByDate(update model.Proposal, date string) (*mongo.UpdateResult, error) {
-	result, err := s.DbService.UpdateProposal(update, date)
-	return result, err
+//***************************************
+func (s EmployeeService) UpdateProposalByDate(update model.Proposal, date string, ctx *gin.Context) (*mongo.UpdateResult, error) {
+
+	if update.UserId == ctx.GetString("userid") || ctx.GetString("group") == "admin" {
+		result, err := s.DbService.UpdateProposal(update, date)
+		return result, err
+	} else {
+		return nil, errors.New("user can not update ")
+	}
+
 }

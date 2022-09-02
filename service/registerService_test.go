@@ -5,7 +5,9 @@ import (
 	"example-project/model"
 	"example-project/service"
 	"example-project/service/servicefakes"
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"testing"
 )
@@ -56,10 +58,25 @@ func TestProposalService_GetProposalsByID(t *testing.T) {
 func TestEmployeeService_UpdateEmployee(t *testing.T) {
 
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	fakeAdminId := primitive.NewObjectID().String()
+	fakecontextAdmin := gin.Context{}
+	fakecontextAdmin.Set("userid", primitive.NewObjectID().String())
+	fakecontextAdmin.Set("group", "admin")
+	fakecontextUser := gin.Context{}
+	fakeuserid := primitive.NewObjectID().String()
+	fakecontextUser.Set("userid", fakeuserid)
+	fakecontextUser.Set("group", "user")
 
-	mockProposal := model.Proposal{
-		UserId: "1", StartDate: "2006-Nov-06", EndDate: "2006-Nov-02", Approved: false}
-	mockError := errors.New("fake error")
+	mockProposaluser := model.Proposal{
+
+		UserId: fakeuserid, StartDate: "2006-Nov-06", EndDate: "2006-Nov-02", Approved: false}
+
+	mockProposalAdmin := model.Proposal{
+		UserId: fakeAdminId, StartDate: "2006-Nov-06", EndDate: "2006-Nov-02", Approved: true}
+
+	mockError := errors.New("fake userId")
+	mockErrorUser := errors.New("user can not update ")
+
 	result := &mongo.UpdateResult{}
 
 	var tests = []struct {
@@ -68,16 +85,19 @@ func TestEmployeeService_UpdateEmployee(t *testing.T) {
 		hasError  bool
 		mockError error
 		Result    *mongo.UpdateResult
+		context   *gin.Context
 	}{
-		{mockProposal, mockProposal.StartDate, false, nil, result},
-		{mockProposal, mockProposal.StartDate, true, mockError, result},
+		{mockProposaluser, mockProposaluser.StartDate, false, nil, result, &fakecontextUser},
+		{mockProposalAdmin, mockProposaluser.StartDate, true, mockErrorUser, nil, &fakecontextUser},
+		{mockProposalAdmin, mockProposalAdmin.StartDate, false, nil, result, &fakecontextAdmin},
+		{mockProposalAdmin, mockProposalAdmin.StartDate, true, mockError, result, &fakecontextAdmin},
 	}
 
 	for _, tt := range tests {
 		fakeDB.UpdateProposalReturns(tt.Result, tt.mockError)
 		serviceInstance := service.NewEmployeeService(fakeDB)
 
-		actual, err := serviceInstance.UpdateProposalByDate(mockProposal, mockProposal.StartDate)
+		actual, err := serviceInstance.UpdateProposalByDate(tt.Proposal, tt.Proposal.StartDate, tt.context)
 
 		assert.Equal(t, actual, tt.Result)
 		assert.Equal(t, tt.mockError, err)
