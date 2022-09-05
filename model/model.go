@@ -29,6 +29,20 @@ type User struct {
 	Group             string             `json:"group" bson:"group"`
 }
 
+type UpdateUserPayload struct {
+	ID                primitive.ObjectID `json:"id" bson:"_id"`
+	Username          string             `json:"username" bson:"username"`
+	Password          string             `json:"password"`
+	FirstName         string             `json:"firstname" bson:"firstname"`
+	LastName          string             `json:"lastname" bson:"lastname"`
+	Email             string             `json:"email" bson:"email"`
+	Team              string             `json:"team" bson:"team"`
+	Projects          []string           `json:"projects" bson:"projects"`
+	TotalWorkingHours float32            `json:"totalWorkingHours" bson:"totalWorkingHours"`
+	VacationDays      int                `json:"vacationDays" bson:"vacationDays"`
+	Group             string             `json:"group" bson:"group"`
+}
+
 type UserSignupPayload struct {
 	Username  string `json:"username" bson:"username" key:"required"`
 	Password  string `json:"password" bson:"password" key:"required"`
@@ -68,8 +82,9 @@ type UserPayload struct {
 
 type UserUpdateResult struct {
 	UpdateResult *mongo.UpdateResult `json:"result"`
-	User         User                `json:"user"`
+	ID           primitive.ObjectID  `json:"id"`
 	Success      bool                `json:"success"`
+	Error        string              `json:"error"`
 }
 
 type UserAuthPayload struct {
