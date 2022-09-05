@@ -4,9 +4,11 @@ import (
 	"crypto/sha256"
 	"errors"
 	"example-project/model"
-	"example-project/routes"
+
 	"example-project/utilities"
+
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -236,7 +238,8 @@ func (s EmployeeService) RefreshToken(token string) (string, error) {
 	return tokenString, nil
 }
 
-func (s EmployeeService) AuthenticateUser(requestedURI string, requestMethod string, token string) (string, string, error) {
+func (s EmployeeService) AuthenticateUser(token string) (string, string, error) {
+
 	_, claims, err := utilities.ValidateToken(token)
 	if err != nil {
 		return "", "", err
@@ -252,9 +255,17 @@ func (s EmployeeService) AuthenticateUser(requestedURI string, requestMethod str
 	if err != nil {
 		return userID, "", err
 	}
-	_, err = routes.PermissionList.CheckPolicy(requestedURI, requestMethod, userObj.Group, userID)
-	if err != nil {
-		return userID, userObj.Group, err
-	}
+
 	return userID, userObj.Group, nil
+}
+
+//****************************************
+
+func (s EmployeeService) CheckUserPolicy(c *gin.Context, pl model.PermissionList) error {
+	_, err := pl.CheckPolicy(c)
+
+	if err != nil {
+		return err
+	}
+	return nil
 }

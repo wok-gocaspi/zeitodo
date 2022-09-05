@@ -9,9 +9,11 @@ import (
 	"example-project/service/servicefakes"
 	"example-project/utilities"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"net/http/httptest"
 	"testing"
 )
 
@@ -384,30 +386,27 @@ func TestAuthenticateUser(t *testing.T) {
 	fakeUser := model.UserPayload{Group: "user"}
 	fakeAdmin := model.UserPayload{Group: "admin"}
 
-	routes.PermissionList.Permissions = append(routes.PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET"}, GetSameUser: true, Group: "user"})
-	routes.PermissionList.Permissions = append(routes.PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "POST", "PUT", "DELETE"}, GetSameUser: false, Group: "admin"})
-
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
 	serviceInstance := service.NewEmployeeService(fakeDB)
 
 	var tests = []struct {
-		url            string
-		userPayload    model.UserPayload
-		method         string
-		token          string
-		expectedResult bool
-		doExpectErr    bool
+		userPayload model.UserPayload
+		token       string
+		doExpectErr bool
+		userid      string
+		usergroup   string
+		dbErr       error
+		isdberr     bool
 	}{
-		{"/user/" + fakeUserID.Hex(), fakeUser, "GET", fakeToken, true, false},
-		{"/user/", fakeAdmin, "GET", fakeToken, true, false},
-		{"/user/", fakeUser, "POST", fakeToken, false, true},
-		{"/user/", fakeAdmin, "POST", fakeToken, true, false},
+		{fakeUser, fakeToken, false, fakeUserID.Hex(), "user", nil, false},
+		{fakeAdmin, fakeToken, true, fakeUserID.Hex(), "user", errors.New("test"), false},
 	}
 
 	for _, tt := range tests {
-		fakeDB.GetUserByIDReturns(tt.userPayload, nil)
 
-		_, _, actualErr := serviceInstance.AuthenticateUser(tt.url, tt.method, tt.token)
+		fakeDB.GetUserByIDReturns(tt.userPayload, tt.dbErr)
+
+		_, _, actualErr := serviceInstance.AuthenticateUser(tt.token)
 
 		assert.Equal(t, tt.doExpectErr, actualErr != nil)
 	}
@@ -426,7 +425,42 @@ func TestAuthenticateUserErrorGetUserByID(t *testing.T) {
 
 	fakeDB.GetUserByIDReturns(model.UserPayload{}, fakeError)
 
-	_, _, actualErr := serviceInstance.AuthenticateUser("/user/", "GET", fakeToken)
+	_, _, actualErr := serviceInstance.AuthenticateUser(fakeToken)
 
 	assert.Equal(t, fakeError, actualErr)
+}
+func TestCheckUserPolicy(t *testing.T) {
+	var permissionList model.PermissionList
+	permissionList.Permissions = append(permissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET"}, GetSameUser: true, Group: "user"})
+	baseurl := "/user"
+	userid := primitive.NewObjectID().Hex()
+	adminid := primitive.NewObjectID().Hex()
+
+	var tests = []struct {
+		url    string
+		urlid  string
+		userid string
+		group  string
+		isErr  bool
+		err    error
+	}{
+		{baseurl, userid, userid, "user", false, nil},
+		{baseurl, adminid, userid, "user", false, errors.New("requesting user data of other users is not allowed")},
+	}
+
+	for _, tt := range tests {
+		fakeDB := &servicefakes.FakeDatabaseInterface{}
+		serviceInstance := service.NewEmployeeService(fakeDB)
+		fakecontext := gin.Context{}
+
+		fakecontext.Set("userid", tt.userid)
+		fakecontext.Set("group", tt.group)
+		fakecontext.Request = httptest.NewRequest("GET", tt.url+"/"+tt.urlid, nil)
+		fakecontext.Params = append(fakecontext.Params, gin.Param{Key: "id", Value: tt.urlid})
+
+		err := serviceInstance.CheckUserPolicy(&fakecontext, permissionList)
+
+		assert.Equal(t, err, tt.err)
+
+	}
 }

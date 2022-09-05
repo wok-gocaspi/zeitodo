@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/retailify/go-interval"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -144,7 +145,6 @@ type Permission struct {
 	Group       string
 	GetSameUser bool
 }
-
 type PermissionList struct {
 	Permissions []Permission
 }
@@ -153,19 +153,27 @@ func (pl PermissionList) AddPermission(permission Permission) {
 	pl.Permissions = append(pl.Permissions, permission)
 }
 
-func (pl PermissionList) CheckPolicy(url string, method string, group string, userid string) (bool, error) {
-	fmt.Println(group)
+func (pl PermissionList) CheckPolicy(ctx *gin.Context) (bool, error) {
+	group := ctx.GetString("group")
+	userid := ctx.GetString("userid")
+	method := ctx.Request.Method
+	url := ctx.Request.URL
+
+	fmt.Println(userid)
+	fmt.Println(url)
 	for _, p := range pl.Permissions {
-		if strings.HasPrefix(url, p.Uri) && group == p.Group {
+		if strings.HasPrefix(url.String(), p.Uri) && group == p.Group {
 
 			for _, pmethod := range p.Methods {
 				fmt.Println(method)
-				if method == pmethod && method == "GET" && p.GetSameUser {
-					urlSplit := strings.Split(url, "/")
-					urlEnd := urlSplit[len(urlSplit)-1]
-					fmt.Println(userid)
-					fmt.Println(urlEnd)
-					if urlEnd == userid {
+				if method == pmethod && ((method == "GET" || method == "DELETE" || method == "PUT") && p.GetSameUser) {
+					urlID, urlIDOK := ctx.Params.Get("id")
+
+					if !urlIDOK {
+						return false, errors.New("requesting user data of other users is not allowed")
+					}
+
+					if urlID == userid {
 						return true, nil
 					} else {
 						return false, errors.New("requesting user data of other users is not allowed")
@@ -177,4 +185,15 @@ func (pl PermissionList) CheckPolicy(url string, method string, group string, us
 		}
 	}
 	return false, errors.New("url dosent match to any permission, deny request...")
+}
+func (pl PermissionList) IsSameUser(ctx *gin.Context, userID string) bool {
+
+	req := ctx.GetString("userid")
+	if userID == req {
+
+		return true
+	} else {
+		return false
+	}
+
 }

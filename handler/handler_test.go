@@ -1231,3 +1231,128 @@ func Test_Calcul_TimeEntry(t *testing.T) {
 	assert.Equal(t, 400, responseRecoder.Code)
 
 }
+
+/*
+func TestHandler_IImplementrightManagementUser(t *testing.T) {
+	uuid := uuid.New()
+	uuidString := uuid.String()
+
+	//	mockEmployeeBoss := model.Employee{Admin: "user"}
+	//	mockEmployeeMaster := model.Employee{Admin: "Admin"}
+	mockEmployee := model.Employee{Admin: "employee"}
+
+	var tests = []struct {
+		noToken         bool
+		tokenValid      bool
+		token           string
+		fakeId          string
+		getByIdReturn   model.Employee
+		isAdminEmployee bool
+	}{
+		{true, true, uuidString, "1", mockEmployee, false},
+		{false, false, uuidString, "1", mockEmployee, false},
+		{false, false, uuidString, "1", mockEmployee, true},
+	}
+
+	for _, tt := range tests {
+
+		fakeService := &handlerfakes.FakeServiceInterface{}
+		handlerInstance := handler.NewHandler(fakeService)
+
+		responseRecoder := httptest.NewRecorder()
+		fakeContest, _ := gin.CreateTestContext(responseRecoder)
+
+		if tt.noToken {
+			handler.MyCacheMap = cache.AddToCacheMap(tt.fakeId, tt.token, handler.MyCacheMap)
+			fakeContest.Request = httptest.NewRequest("DELETE", "http://localhost:9090/1/delte", nil)
+			//			fakeContest.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tt.token))
+
+			handlerInstance.ImplementrightManagementemployee(fakeContest)
+			assert.Equal(t, 403, responseRecoder.Code)
+		}
+
+		if !tt.tokenValid {
+			handler.MyCacheMap = cache.RemoveFromCacheMap(tt.fakeId, handler.MyCacheMap)
+			fakeContest.Request = httptest.NewRequest("DELETE", "http://localhost:9090/1/delte", nil)
+			fakeContest.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tt.token))
+
+			handlerInstance.ImplementrightManagementemployee(fakeContest)
+			assert.Equal(t, 401, responseRecoder.Code)
+		}
+
+		if tt.isAdminEmployee {
+			handler.MyCacheMap = cache.AddToCacheMap(tt.fakeId, tt.token, handler.MyCacheMap)
+			fakeContest.Request = httptest.NewRequest("DELETE", "http://localhost:9090/1/delte", nil)
+			fakeContest.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tt.token))
+
+			fakeService.GetEmployeeByIdReturns(mockEmployee)
+			handlerInstance.ImplementrightManagementemployee(fakeContest)
+			assert.Equal(t, 401, responseRecoder.Code)
+
+		}
+	}
+
+}
+*/
+/*
+func TestHandler_ImplementrightManagementAdmin(t *testing.T) {
+	uuid := uuid.New()
+	uuidString := uuid.String()
+
+	//	mockEmployeeBoss := model.Employee{Admin: "user"}
+	//	mockEmployeeMaster := model.Employee{Admin: "Admin"}
+	mockEmployee := model.Employee{Admin: "employee"}
+
+	var tests = []struct {
+		noToken         bool
+		tokenValid      bool
+		token           string
+		fakeId          string
+		getByIdReturn   model.Employee
+		isAdminEmployee bool
+	}{
+		{true, true, uuidString, "1", mockEmployee, false},
+		{false, false, uuidString, "1", mockEmployee, false},
+		{false, false, uuidString, "1", mockEmployee, true},
+	}
+
+	for _, tt := range tests {
+
+		fakeService := &handlerfakes.FakeServiceInterface{}
+		handlerInstance := handler.NewHandler(fakeService)
+
+		responseRecoder := httptest.NewRecorder()
+		fakeContest, _ := gin.CreateTestContext(responseRecoder)
+
+		if tt.noToken {
+			handler.MyCacheMap = cache.AddToCacheMap(tt.fakeId, tt.token, handler.MyCacheMap)
+			fakeContest.Request = httptest.NewRequest("DELETE", "http://localhost:9090/1/delte", nil)
+			//			fakeContest.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tt.token))
+
+			handlerInstance.ImplementrightManagementemployee(fakeContest)
+			assert.Equal(t, 403, responseRecoder.Code)
+		}
+
+		if !tt.tokenValid {
+			handler.MyCacheMap = cache.RemoveFromCacheMap(tt.fakeId, handler.MyCacheMap)
+			fakeContest.Request = httptest.NewRequest("DELETE", "http://localhost:9090/1/delte", nil)
+			fakeContest.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tt.token))
+
+			handlerInstance.ImplementrightManagementemployee(fakeContest)
+			assert.Equal(t, 401, responseRecoder.Code)
+		}
+
+		if tt.isAdminEmployee {
+			handler.MyCacheMap = cache.AddToCacheMap(tt.fakeId, tt.token, handler.MyCacheMap)
+			fakeContest.Request = httptest.NewRequest("DELETE", "http://localhost:9090/1/delte", nil)
+			fakeContest.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tt.token))
+
+			fakeService.GetEmployeeByIdReturns(mockEmployee)
+			handlerInstance.ImplementrightManagementemployee(fakeContest)
+			assert.Equal(t, 401, responseRecoder.Code)
+
+		}
+	}
+
+}
+*/

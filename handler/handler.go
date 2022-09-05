@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"example-project/model"
+	"example-project/routes"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -24,11 +25,11 @@ type ServiceInterface interface {
 	DeleteUsers(id string) (interface{}, error)
 	LoginUser(username string, password string) (string, error)
 	RefreshToken(token string) (string, error)
-	AuthenticateUser(url string, method string, token string) (string, string, error)
+	AuthenticateUser(token string) (string, string, error)
 	GetProposalsByID(id string) ([]model.Proposal, error)
 	CreateProposals(proposalPayloadArr []model.ProposalPayload, id string) (interface{}, error)
 	DeleteProposalsByID(id string, date string) error
-	UpdateProposalByDate(update model.Proposal, date string) (*mongo.UpdateResult, error)
+	UpdateProposalByDate(update model.Proposal, date string, ctx *gin.Context) (*mongo.UpdateResult, error)
 	CreatTimeEntries(te model.TimeEntry) (interface{}, error)
 	UpdateTimeEntries(update model.TimeEntry) (interface{}, error)
 	GetTimeEntries(id string) []model.TimeEntry
@@ -36,6 +37,7 @@ type ServiceInterface interface {
 	GetAllTimeEntries() ([]model.TimeEntry, error)
 	CollideTimeEntry(a, b model.TimeEntry) bool
 	CalcultimeEntry(userid string) (map[string]float64, error)
+	CheckUserPolicy(c *gin.Context, pl model.PermissionList) error
 }
 
 type Handler struct {
@@ -415,18 +417,19 @@ func (handler Handler) RefreshTokenHandler(c *gin.Context) {
 	})
 }
 
+//************************************************
 func (handler Handler) PermissionMiddleware(c *gin.Context) {
 	fmt.Println(c.Request.Method)
 	tokenHeader := c.Request.Header.Get("Authorization")
 	if tokenHeader == "" {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"errorMessage": "user isnt logged in/no auth header found",
+			"errorMessage": "user is not logged in/no auth header found",
 		})
 		return
 	}
 	splitToken := strings.Split(tokenHeader, "Bearer ")
 	tokenHeader = splitToken[1]
-	userID, userGroup, err := handler.ServiceInterface.AuthenticateUser(c.Request.RequestURI, c.Request.Method, tokenHeader)
+	userID, userGroup, err := handler.ServiceInterface.AuthenticateUser(tokenHeader)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"errorMessage": err.Error(),
@@ -435,6 +438,14 @@ func (handler Handler) PermissionMiddleware(c *gin.Context) {
 	}
 	c.Set("group", userGroup)
 	c.Set("userid", userID)
+
+	err = handler.ServiceInterface.CheckUserPolicy(c, routes.PermissionList)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
 	c.Next()
 	return
 }
@@ -442,7 +453,9 @@ func (handler Handler) PermissionMiddleware(c *gin.Context) {
 const idNotFoundMsg = "id is not given"
 
 func (handler Handler) DeleteProposalHandler(c *gin.Context) {
+
 	id, idOk := c.Params.Get("id")
+
 	if !idOk {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"errorMessage": idNotFoundMsg,
@@ -451,6 +464,7 @@ func (handler Handler) DeleteProposalHandler(c *gin.Context) {
 	}
 
 	date, dateOk := c.GetQuery("date")
+
 	if !dateOk {
 		noQueryError := "No date was given in the query parameter!"
 		c.AbortWithStatusJSON(404, gin.H{
@@ -540,7 +554,8 @@ func (handler Handler) UpdateProposalsHandler(c *gin.Context) {
 		return
 	}
 
-	response, err := handler.ServiceInterface.UpdateProposalByDate(payLoad, date)
+	response, err := handler.ServiceInterface.UpdateProposalByDate(payLoad, date, c)
+
 	if err != nil {
 		c.AbortWithStatusJSON(400, gin.H{
 			"errorMessage": err.Error(),
