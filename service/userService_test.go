@@ -7,7 +7,7 @@ import (
 	"example-project/routes"
 	"example-project/service"
 	"example-project/service/servicefakes"
-	"example-project/utils"
+	"example-project/utilities"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -26,6 +26,30 @@ func TestGetUserByID_Success_ReturnsUser(t *testing.T) {
 	fakeIDString := fakeID.Hex()
 	_, err := serviceInstance.GetUserByID(fakeIDString)
 	assert.Nil(t, err)
+}
+
+func TestGetUserID_Success_ReturnsUserId(t *testing.T) {
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	dbReturn := model.User{}
+	fakeDB.GetUserByUsernameReturns(dbReturn, nil)
+	serviceInstance := service.NewEmployeeService(fakeDB)
+
+	fakeUsername := "Rafael"
+
+	_, err := serviceInstance.GetUserId(fakeUsername)
+	assert.Nil(t, err)
+}
+
+func TestGetUserID_InvalidUserName_ReturnsError(t *testing.T) {
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	dbReturn := model.User{}
+	fakeDB.GetUserByUsernameReturns(dbReturn, errors.New("no user found to that username"))
+	serviceInstance := service.NewEmployeeService(fakeDB)
+
+	fakeUsername := "Rafael"
+
+	_, err := serviceInstance.GetUserId(fakeUsername)
+	assert.Contains(t, err.Error(), "no user found to that username")
 }
 
 func TestGetUserByID_InvalidID_ReturnsError(t *testing.T) {
@@ -333,7 +357,7 @@ func TestEmployeeService_LogoutUser(t *testing.T) {
 }
 
 func TestRefreshToken(t *testing.T) {
-	fakeToken := utils.GenerateToken(primitive.NewObjectID())
+	fakeToken := utilities.GenerateToken(primitive.NewObjectID())
 
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
 	serviceInstance := service.NewEmployeeService(fakeDB)
@@ -358,7 +382,7 @@ func TestRefreshToken(t *testing.T) {
 
 func TestAuthenticateUser(t *testing.T) {
 	fakeUserID := primitive.NewObjectID()
-	fakeToken := utils.GenerateToken(fakeUserID)
+	fakeToken := utilities.GenerateToken(fakeUserID)
 	fakeUser := model.UserPayload{Group: "user"}
 	fakeAdmin := model.UserPayload{Group: "admin"}
 
@@ -390,7 +414,7 @@ func TestAuthenticateUser(t *testing.T) {
 
 func TestAuthenticateUserErrorGetUserByID(t *testing.T) {
 	fakeUserID := primitive.NewObjectID()
-	fakeToken := utils.GenerateToken(fakeUserID)
+	fakeToken := utilities.GenerateToken(fakeUserID)
 
 	routes.PermissionList.Permissions = append(routes.PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET"}, GetSameUser: true, Group: "user"})
 	routes.PermissionList.Permissions = append(routes.PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "POST", "PUT", "DELETE"}, GetSameUser: false, Group: "admin"})

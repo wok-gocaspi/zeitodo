@@ -74,6 +74,11 @@ type FakeHandlerInterface struct {
 	getUserHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
+	GetUserIdHandlerStub        func(*gin.Context)
+	getUserIdHandlerMutex       sync.RWMutex
+	getUserIdHandlerArgsForCall []struct {
+		arg1 *gin.Context
+	}
 	LoginUserHandlerStub        func(*gin.Context)
 	loginUserHandlerMutex       sync.RWMutex
 	loginUserHandlerArgsForCall []struct {
@@ -524,6 +529,38 @@ func (fake *FakeHandlerInterface) GetUserHandlerArgsForCall(i int) *gin.Context 
 	return argsForCall.arg1
 }
 
+func (fake *FakeHandlerInterface) GetUserIdHandler(arg1 *gin.Context) {
+	fake.getUserIdHandlerMutex.Lock()
+	fake.getUserIdHandlerArgsForCall = append(fake.getUserIdHandlerArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.GetUserIdHandlerStub
+	fake.recordInvocation("GetUserIdHandler", []interface{}{arg1})
+	fake.getUserIdHandlerMutex.Unlock()
+	if stub != nil {
+		fake.GetUserIdHandlerStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) GetUserIdHandlerCallCount() int {
+	fake.getUserIdHandlerMutex.RLock()
+	defer fake.getUserIdHandlerMutex.RUnlock()
+	return len(fake.getUserIdHandlerArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) GetUserIdHandlerCalls(stub func(*gin.Context)) {
+	fake.getUserIdHandlerMutex.Lock()
+	defer fake.getUserIdHandlerMutex.Unlock()
+	fake.GetUserIdHandlerStub = stub
+}
+
+func (fake *FakeHandlerInterface) GetUserIdHandlerArgsForCall(i int) *gin.Context {
+	fake.getUserIdHandlerMutex.RLock()
+	defer fake.getUserIdHandlerMutex.RUnlock()
+	argsForCall := fake.getUserIdHandlerArgsForCall[i]
+	return argsForCall.arg1
+}
+
 func (fake *FakeHandlerInterface) LoginUserHandler(arg1 *gin.Context) {
 	fake.loginUserHandlerMutex.Lock()
 	fake.loginUserHandlerArgsForCall = append(fake.loginUserHandlerArgsForCall, struct {
@@ -745,6 +782,8 @@ func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	defer fake.getTimeEntryMutex.RUnlock()
 	fake.getUserHandlerMutex.RLock()
 	defer fake.getUserHandlerMutex.RUnlock()
+	fake.getUserIdHandlerMutex.RLock()
+	defer fake.getUserIdHandlerMutex.RUnlock()
 	fake.loginUserHandlerMutex.RLock()
 	defer fake.loginUserHandlerMutex.RUnlock()
 	fake.permissionMiddlewareMutex.RLock()

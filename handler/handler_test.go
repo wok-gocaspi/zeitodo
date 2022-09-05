@@ -37,6 +37,53 @@ func TestGetUserHandler_Return_valid_200(t *testing.T) {
 
 }
 
+func TestGetUserIdHandler_Return_valid_200(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "username", Value: "Rafael"})
+	fakeId := "123"
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakeService.GetUserIdReturns(fakeId, nil)
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.GetUserIdHandler(fakeContest)
+
+	assert.Equal(t, http.StatusOK, responseRecoder.Code)
+
+}
+
+func TestGetUserIdHandler_Return_invalid_400(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakeId := "123"
+	fakeService.GetUserIdReturns(fakeId, nil)
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.GetUserHandler(fakeContest)
+
+	assert.Equal(t, http.StatusBadRequest, responseRecoder.Code)
+}
+func TestGetUserIdHandler_Return_invalid_404(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "username", Value: "Rafael"})
+	fakeId := "123"
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakeService.GetUserIdReturns(fakeId, errors.New("fakeError"))
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.GetUserIdHandler(fakeContest)
+
+	assert.Equal(t, http.StatusNotFound, responseRecoder.Code)
+
+}
+
 func TestGetUserHandler_Return_invalid_400(t *testing.T) {
 	responseRecoder := httptest.NewRecorder()
 

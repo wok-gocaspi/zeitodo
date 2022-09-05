@@ -4,7 +4,11 @@ import (
 	"crypto/sha256"
 	"errors"
 	"example-project/model"
-	"example-project/utils"
+
+
+	"example-project/routes"
+	"example-project/utilities"
+
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -191,8 +195,17 @@ func (s EmployeeService) LoginUser(username string, password string) (string, er
 	if hashedPassword != userObj.Password {
 		return "", errors.New("invalid login")
 	}
-	token := utils.GenerateToken(userObj.ID)
+	token := utilities.GenerateToken(userObj.ID)
 	return token, nil
+}
+
+func (s EmployeeService) GetUserId(username string) (string, error) {
+	userObj, err := s.DbService.GetUserByUsername(username)
+	if err != nil {
+		return "", errors.New("no user found to that username")
+	}
+
+	return userObj.ID.Hex(), nil
 }
 
 func (s EmployeeService) LogoutUser(userid string) bool {
@@ -206,7 +219,7 @@ func (s EmployeeService) LogoutUser(userid string) bool {
 }
 
 func (s EmployeeService) RefreshToken(token string) (string, error) {
-	tkn, claims, err := utils.ValidateToken(token)
+	tkn, claims, err := utilities.ValidateToken(token)
 	if err != nil {
 		return "", err
 	}
@@ -223,15 +236,16 @@ func (s EmployeeService) RefreshToken(token string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	tokenString := utils.GenerateToken(tokenObj)
+	tokenString := utilities.GenerateToken(tokenObj)
 	return tokenString, nil
 }
 
-//**************************************
+
 
 func (s EmployeeService) AuthenticateUser(token string) (string, string, error) {
 
 	_, claims, err := utils.ValidateToken(token)
+
 	if err != nil {
 		return "", "", err
 	}
