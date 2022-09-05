@@ -28,9 +28,6 @@ type HandlerInterface interface {
 	DeleteTimeEntry(c *gin.Context)
 	GetAllTimeEntry(c *gin.Context)
 	CalcultimeEntry(c *gin.Context)
-	//ImplementrightManagement(c *gin.Context)
-	//ImplementrightManagementUser(c *gin.Context)
-	//ImplementrightManagementAdmin(c *gin.Context)
 }
 
 var Handler HandlerInterface
@@ -72,7 +69,7 @@ func CreateRoutes(group *gin.RouterGroup) {
 	timeentry.PUT("/update/:id", Handler.PermissionMiddleware, Handler.UpdateTimeEntry)
 	timeentry.GET("/gettime/:id", Handler.PermissionMiddleware, Handler.GetTimeEntry)
 	timeentry.DELETE("/delete/:id", Handler.PermissionMiddleware, Handler.DeleteTimeEntry)
-	timeentry.GET("/", Handler.GetAllTimeEntry)
+	timeentry.GET("/", Handler.PermissionMiddleware, Handler.GetAllTimeEntry)
 	timeentry.GET("/calcul/:id", Handler.PermissionMiddleware, Handler.CalcultimeEntry)
 }
 func CORS(c *gin.Context) {
