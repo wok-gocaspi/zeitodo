@@ -3,7 +3,6 @@ package routes
 import (
 	"example-project/model"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . HandlerInterface
@@ -28,20 +27,23 @@ type HandlerInterface interface {
 	DeleteTimeEntry(c *gin.Context)
 	GetAllTimeEntry(c *gin.Context)
 	CalcultimeEntry(c *gin.Context)
+	GetUserIdHandler(c *gin.Context)
 }
 
 var Handler HandlerInterface
 var PermissionList model.PermissionList
 
 func CreateRoutes(group *gin.RouterGroup) {
-	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "PATCH"}, GetSameUser: true, Group: "user"})
+	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "OPTIONS"}, GetSameUser: true, Group: "user"})
 
-	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "POST", "PUT", "DELETE", "PATCH"}, GetSameUser: false, Group: "admin"})
-	group.Use(CORS)
+	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, GetSameUser: false, Group: "admin"})
+
 	group.POST("/login", Handler.LoginUserHandler)
 	//	group.POST("/logout", Handler.LogoutUserHandler)
 	group.POST("/refresh", Handler.RefreshTokenHandler)
+	group.GET("/uId/:username", Handler.GetUserIdHandler)
 	user := group.Group("/user")
+
 	user.GET("/:id", Handler.PermissionMiddleware, Handler.GetUserHandler)
 	user.GET("/", Handler.PermissionMiddleware, Handler.GetAllUserHandler)
 	user.POST("/", Handler.CreateUserHandler)
@@ -49,7 +51,7 @@ func CreateRoutes(group *gin.RouterGroup) {
 	user.PATCH("/", Handler.PermissionMiddleware, Handler.UpdateUserHandler)
 	user.DELETE("/:id", Handler.PermissionMiddleware, Handler.DeleteUserHandler)
 	route := group.Group("/proposals")
-	route.Use(CORS)
+	//	route.Use(CORS)
 	route.GET("/:id", Handler.GetProposalsById)
 	route.POST("/:id", Handler.CreateProposalsHandler)
 	route.DELETE("/:id", Handler.DeleteProposalHandler)
@@ -62,6 +64,8 @@ func CreateRoutes(group *gin.RouterGroup) {
 	timeentry.GET("/", Handler.GetAllTimeEntry)
 	timeentry.GET("/:id/calcul", Handler.CalcultimeEntry)
 }
+
+/*
 func CORS(c *gin.Context) {
 
 	// First, we add the headers with need to enable CORS
@@ -85,3 +89,5 @@ func CORS(c *gin.Context) {
 		c.AbortWithStatus(http.StatusOK)
 	}
 }
+
+*/

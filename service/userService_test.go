@@ -26,6 +26,30 @@ func TestGetUserByID_Success_ReturnsUser(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestGetUserID_Success_ReturnsUserId(t *testing.T) {
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	dbReturn := model.User{}
+	fakeDB.GetUserByUsernameReturns(dbReturn, nil)
+	serviceInstance := service.NewEmployeeService(fakeDB)
+
+	fakeUsername := "Rafael"
+
+	_, err := serviceInstance.GetUserId(fakeUsername)
+	assert.Nil(t, err)
+}
+
+func TestGetUserID_InvalidUserName_ReturnsError(t *testing.T) {
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	dbReturn := model.User{}
+	fakeDB.GetUserByUsernameReturns(dbReturn, errors.New("no user found to that username"))
+	serviceInstance := service.NewEmployeeService(fakeDB)
+
+	fakeUsername := "Rafael"
+
+	_, err := serviceInstance.GetUserId(fakeUsername)
+	assert.Contains(t, err.Error(), "no user found to that username")
+}
+
 func TestGetUserByID_InvalidID_ReturnsError(t *testing.T) {
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
 	dbReturn := model.UserPayload{}
