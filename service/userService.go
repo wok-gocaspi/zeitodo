@@ -5,8 +5,6 @@ import (
 	"errors"
 	"example-project/model"
 
-
-	"example-project/routes"
 	"example-project/utilities"
 
 	"fmt"
@@ -240,12 +238,9 @@ func (s EmployeeService) RefreshToken(token string) (string, error) {
 	return tokenString, nil
 }
 
-
-
 func (s EmployeeService) AuthenticateUser(token string) (string, string, error) {
 
-	_, claims, err := utils.ValidateToken(token)
-
+	_, claims, err := utilities.ValidateToken(token)
 	if err != nil {
 		return "", "", err
 	}
