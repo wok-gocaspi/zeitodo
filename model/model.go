@@ -140,6 +140,7 @@ type ProposalTimeStringObject struct {
 }
 
 type Permission struct {
+	Whitelist   []string
 	Uri         string
 	Methods     []string
 	Group       string
@@ -154,34 +155,40 @@ func (pl PermissionList) AddPermission(permission Permission) {
 }
 
 func (pl PermissionList) CheckPolicy(ctx *gin.Context) (bool, error) {
+
 	group := ctx.GetString("group")
 	userid := ctx.GetString("userid")
+
 	method := ctx.Request.Method
 	url := ctx.Request.URL
 
-	fmt.Println(userid)
-	fmt.Println(url)
+	//fmt.Println(userid)
+	//fmt.Println(url)
 	for _, p := range pl.Permissions {
 		if strings.HasPrefix(url.String(), p.Uri) && group == p.Group {
-
+			if contains(p.Whitelist, url.String()) {
+				return true, nil
+			}
 			for _, pmethod := range p.Methods {
-				fmt.Println(method)
+				//	fmt.Println(method)
 				if method == pmethod && ((method == "GET" || method == "DELETE" || method == "PUT") && p.GetSameUser) {
-					urlID, urlIDOK := ctx.Params.Get("id")
-
-					if !urlIDOK {
-						return false, errors.New("requesting user data of other users is not allowed")
-					}
+					urlID, _ := ctx.Params.Get("id")
 
 					if urlID == userid {
+
 						return true, nil
 					} else {
-						return false, errors.New("requesting user data of other users is not allowed")
+						return false, errors.New("can not request other user date ")
 					}
-				} else if method == pmethod {
+
+				} else if method == pmethod && !p.GetSameUser {
+
 					return true, nil
 				}
+
 			}
+			fmt.Println(p.Whitelist)
+
 		}
 	}
 	return false, errors.New("url dosent match to any permission, deny request...")
@@ -195,5 +202,15 @@ func (pl PermissionList) IsSameUser(ctx *gin.Context, userID string) bool {
 	} else {
 		return false
 	}
+
+}
+func contains(s []string, str string) bool {
+
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+	return false
 
 }

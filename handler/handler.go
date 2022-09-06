@@ -418,7 +418,23 @@ func (handler Handler) RefreshTokenHandler(c *gin.Context) {
 }
 
 //************************************************
+
+func (handler Handler) GetUserByToken(c *gin.Context) {
+
+	userid := c.GetString("userid")
+
+	result, err := handler.ServiceInterface.GetUserByID(userid)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
 func (handler Handler) PermissionMiddleware(c *gin.Context) {
+
 	fmt.Println(c.Request.Method)
 	tokenHeader := c.Request.Header.Get("Authorization")
 	if tokenHeader == "" {

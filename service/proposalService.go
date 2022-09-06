@@ -40,6 +40,7 @@ func (s EmployeeService) DeleteProposalsByID(id string, date string) error {
 }
 
 func (s EmployeeService) CreateProposals(proposalPayloadArr []model.ProposalPayload, id string) (interface{}, error) {
+
 	proposalArr, err := utilities.CraftProposalFromPayload(proposalPayloadArr)
 	if err != nil {
 		return nil, err
@@ -77,6 +78,7 @@ func (s EmployeeService) CreateProposals(proposalPayloadArr []model.ProposalPayl
 }
 
 //***************************************
+
 func (s EmployeeService) UpdateProposalByDate(update model.Proposal, date string, ctx *gin.Context) (*mongo.UpdateResult, error) {
 
 	if update.UserId == ctx.GetString("userid") || ctx.GetString("group") == "admin" {
