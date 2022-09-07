@@ -41,41 +41,36 @@ func CreateRoutes(group *gin.RouterGroup) {
 	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/proposals/", Methods: []string{"GET", "DELETE", "PATCH"}, GetSameUser: true, Group: "user"})
 	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/proposals/", Methods: []string{"GET", "POST", "DELETE", "PATCH"}, GetSameUser: false, Group: "admin"})
 
-	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "PATCH"}, GetSameUser: true, Group: "user"})
-	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "POST", "PUT", "DELETE", "PATCH"}, GetSameUser: false, Group: "admin"})
-	
+	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user", Methods: []string{"GET", "PATCH"}, GetSameUser: true, Group: "user"})
+	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user", Methods: []string{"GET", "POST", "PUT", "DELETE", "PATCH"}, GetSameUser: false, Group: "admin"})
+
 	group.POST("/login", Handler.LoginUserHandler)
 	//	group.POST("/logout", Handler.LogoutUserHandler)
 	group.POST("/refresh", Handler.RefreshTokenHandler)
 
-
-	
 	user := group.Group("/user")
 
 	user.GET("/:id", Handler.PermissionMiddleware, Handler.GetUserHandler)
-	user.GET("/", Handler.PermissionMiddleware, Handler.GetAllUserHandler)
-	user.POST("/", Handler.CreateUserHandler)
+	user.GET("", Handler.PermissionMiddleware, Handler.GetAllUserHandler)
+	user.POST("", Handler.CreateUserHandler)
 	user.GET("/team", Handler.PermissionMiddleware, Handler.GetTeamMemberHandler)
-	user.PATCH("/", Handler.PermissionMiddleware, Handler.UpdateUserHandler)
+	user.PATCH("", Handler.PermissionMiddleware, Handler.UpdateUserHandler)
 	user.DELETE("/:id", Handler.PermissionMiddleware, Handler.DeleteUserHandler)
 
 	route := group.Group("/proposals")
 
-	
 	route.GET("/:id", Handler.PermissionMiddleware, Handler.GetProposalsById)
 	route.POST("/:id", Handler.PermissionMiddleware, Handler.CreateProposalsHandler)
 	route.DELETE("/:id", Handler.PermissionMiddleware, Handler.DeleteProposalHandler)
-	route.PATCH("/", Handler.PermissionMiddleware, Handler.UpdateProposalsHandler)
+	route.PATCH("", Handler.PermissionMiddleware, Handler.UpdateProposalsHandler)
 
-
-	
 	timeentry := group.Group("/timeentry")
 
 	timeentry.POST("/createtime", Handler.PermissionMiddleware, Handler.CreatTimeEntry)
 	timeentry.PUT("/update/:id", Handler.PermissionMiddleware, Handler.UpdateTimeEntry)
 	timeentry.GET("/gettime/:id", Handler.PermissionMiddleware, Handler.GetTimeEntry)
 	timeentry.DELETE("/delete/:id", Handler.PermissionMiddleware, Handler.DeleteTimeEntry)
-	timeentry.GET("/", Handler.PermissionMiddleware, Handler.GetAllTimeEntry)
+	timeentry.GET("", Handler.PermissionMiddleware, Handler.GetAllTimeEntry)
 	timeentry.GET("/calcul/:id", Handler.PermissionMiddleware, Handler.CalcultimeEntry)
 }
 
