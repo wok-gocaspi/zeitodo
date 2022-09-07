@@ -2,7 +2,6 @@ package model
 
 import (
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/retailify/go-interval"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -161,16 +160,13 @@ func (pl PermissionList) CheckPolicy(ctx *gin.Context) (bool, error) {
 
 	method := ctx.Request.Method
 	url := ctx.Request.URL
-
-	//fmt.Println(userid)
-	//fmt.Println(url)
 	for _, p := range pl.Permissions {
 		if strings.HasPrefix(url.String(), p.Uri) && group == p.Group {
 			if contains(p.Whitelist, url.String()) {
 				return true, nil
 			}
 			for _, pmethod := range p.Methods {
-				//	fmt.Println(method)
+
 				if method == pmethod && ((method == "GET" || method == "DELETE" || method == "PUT") && p.GetSameUser) {
 					urlID, _ := ctx.Params.Get("id")
 
@@ -187,15 +183,18 @@ func (pl PermissionList) CheckPolicy(ctx *gin.Context) (bool, error) {
 				}
 
 			}
-			fmt.Println(p.Whitelist)
 
 		}
 	}
 	return false, errors.New("url dosent match to any permission, deny request...")
 }
+
+//***************************************
+
 func (pl PermissionList) IsSameUser(ctx *gin.Context, userID string) bool {
 
 	req := ctx.GetString("userid")
+
 	if userID == req {
 
 		return true
@@ -204,6 +203,9 @@ func (pl PermissionList) IsSameUser(ctx *gin.Context, userID string) bool {
 	}
 
 }
+
+//********************************************
+
 func contains(s []string, str string) bool {
 
 	for _, v := range s {

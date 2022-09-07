@@ -40,6 +40,19 @@ type FakeServiceInterface struct {
 		result1 map[string]float64
 		result2 error
 	}
+	CheckIsSameUserStub        func(*gin.Context, model.PermissionList, string) error
+	checkIsSameUserMutex       sync.RWMutex
+	checkIsSameUserArgsForCall []struct {
+		arg1 *gin.Context
+		arg2 model.PermissionList
+		arg3 string
+	}
+	checkIsSameUserReturns struct {
+		result1 error
+	}
+	checkIsSameUserReturnsOnCall map[int]struct {
+		result1 error
+	}
 	CheckUserPolicyStub        func(*gin.Context, model.PermissionList) error
 	checkUserPolicyMutex       sync.RWMutex
 	checkUserPolicyArgsForCall []struct {
@@ -446,6 +459,69 @@ func (fake *FakeServiceInterface) CalcultimeEntryReturnsOnCall(i int, result1 ma
 		result1 map[string]float64
 		result2 error
 	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) CheckIsSameUser(arg1 *gin.Context, arg2 model.PermissionList, arg3 string) error {
+	fake.checkIsSameUserMutex.Lock()
+	ret, specificReturn := fake.checkIsSameUserReturnsOnCall[len(fake.checkIsSameUserArgsForCall)]
+	fake.checkIsSameUserArgsForCall = append(fake.checkIsSameUserArgsForCall, struct {
+		arg1 *gin.Context
+		arg2 model.PermissionList
+		arg3 string
+	}{arg1, arg2, arg3})
+	stub := fake.CheckIsSameUserStub
+	fakeReturns := fake.checkIsSameUserReturns
+	fake.recordInvocation("CheckIsSameUser", []interface{}{arg1, arg2, arg3})
+	fake.checkIsSameUserMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeServiceInterface) CheckIsSameUserCallCount() int {
+	fake.checkIsSameUserMutex.RLock()
+	defer fake.checkIsSameUserMutex.RUnlock()
+	return len(fake.checkIsSameUserArgsForCall)
+}
+
+func (fake *FakeServiceInterface) CheckIsSameUserCalls(stub func(*gin.Context, model.PermissionList, string) error) {
+	fake.checkIsSameUserMutex.Lock()
+	defer fake.checkIsSameUserMutex.Unlock()
+	fake.CheckIsSameUserStub = stub
+}
+
+func (fake *FakeServiceInterface) CheckIsSameUserArgsForCall(i int) (*gin.Context, model.PermissionList, string) {
+	fake.checkIsSameUserMutex.RLock()
+	defer fake.checkIsSameUserMutex.RUnlock()
+	argsForCall := fake.checkIsSameUserArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeServiceInterface) CheckIsSameUserReturns(result1 error) {
+	fake.checkIsSameUserMutex.Lock()
+	defer fake.checkIsSameUserMutex.Unlock()
+	fake.CheckIsSameUserStub = nil
+	fake.checkIsSameUserReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeServiceInterface) CheckIsSameUserReturnsOnCall(i int, result1 error) {
+	fake.checkIsSameUserMutex.Lock()
+	defer fake.checkIsSameUserMutex.Unlock()
+	fake.CheckIsSameUserStub = nil
+	if fake.checkIsSameUserReturnsOnCall == nil {
+		fake.checkIsSameUserReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.checkIsSameUserReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *FakeServiceInterface) CheckUserPolicy(arg1 *gin.Context, arg2 model.PermissionList) error {
@@ -1791,6 +1867,8 @@ func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	defer fake.authenticateUserMutex.RUnlock()
 	fake.calcultimeEntryMutex.RLock()
 	defer fake.calcultimeEntryMutex.RUnlock()
+	fake.checkIsSameUserMutex.RLock()
+	defer fake.checkIsSameUserMutex.RUnlock()
 	fake.checkUserPolicyMutex.RLock()
 	defer fake.checkUserPolicyMutex.RUnlock()
 	fake.collideTimeEntryMutex.RLock()

@@ -37,10 +37,64 @@ func TestGetUserHandler_Return_valid_200(t *testing.T) {
 
 }
 
-func TestGetUserIdHandler_Return_valid_200(t *testing.T) {
-	responseRecoder := httptest.NewRecorder()
+//*********************************************
+func TestGetUserByToken_Return_invalid_400(t *testing.T) {
 
+	responseRecoder := httptest.NewRecorder()
 	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	//fakecontext := gin.Context{}
+	fakeContest.Params = append(fakeContest.Params)
+	fakeservice := &handlerfakes.FakeServiceInterface{}
+	fakeservice.GetUserByIDReturns(model.UserPayload{}, errors.New("test"))
+	handlerInstance := handler.NewHandler(fakeservice)
+	handlerInstance.GetUserByToken(fakeContest)
+
+	//userid := primitive.NewObjectID().Hex()
+	//fakecontext.Set("userid", userid)
+	assert.Equal(t, 401, responseRecoder.Code)
+}
+
+/*func TestGetUserByToken(t *testing.T) {
+
+	responseRecoder := httptest.NewRecorder()
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	fakecontext := gin.Context{}
+	fakeContest.Params = append(fakeContest.Params)
+	fakeservice := &handlerfakes.FakeServiceInterface{}
+
+	handlerInstance := handler.NewHandler(fakeservice)
+
+	handlerInstance.GetUserByToken(fakeContest)
+
+	userid := primitive.NewObjectID().Hex()
+	fakecontext.Set("userid", userid)
+
+	assert.Equal(t, nil, responseRecoder.Code)
+
+}*/
+
+func TestGetUserByToken_Return_valid_200(t *testing.T) {
+
+	responseRecoder := httptest.NewRecorder()
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	//fakecontext := gin.Context{}
+	fakeContest.Params = append(fakeContest.Params)
+	fakeservice := &handlerfakes.FakeServiceInterface{}
+
+	handlerInstance := handler.NewHandler(fakeservice)
+
+	handlerInstance.GetUserByToken(fakeContest)
+
+	//userid := primitive.NewObjectID().Hex()
+	//result :=handlerInstance.GetUserByToken
+	assert.Equal(t, http.StatusOK, responseRecoder.Code)
+
+}
+func TestGetUserIdHandler_Return_valid_200(t *testing.T) {
+
+	responseRecoder := httptest.NewRecorder()
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+
 	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "username", Value: "Rafael"})
 	fakeId := "123"
 	fakeService := &handlerfakes.FakeServiceInterface{}
@@ -913,7 +967,7 @@ func TestDeleteTimeEntries_user(t *testing.T) {
 	fakeContext.Params = append(fakeContext.Params, gin.Param{Key: "id", Value: "1"})
 
 	fakeService := &handlerfakes.FakeServiceInterface{}
-	fakeService.DeleteTimeEntriesReturns(&mongo.DeleteResult{DeletedCount: 0}, errors.New("no Timeuser have been deleted, please check the id"))
+	fakeService.DeleteTimeEntriesReturns(&mongo.DeleteResult{DeletedCount: 0}, errors.New("no Time user have been deleted, please check the id"))
 
 	handlerInstance := handler.NewHandler(fakeService)
 	handlerInstance.DeleteTimeEntry(fakeContext)

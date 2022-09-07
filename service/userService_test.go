@@ -431,6 +431,7 @@ func TestAuthenticateUserErrorGetUserByID(t *testing.T) {
 }
 func TestCheckUserPolicy(t *testing.T) {
 	var permissionList model.PermissionList
+
 	permissionList.Permissions = append(permissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET"}, GetSameUser: true, Group: "user"})
 	baseurl := "/user"
 	userid := primitive.NewObjectID().Hex()
@@ -463,4 +464,32 @@ func TestCheckUserPolicy(t *testing.T) {
 		assert.Equal(t, err, tt.err)
 
 	}
+}
+
+func TestIsSameUser(t *testing.T) {
+	var permissionList model.PermissionList
+	permissionList.Permissions = append(permissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET"}, GetSameUser: true, Group: "user"})
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	serviceInstance := service.NewEmployeeService(fakeDB)
+	fakecontext := gin.Context{}
+	userid := primitive.NewObjectID().Hex()
+	fakecontext.Set("userid", userid)
+
+	result := serviceInstance.CheckIsSameUser(&fakecontext, permissionList, userid)
+
+	assert.Equal(t, nil, result)
+
+}
+func TestIsSameUserr(t *testing.T) {
+	var permissionList model.PermissionList
+	permissionList.Permissions = append(permissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET"}, GetSameUser: true, Group: "user"})
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	serviceInstance := service.NewEmployeeService(fakeDB)
+	fakecontext := gin.Context{}
+	userid := primitive.NewObjectID().Hex()
+
+	result := serviceInstance.CheckIsSameUser(&fakecontext, permissionList, userid)
+
+	assert.Equal(t, errors.New("Is not the Same User "), result)
+
 }

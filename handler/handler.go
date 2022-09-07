@@ -16,6 +16,7 @@ import (
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . ServiceInterface
 type ServiceInterface interface {
 	GetUserByID(id string) (model.UserPayload, error)
+	//GetUserByToken(c *gin.Context)
 	GetUserId(username string) (string, error)
 	GetAllUser() ([]model.UserPayload, error)
 	CreateUser(model.UserSignupPayload) (interface{}, error)
@@ -38,6 +39,7 @@ type ServiceInterface interface {
 	CollideTimeEntry(a, b model.TimeEntry) bool
 	CalcultimeEntry(userid string) (map[string]float64, error)
 	CheckUserPolicy(c *gin.Context, pl model.PermissionList) error
+	CheckIsSameUser(c *gin.Context, pl model.PermissionList, userid string) error
 }
 
 type Handler struct {

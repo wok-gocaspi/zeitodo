@@ -295,3 +295,13 @@ func (s EmployeeService) CheckUserPolicy(c *gin.Context, pl model.PermissionList
 	}
 	return nil
 }
+
+func (s EmployeeService) CheckIsSameUser(c *gin.Context, pl model.PermissionList, userid string) error {
+
+	result := pl.IsSameUser(c, userid)
+
+	if result == true {
+		return nil
+	}
+	return errors.New("Is not the Same User ")
+}
