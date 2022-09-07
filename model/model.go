@@ -2,7 +2,6 @@ package model
 
 import (
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/retailify/go-interval"
 	"go.mongodb.org/mongo-driver/bson/primitive"
