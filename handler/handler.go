@@ -437,7 +437,6 @@ func (handler Handler) GetUserByToken(c *gin.Context) {
 }
 func (handler Handler) PermissionMiddleware(c *gin.Context) {
 
-	fmt.Println(c.Request.Method)
 	tokenHeader := c.Request.Header.Get("Authorization")
 	if tokenHeader == "" {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{

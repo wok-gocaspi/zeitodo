@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/retailify/go-interval"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -160,6 +161,7 @@ func (pl PermissionList) CheckPolicy(ctx *gin.Context) (bool, error) {
 
 	method := ctx.Request.Method
 	url := ctx.Request.URL
+
 	for _, p := range pl.Permissions {
 		if strings.HasPrefix(url.String(), p.Uri) && group == p.Group {
 			if contains(p.Whitelist, url.String()) {
