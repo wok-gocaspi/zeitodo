@@ -169,17 +169,16 @@ func (pl PermissionList) CheckPolicy(ctx *gin.Context) (bool, error) {
 			}
 			for _, pmethod := range p.Methods {
 
-				if method == pmethod && ((method == "GET" || method == "DELETE" || method == "PUT") && p.GetSameUser) {
+				if method == pmethod && ((method == "GET" || method == "DELETE" || method == "PUT" || method == "PATCH") && p.GetSameUser) {
 					urlID, _ := ctx.Params.Get("id")
 
 					if urlID == userid {
-
 						return true, nil
 					} else {
 						return false, errors.New("requesting user data of other users is not allowed")
 					}
 
-				} else if method == pmethod && !p.GetSameUser {
+				} else if method == pmethod {
 
 					return true, nil
 				}

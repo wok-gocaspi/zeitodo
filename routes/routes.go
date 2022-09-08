@@ -35,14 +35,14 @@ var PermissionList model.PermissionList
 
 func CreateRoutes(group *gin.RouterGroup) {
 
-	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/timeentry/", Methods: []string{"GET", "DELETE", "PUT"}, GetSameUser: true, Group: "user"})
-	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/timeentry/", Methods: []string{"GET", "POST", "PUT", "DELETE"}, GetSameUser: false, Group: "admin"})
+	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/timeentry", Methods: []string{"GET", "DELETE", "PUT"}, GetSameUser: true, Group: "user"})
+	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/timeentry", Methods: []string{"GET", "POST", "PUT", "DELETE"}, GetSameUser: false, Group: "admin"})
 
-	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/proposals/", Methods: []string{"GET", "DELETE", "PATCH"}, GetSameUser: true, Group: "user"})
-	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/proposals/", Methods: []string{"GET", "POST", "DELETE", "PATCH"}, GetSameUser: false, Group: "admin"})
+	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/proposals", Methods: []string{"GET", "DELETE", "PATCH"}, GetSameUser: true, Group: "user"})
+	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/proposals", Methods: []string{"GET", "POST", "DELETE", "PATCH"}, GetSameUser: false, Group: "admin"})
 
-	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "PATCH"}, GetSameUser: true, Group: "user", Whitelist: []string{"/user/self"}})
-	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user/", Methods: []string{"GET", "POST", "PUT", "DELETE", "PATCH"}, GetSameUser: false, Group: "admin"})
+	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user", Methods: []string{"GET", "PATCH"}, GetSameUser: true, Group: "user", Whitelist: []string{"/user/self"}})
+	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/user", Methods: []string{"GET", "POST", "PUT", "DELETE", "PATCH"}, GetSameUser: false, Group: "admin"})
 
 	group.POST("/login", Handler.LoginUserHandler)
 	//	group.POST("/logout", Handler.LogoutUserHandler)
