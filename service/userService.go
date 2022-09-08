@@ -16,6 +16,7 @@ import (
 var SessionMap = make(map[string]string)
 
 func (s EmployeeService) GetUserByID(id string) (model.UserPayload, error) {
+
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return model.UserPayload{}, err
@@ -186,6 +187,7 @@ func (s EmployeeService) DeleteUsers(id string) (interface{}, error) {
 
 func (s EmployeeService) LoginUser(username string, password string) (string, error) {
 	userObj, err := s.DbService.GetUserByUsername(username)
+
 	if err != nil {
 		return "", errors.New("invalid login")
 	}
@@ -197,8 +199,29 @@ func (s EmployeeService) LoginUser(username string, password string) (string, er
 	return token, nil
 }
 
-func (s EmployeeService) GetUserId(username string) (string, error) {
+/*
+func (s EmployeeService) GetUserId(username string token string) (string, error) {
+
+    filter := bson.M{"username": username, "token": token}
+
 	userObj, err := s.DbService.GetUserByUsername(username)
+
+	token, er := utilities.ValidateToken(userObj)
+
+	result,err :=s.DbService.GetUserById(username , token)
+	if err != nil {
+		return "", errors.New("no user found to that username")
+	}
+
+	return userObj.ID.Hex(), result, nil
+}
+
+*/
+
+func (s EmployeeService) GetUserId(username string) (string, error) {
+
+	userObj, err := s.DbService.GetUserByUsername(username)
+
 	if err != nil {
 		return "", errors.New("no user found to that username")
 	}
@@ -207,6 +230,7 @@ func (s EmployeeService) GetUserId(username string) (string, error) {
 }
 
 func (s EmployeeService) LogoutUser(userid string) bool {
+
 	for key := range SessionMap {
 		if key == userid {
 			delete(SessionMap, key)
@@ -217,7 +241,9 @@ func (s EmployeeService) LogoutUser(userid string) bool {
 }
 
 func (s EmployeeService) RefreshToken(token string) (string, error) {
+
 	tkn, claims, err := utilities.ValidateToken(token)
+
 	if err != nil {
 		return "", err
 	}
@@ -268,4 +294,14 @@ func (s EmployeeService) CheckUserPolicy(c *gin.Context, pl model.PermissionList
 		return err
 	}
 	return nil
+}
+
+func (s EmployeeService) CheckIsSameUser(c *gin.Context, pl model.PermissionList, userid string) error {
+
+	result := pl.IsSameUser(c, userid)
+
+	if result == true {
+		return nil
+	}
+	return errors.New("requesting user data of other users is not allowed")
 }

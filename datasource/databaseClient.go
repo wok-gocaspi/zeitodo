@@ -224,7 +224,6 @@ func (c Client) UpdateProposal(update model.Proposal, date string) (*mongo.Updat
 		IdWrong := "an userId has to be provided"
 		return nil, errors.New(IdWrong)
 	}
-	fmt.Println(update)
 	var setElements bson.D
 	if update.StartDate != "" {
 		setElements = append(setElements, bson.E{Key: "startDate", Value: update.StartDate})
@@ -269,7 +268,6 @@ func (c Client) UpdateTimeEntryById(update model.TimeEntry) (*mongo.UpdateResult
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(update)
 	var setElements bson.D
 
 	if update.Project != "" {
