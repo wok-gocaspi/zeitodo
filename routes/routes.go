@@ -52,10 +52,10 @@ func CreateRoutes(group *gin.RouterGroup) {
 	user := group.Group("/user")
 
 	user.GET("/:id", Handler.PermissionMiddleware, Handler.GetUserHandler)
-	user.GET("/", Handler.PermissionMiddleware, Handler.GetAllUserHandler)
-	user.POST("/", Handler.CreateUserHandler)
+	user.GET("", Handler.PermissionMiddleware, Handler.GetAllUserHandler)
+	user.POST("", Handler.CreateUserHandler)
 	user.GET("/team", Handler.PermissionMiddleware, Handler.GetTeamMemberHandler)
-	user.PATCH("/", Handler.PermissionMiddleware, Handler.UpdateUserHandler)
+	user.PATCH("", Handler.PermissionMiddleware, Handler.UpdateUserHandler)
 	user.DELETE("/:id", Handler.PermissionMiddleware, Handler.DeleteUserHandler)
 	user.GET("/self", Handler.PermissionMiddleware, Handler.GetUserByToken)
 
@@ -64,7 +64,7 @@ func CreateRoutes(group *gin.RouterGroup) {
 	route.GET("/:id", Handler.PermissionMiddleware, Handler.GetProposalsById)
 	route.POST("/:id", Handler.PermissionMiddleware, Handler.CreateProposalsHandler)
 	route.DELETE("/:id", Handler.PermissionMiddleware, Handler.DeleteProposalHandler)
-	route.PATCH("/", Handler.PermissionMiddleware, Handler.UpdateProposalsHandler)
+	route.PATCH("", Handler.PermissionMiddleware, Handler.UpdateProposalsHandler)
 
 	timeentry := group.Group("/timeentry")
 
@@ -72,7 +72,7 @@ func CreateRoutes(group *gin.RouterGroup) {
 	timeentry.PUT("/update/:id", Handler.PermissionMiddleware, Handler.UpdateTimeEntry)
 	timeentry.GET("/gettime/:id", Handler.PermissionMiddleware, Handler.GetTimeEntry)
 	timeentry.DELETE("/delete/:id", Handler.PermissionMiddleware, Handler.DeleteTimeEntry)
-	timeentry.GET("/", Handler.PermissionMiddleware, Handler.GetAllTimeEntry)
+	timeentry.GET("", Handler.PermissionMiddleware, Handler.GetAllTimeEntry)
 	timeentry.GET("/calcul/:id", Handler.PermissionMiddleware, Handler.CalcultimeEntry)
 }
 

@@ -69,15 +69,16 @@ type UserSignupResult struct {
 }
 
 type UserPayload struct {
-	Username          string   `json:"username" bson:"username"`
-	FirstName         string   `json:"firstname" bson:"firstname"`
-	LastName          string   `json:"lastname" bson:"lastname"`
-	Email             string   `json:"email" bson:"email"`
-	Team              string   `json:"team" bson:"team"`
-	Projects          []string `json:"projects" bson:"projects"`
-	TotalWorkingHours float32  `json:"totalWorkingHours" bson:"totalWorkingHours"`
-	VacationDays      int      `json:"vacationDays" bson:"vacationDays"`
-	Group             string   `json:"group" bson:"group"`
+	Username          string             `json:"username" bson:"username"`
+	FirstName         string             `json:"firstname" bson:"firstname"`
+	LastName          string             `json:"lastname" bson:"lastname"`
+	Email             string             `json:"email" bson:"email"`
+	Team              string             `json:"team" bson:"team"`
+	Projects          []string           `json:"projects" bson:"projects"`
+	TotalWorkingHours float32            `json:"totalWorkingHours" bson:"totalWorkingHours"`
+	VacationDays      int                `json:"vacationDays" bson:"vacationDays"`
+	Group             string             `json:"group" bson:"group"`
+	ID                primitive.ObjectID `json:"id" bson:"_id"`
 }
 
 type UserUpdateResult struct {
