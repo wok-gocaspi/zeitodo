@@ -303,5 +303,5 @@ func (s EmployeeService) CheckIsSameUser(c *gin.Context, pl model.PermissionList
 	if result == true {
 		return nil
 	}
-	return errors.New("Is not the Same User ")
+	return errors.New("requesting user data of other users is not allowed")
 }

@@ -8,7 +8,6 @@ import (
 	"example-project/service"
 	"example-project/service/servicefakes"
 	"example-project/utilities"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -68,7 +67,6 @@ func TestGetUserByID_Return_invalid_database_error(t *testing.T) {
 	serviceInstance := service.NewEmployeeService(fakeDB)
 	fakeID := primitive.NewObjectID()
 	fakeIDString := fakeID.Hex()
-	fmt.Println(fakeIDString)
 	_, err := serviceInstance.GetUserByID(fakeIDString)
 	assert.EqualError(t, err, "mongo: no documents in result")
 }
@@ -245,7 +243,6 @@ func TestUpdateUser_Service(t *testing.T) {
 			fakeDB.GetUserByIDReturnsOnCall(call.callIteration, call.userReturn, call.err)
 		}
 		actual, err := serviceInstance.UpdateUsers(tt.users, tt.userid, tt.group)
-		fmt.Println(actual)
 		actualObj := actual.([]model.UserUpdateResult)
 		if tt.isStatusError {
 			assert.Equal(t, actualObj[0].Success, tt.firstUserSuccess)
@@ -490,6 +487,6 @@ func TestIsSameUserr(t *testing.T) {
 
 	result := serviceInstance.CheckIsSameUser(&fakecontext, permissionList, userid)
 
-	assert.Equal(t, errors.New("Is not the Same User "), result)
+	assert.Equal(t, errors.New("requesting user data of other users is not allowed"), result)
 
 }

@@ -176,7 +176,7 @@ func (pl PermissionList) CheckPolicy(ctx *gin.Context) (bool, error) {
 
 						return true, nil
 					} else {
-						return false, errors.New("can not request other user date ")
+						return false, errors.New("requesting user data of other users is not allowed")
 					}
 
 				} else if method == pmethod && !p.GetSameUser {

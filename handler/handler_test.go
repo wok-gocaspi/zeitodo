@@ -273,7 +273,6 @@ func TestCreateUser_Return_valid_201_single(t *testing.T) {
 	}
 
 	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
-	fmt.Println(string(fakeUserSignupPayloadString))
 	responseRecorder := httptest.NewRecorder()
 
 	fakeContext, _ := gin.CreateTestContext(responseRecorder)
@@ -297,7 +296,6 @@ func TestCreateUser_Return_invalid_500_single_insufficent_data(t *testing.T) {
 	}
 
 	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
-	fmt.Println(string(fakeUserSignupPayloadString))
 	responseRecorder := httptest.NewRecorder()
 
 	fakeContext, _ := gin.CreateTestContext(responseRecorder)
@@ -398,7 +396,6 @@ func TestUpdateUserHandler(t *testing.T) {
 		fakeService.UpdateUsersReturns(tt.UpdateUserServiceReturn, tt.UpdateUserServiceError)
 		handlerInstance := handler.NewHandler(fakeService)
 		handlerInstance.UpdateUserHandler(fakeContext)
-		fmt.Println(responseRecorder.Code)
 		assert.Equal(t, responseRecorder.Code, tt.StatusCode)
 
 	}
@@ -1182,7 +1179,6 @@ func Test_CreateTimeentry(t *testing.T) {
 		UserId: "123", Start: time.Time{}, End: time.Time{}, BreakStart: time.Time{}, BreakEnd: time.Time{}, Project: "135"}
 
 	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
-	fmt.Println(string(fakeUserSignupPayloadString))
 	responseRecorder := httptest.NewRecorder()
 
 	fakeContext, _ := gin.CreateTestContext(responseRecorder)
@@ -1206,7 +1202,6 @@ func Test_CreateTimeEntry(t *testing.T) {
 		UserId: "123", Start: time.Time{}, End: time.Time{}, BreakStart: time.Time{}, BreakEnd: time.Time{}, Project: "135"}
 
 	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
-	fmt.Println(string(fakeUserSignupPayloadString))
 	responseRecorder := httptest.NewRecorder()
 
 	fakeContext, _ := gin.CreateTestContext(responseRecorder)
