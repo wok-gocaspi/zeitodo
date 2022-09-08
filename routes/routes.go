@@ -27,7 +27,6 @@ type HandlerInterface interface {
 	DeleteTimeEntry(c *gin.Context)
 	GetAllTimeEntry(c *gin.Context)
 	CalcultimeEntry(c *gin.Context)
-	GetUserIdHandler(c *gin.Context)
 	GetUserByToken(c *gin.Context)
 }
 
