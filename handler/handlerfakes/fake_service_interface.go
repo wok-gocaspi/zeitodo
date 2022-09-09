@@ -7,16 +7,15 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type FakeServiceInterface struct {
-	AuthenticateUserStub        func(string, string, string) (string, string, error)
+	AuthenticateUserStub        func(string) (string, string, error)
 	authenticateUserMutex       sync.RWMutex
 	authenticateUserArgsForCall []struct {
 		arg1 string
-		arg2 string
-		arg3 string
 	}
 	authenticateUserReturns struct {
 		result1 string
@@ -40,6 +39,31 @@ type FakeServiceInterface struct {
 	calcultimeEntryReturnsOnCall map[int]struct {
 		result1 map[string]float64
 		result2 error
+	}
+	CheckIsSameUserStub        func(*gin.Context, model.PermissionList, string) error
+	checkIsSameUserMutex       sync.RWMutex
+	checkIsSameUserArgsForCall []struct {
+		arg1 *gin.Context
+		arg2 model.PermissionList
+		arg3 string
+	}
+	checkIsSameUserReturns struct {
+		result1 error
+	}
+	checkIsSameUserReturnsOnCall map[int]struct {
+		result1 error
+	}
+	CheckUserPolicyStub        func(*gin.Context, model.PermissionList) error
+	checkUserPolicyMutex       sync.RWMutex
+	checkUserPolicyArgsForCall []struct {
+		arg1 *gin.Context
+		arg2 model.PermissionList
+	}
+	checkUserPolicyReturns struct {
+		result1 error
+	}
+	checkUserPolicyReturnsOnCall map[int]struct {
+		result1 error
 	}
 	CollideTimeEntryStub        func(model.TimeEntry, model.TimeEntry) bool
 	collideTimeEntryMutex       sync.RWMutex
@@ -219,6 +243,19 @@ type FakeServiceInterface struct {
 		result1 model.UserPayload
 		result2 error
 	}
+	GetUserIdStub        func(string) (string, error)
+	getUserIdMutex       sync.RWMutex
+	getUserIdArgsForCall []struct {
+		arg1 string
+	}
+	getUserIdReturns struct {
+		result1 string
+		result2 error
+	}
+	getUserIdReturnsOnCall map[int]struct {
+		result1 string
+		result2 error
+	}
 	LoginUserStub        func(string, string) (string, error)
 	loginUserMutex       sync.RWMutex
 	loginUserArgsForCall []struct {
@@ -246,11 +283,12 @@ type FakeServiceInterface struct {
 		result1 string
 		result2 error
 	}
-	UpdateProposalByDateStub        func(model.Proposal, string) (*mongo.UpdateResult, error)
+	UpdateProposalByDateStub        func(model.Proposal, string, *gin.Context) (*mongo.UpdateResult, error)
 	updateProposalByDateMutex       sync.RWMutex
 	updateProposalByDateArgsForCall []struct {
 		arg1 model.Proposal
 		arg2 string
+		arg3 *gin.Context
 	}
 	updateProposalByDateReturns struct {
 		result1 *mongo.UpdateResult
@@ -292,20 +330,18 @@ type FakeServiceInterface struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeServiceInterface) AuthenticateUser(arg1 string, arg2 string, arg3 string) (string, string, error) {
+func (fake *FakeServiceInterface) AuthenticateUser(arg1 string) (string, string, error) {
 	fake.authenticateUserMutex.Lock()
 	ret, specificReturn := fake.authenticateUserReturnsOnCall[len(fake.authenticateUserArgsForCall)]
 	fake.authenticateUserArgsForCall = append(fake.authenticateUserArgsForCall, struct {
 		arg1 string
-		arg2 string
-		arg3 string
-	}{arg1, arg2, arg3})
+	}{arg1})
 	stub := fake.AuthenticateUserStub
 	fakeReturns := fake.authenticateUserReturns
-	fake.recordInvocation("AuthenticateUser", []interface{}{arg1, arg2, arg3})
+	fake.recordInvocation("AuthenticateUser", []interface{}{arg1})
 	fake.authenticateUserMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3)
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2, ret.result3
@@ -319,17 +355,17 @@ func (fake *FakeServiceInterface) AuthenticateUserCallCount() int {
 	return len(fake.authenticateUserArgsForCall)
 }
 
-func (fake *FakeServiceInterface) AuthenticateUserCalls(stub func(string, string, string) (string, string, error)) {
+func (fake *FakeServiceInterface) AuthenticateUserCalls(stub func(string) (string, string, error)) {
 	fake.authenticateUserMutex.Lock()
 	defer fake.authenticateUserMutex.Unlock()
 	fake.AuthenticateUserStub = stub
 }
 
-func (fake *FakeServiceInterface) AuthenticateUserArgsForCall(i int) (string, string, string) {
+func (fake *FakeServiceInterface) AuthenticateUserArgsForCall(i int) string {
 	fake.authenticateUserMutex.RLock()
 	defer fake.authenticateUserMutex.RUnlock()
 	argsForCall := fake.authenticateUserArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+	return argsForCall.arg1
 }
 
 func (fake *FakeServiceInterface) AuthenticateUserReturns(result1 string, result2 string, result3 error) {
@@ -423,6 +459,131 @@ func (fake *FakeServiceInterface) CalcultimeEntryReturnsOnCall(i int, result1 ma
 		result1 map[string]float64
 		result2 error
 	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) CheckIsSameUser(arg1 *gin.Context, arg2 model.PermissionList, arg3 string) error {
+	fake.checkIsSameUserMutex.Lock()
+	ret, specificReturn := fake.checkIsSameUserReturnsOnCall[len(fake.checkIsSameUserArgsForCall)]
+	fake.checkIsSameUserArgsForCall = append(fake.checkIsSameUserArgsForCall, struct {
+		arg1 *gin.Context
+		arg2 model.PermissionList
+		arg3 string
+	}{arg1, arg2, arg3})
+	stub := fake.CheckIsSameUserStub
+	fakeReturns := fake.checkIsSameUserReturns
+	fake.recordInvocation("CheckIsSameUser", []interface{}{arg1, arg2, arg3})
+	fake.checkIsSameUserMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeServiceInterface) CheckIsSameUserCallCount() int {
+	fake.checkIsSameUserMutex.RLock()
+	defer fake.checkIsSameUserMutex.RUnlock()
+	return len(fake.checkIsSameUserArgsForCall)
+}
+
+func (fake *FakeServiceInterface) CheckIsSameUserCalls(stub func(*gin.Context, model.PermissionList, string) error) {
+	fake.checkIsSameUserMutex.Lock()
+	defer fake.checkIsSameUserMutex.Unlock()
+	fake.CheckIsSameUserStub = stub
+}
+
+func (fake *FakeServiceInterface) CheckIsSameUserArgsForCall(i int) (*gin.Context, model.PermissionList, string) {
+	fake.checkIsSameUserMutex.RLock()
+	defer fake.checkIsSameUserMutex.RUnlock()
+	argsForCall := fake.checkIsSameUserArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeServiceInterface) CheckIsSameUserReturns(result1 error) {
+	fake.checkIsSameUserMutex.Lock()
+	defer fake.checkIsSameUserMutex.Unlock()
+	fake.CheckIsSameUserStub = nil
+	fake.checkIsSameUserReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeServiceInterface) CheckIsSameUserReturnsOnCall(i int, result1 error) {
+	fake.checkIsSameUserMutex.Lock()
+	defer fake.checkIsSameUserMutex.Unlock()
+	fake.CheckIsSameUserStub = nil
+	if fake.checkIsSameUserReturnsOnCall == nil {
+		fake.checkIsSameUserReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.checkIsSameUserReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeServiceInterface) CheckUserPolicy(arg1 *gin.Context, arg2 model.PermissionList) error {
+	fake.checkUserPolicyMutex.Lock()
+	ret, specificReturn := fake.checkUserPolicyReturnsOnCall[len(fake.checkUserPolicyArgsForCall)]
+	fake.checkUserPolicyArgsForCall = append(fake.checkUserPolicyArgsForCall, struct {
+		arg1 *gin.Context
+		arg2 model.PermissionList
+	}{arg1, arg2})
+	stub := fake.CheckUserPolicyStub
+	fakeReturns := fake.checkUserPolicyReturns
+	fake.recordInvocation("CheckUserPolicy", []interface{}{arg1, arg2})
+	fake.checkUserPolicyMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeServiceInterface) CheckUserPolicyCallCount() int {
+	fake.checkUserPolicyMutex.RLock()
+	defer fake.checkUserPolicyMutex.RUnlock()
+	return len(fake.checkUserPolicyArgsForCall)
+}
+
+func (fake *FakeServiceInterface) CheckUserPolicyCalls(stub func(*gin.Context, model.PermissionList) error) {
+	fake.checkUserPolicyMutex.Lock()
+	defer fake.checkUserPolicyMutex.Unlock()
+	fake.CheckUserPolicyStub = stub
+}
+
+func (fake *FakeServiceInterface) CheckUserPolicyArgsForCall(i int) (*gin.Context, model.PermissionList) {
+	fake.checkUserPolicyMutex.RLock()
+	defer fake.checkUserPolicyMutex.RUnlock()
+	argsForCall := fake.checkUserPolicyArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeServiceInterface) CheckUserPolicyReturns(result1 error) {
+	fake.checkUserPolicyMutex.Lock()
+	defer fake.checkUserPolicyMutex.Unlock()
+	fake.CheckUserPolicyStub = nil
+	fake.checkUserPolicyReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeServiceInterface) CheckUserPolicyReturnsOnCall(i int, result1 error) {
+	fake.checkUserPolicyMutex.Lock()
+	defer fake.checkUserPolicyMutex.Unlock()
+	fake.CheckUserPolicyStub = nil
+	if fake.checkUserPolicyReturnsOnCall == nil {
+		fake.checkUserPolicyReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.checkUserPolicyReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *FakeServiceInterface) CollideTimeEntry(arg1 model.TimeEntry, arg2 model.TimeEntry) bool {
@@ -1305,6 +1466,70 @@ func (fake *FakeServiceInterface) GetUserByIDReturnsOnCall(i int, result1 model.
 	}{result1, result2}
 }
 
+func (fake *FakeServiceInterface) GetUserId(arg1 string) (string, error) {
+	fake.getUserIdMutex.Lock()
+	ret, specificReturn := fake.getUserIdReturnsOnCall[len(fake.getUserIdArgsForCall)]
+	fake.getUserIdArgsForCall = append(fake.getUserIdArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.GetUserIdStub
+	fakeReturns := fake.getUserIdReturns
+	fake.recordInvocation("GetUserId", []interface{}{arg1})
+	fake.getUserIdMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeServiceInterface) GetUserIdCallCount() int {
+	fake.getUserIdMutex.RLock()
+	defer fake.getUserIdMutex.RUnlock()
+	return len(fake.getUserIdArgsForCall)
+}
+
+func (fake *FakeServiceInterface) GetUserIdCalls(stub func(string) (string, error)) {
+	fake.getUserIdMutex.Lock()
+	defer fake.getUserIdMutex.Unlock()
+	fake.GetUserIdStub = stub
+}
+
+func (fake *FakeServiceInterface) GetUserIdArgsForCall(i int) string {
+	fake.getUserIdMutex.RLock()
+	defer fake.getUserIdMutex.RUnlock()
+	argsForCall := fake.getUserIdArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeServiceInterface) GetUserIdReturns(result1 string, result2 error) {
+	fake.getUserIdMutex.Lock()
+	defer fake.getUserIdMutex.Unlock()
+	fake.GetUserIdStub = nil
+	fake.getUserIdReturns = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) GetUserIdReturnsOnCall(i int, result1 string, result2 error) {
+	fake.getUserIdMutex.Lock()
+	defer fake.getUserIdMutex.Unlock()
+	fake.GetUserIdStub = nil
+	if fake.getUserIdReturnsOnCall == nil {
+		fake.getUserIdReturnsOnCall = make(map[int]struct {
+			result1 string
+			result2 error
+		})
+	}
+	fake.getUserIdReturnsOnCall[i] = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeServiceInterface) LoginUser(arg1 string, arg2 string) (string, error) {
 	fake.loginUserMutex.Lock()
 	ret, specificReturn := fake.loginUserReturnsOnCall[len(fake.loginUserArgsForCall)]
@@ -1434,19 +1659,20 @@ func (fake *FakeServiceInterface) RefreshTokenReturnsOnCall(i int, result1 strin
 	}{result1, result2}
 }
 
-func (fake *FakeServiceInterface) UpdateProposalByDate(arg1 model.Proposal, arg2 string) (*mongo.UpdateResult, error) {
+func (fake *FakeServiceInterface) UpdateProposalByDate(arg1 model.Proposal, arg2 string, arg3 *gin.Context) (*mongo.UpdateResult, error) {
 	fake.updateProposalByDateMutex.Lock()
 	ret, specificReturn := fake.updateProposalByDateReturnsOnCall[len(fake.updateProposalByDateArgsForCall)]
 	fake.updateProposalByDateArgsForCall = append(fake.updateProposalByDateArgsForCall, struct {
 		arg1 model.Proposal
 		arg2 string
-	}{arg1, arg2})
+		arg3 *gin.Context
+	}{arg1, arg2, arg3})
 	stub := fake.UpdateProposalByDateStub
 	fakeReturns := fake.updateProposalByDateReturns
-	fake.recordInvocation("UpdateProposalByDate", []interface{}{arg1, arg2})
+	fake.recordInvocation("UpdateProposalByDate", []interface{}{arg1, arg2, arg3})
 	fake.updateProposalByDateMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2)
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -1460,17 +1686,17 @@ func (fake *FakeServiceInterface) UpdateProposalByDateCallCount() int {
 	return len(fake.updateProposalByDateArgsForCall)
 }
 
-func (fake *FakeServiceInterface) UpdateProposalByDateCalls(stub func(model.Proposal, string) (*mongo.UpdateResult, error)) {
+func (fake *FakeServiceInterface) UpdateProposalByDateCalls(stub func(model.Proposal, string, *gin.Context) (*mongo.UpdateResult, error)) {
 	fake.updateProposalByDateMutex.Lock()
 	defer fake.updateProposalByDateMutex.Unlock()
 	fake.UpdateProposalByDateStub = stub
 }
 
-func (fake *FakeServiceInterface) UpdateProposalByDateArgsForCall(i int) (model.Proposal, string) {
+func (fake *FakeServiceInterface) UpdateProposalByDateArgsForCall(i int) (model.Proposal, string, *gin.Context) {
 	fake.updateProposalByDateMutex.RLock()
 	defer fake.updateProposalByDateMutex.RUnlock()
 	argsForCall := fake.updateProposalByDateArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *FakeServiceInterface) UpdateProposalByDateReturns(result1 *mongo.UpdateResult, result2 error) {
@@ -1641,6 +1867,10 @@ func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	defer fake.authenticateUserMutex.RUnlock()
 	fake.calcultimeEntryMutex.RLock()
 	defer fake.calcultimeEntryMutex.RUnlock()
+	fake.checkIsSameUserMutex.RLock()
+	defer fake.checkIsSameUserMutex.RUnlock()
+	fake.checkUserPolicyMutex.RLock()
+	defer fake.checkUserPolicyMutex.RUnlock()
 	fake.collideTimeEntryMutex.RLock()
 	defer fake.collideTimeEntryMutex.RUnlock()
 	fake.creatTimeEntriesMutex.RLock()
@@ -1669,6 +1899,8 @@ func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	defer fake.getTimeEntriesMutex.RUnlock()
 	fake.getUserByIDMutex.RLock()
 	defer fake.getUserByIDMutex.RUnlock()
+	fake.getUserIdMutex.RLock()
+	defer fake.getUserIdMutex.RUnlock()
 	fake.loginUserMutex.RLock()
 	defer fake.loginUserMutex.RUnlock()
 	fake.refreshTokenMutex.RLock()

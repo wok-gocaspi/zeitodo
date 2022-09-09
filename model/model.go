@@ -2,7 +2,7 @@ package model
 
 import (
 	"errors"
-	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/retailify/go-interval"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -69,15 +69,16 @@ type UserSignupResult struct {
 }
 
 type UserPayload struct {
-	Username          string   `json:"username" bson:"username"`
-	FirstName         string   `json:"firstname" bson:"firstname"`
-	LastName          string   `json:"lastname" bson:"lastname"`
-	Email             string   `json:"email" bson:"email"`
-	Team              string   `json:"team" bson:"team"`
-	Projects          []string `json:"projects" bson:"projects"`
-	TotalWorkingHours float32  `json:"totalWorkingHours" bson:"totalWorkingHours"`
-	VacationDays      int      `json:"vacationDays" bson:"vacationDays"`
-	Group             string   `json:"group" bson:"group"`
+	Username          string             `json:"username" bson:"username"`
+	FirstName         string             `json:"firstname" bson:"firstname"`
+	LastName          string             `json:"lastname" bson:"lastname"`
+	Email             string             `json:"email" bson:"email"`
+	Team              string             `json:"team" bson:"team"`
+	Projects          []string           `json:"projects" bson:"projects"`
+	TotalWorkingHours float32            `json:"totalWorkingHours" bson:"totalWorkingHours"`
+	VacationDays      int                `json:"vacationDays" bson:"vacationDays"`
+	Group             string             `json:"group" bson:"group"`
+	ID                primitive.ObjectID `json:"id" bson:"_id"`
 }
 
 type UserUpdateResult struct {
@@ -139,12 +140,12 @@ type ProposalTimeStringObject struct {
 }
 
 type Permission struct {
+	Whitelist   []string
 	Uri         string
 	Methods     []string
 	Group       string
 	GetSameUser bool
 }
-
 type PermissionList struct {
 	Permissions []Permission
 }
@@ -153,28 +154,66 @@ func (pl PermissionList) AddPermission(permission Permission) {
 	pl.Permissions = append(pl.Permissions, permission)
 }
 
-func (pl PermissionList) CheckPolicy(url string, method string, group string, userid string) (bool, error) {
-	fmt.Println(group)
-	for _, p := range pl.Permissions {
-		if strings.HasPrefix(url, p.Uri) && group == p.Group {
+func (pl PermissionList) CheckPolicy(ctx *gin.Context) (bool, error) {
 
+	group := ctx.GetString("group")
+	userid := ctx.GetString("userid")
+
+	method := ctx.Request.Method
+	url := ctx.Request.URL
+
+	for _, p := range pl.Permissions {
+		if strings.HasPrefix(url.String(), p.Uri) && group == p.Group {
+			if contains(p.Whitelist, url.String()) {
+				return true, nil
+			}
 			for _, pmethod := range p.Methods {
-				fmt.Println(method)
-				if method == pmethod && method == "GET" && p.GetSameUser {
-					urlSplit := strings.Split(url, "/")
-					urlEnd := urlSplit[len(urlSplit)-1]
-					fmt.Println(userid)
-					fmt.Println(urlEnd)
-					if urlEnd == userid {
+
+				if method == pmethod && ((method == "GET" || method == "DELETE" || method == "PUT" || method == "PATCH") && p.GetSameUser) {
+					urlID, _ := ctx.Params.Get("id")
+
+					if urlID == userid {
 						return true, nil
 					} else {
 						return false, errors.New("requesting user data of other users is not allowed")
 					}
+
 				} else if method == pmethod {
+
 					return true, nil
 				}
+
 			}
+
 		}
 	}
 	return false, errors.New("url dosent match to any permission, deny request...")
+}
+
+//***************************************
+
+func (pl PermissionList) IsSameUser(ctx *gin.Context, userID string) bool {
+
+	req := ctx.GetString("userid")
+
+	if userID == req {
+
+		return true
+	} else {
+		return false
+	}
+
+}
+
+//********************************************
+
+func contains(s []string, str string) bool {
+
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+	return false
+
 }

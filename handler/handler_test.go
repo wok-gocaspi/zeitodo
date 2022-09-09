@@ -37,6 +37,75 @@ func TestGetUserHandler_Return_valid_200(t *testing.T) {
 
 }
 
+//*********************************************
+func TestGetUserByToken_Return_invalid_400(t *testing.T) {
+
+	responseRecoder := httptest.NewRecorder()
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	//fakecontext := gin.Context{}
+	fakeContest.Params = append(fakeContest.Params)
+	fakeservice := &handlerfakes.FakeServiceInterface{}
+	fakeservice.GetUserByIDReturns(model.UserPayload{}, errors.New("test"))
+	handlerInstance := handler.NewHandler(fakeservice)
+	handlerInstance.GetUserByToken(fakeContest)
+
+	//userid := primitive.NewObjectID().Hex()
+	//fakecontext.Set("userid", userid)
+	assert.Equal(t, 401, responseRecoder.Code)
+}
+
+/*func TestGetUserByToken(t *testing.T) {
+
+	responseRecoder := httptest.NewRecorder()
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	fakecontext := gin.Context{}
+	fakeContest.Params = append(fakeContest.Params)
+	fakeservice := &handlerfakes.FakeServiceInterface{}
+
+	handlerInstance := handler.NewHandler(fakeservice)
+
+	handlerInstance.GetUserByToken(fakeContest)
+
+	userid := primitive.NewObjectID().Hex()
+	fakecontext.Set("userid", userid)
+
+	assert.Equal(t, nil, responseRecoder.Code)
+
+}*/
+
+func TestGetUserByToken_Return_valid_200(t *testing.T) {
+
+	responseRecoder := httptest.NewRecorder()
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	//fakecontext := gin.Context{}
+	fakeContest.Params = append(fakeContest.Params)
+	fakeservice := &handlerfakes.FakeServiceInterface{}
+
+	handlerInstance := handler.NewHandler(fakeservice)
+
+	handlerInstance.GetUserByToken(fakeContest)
+
+	//userid := primitive.NewObjectID().Hex()
+	//result :=handlerInstance.GetUserByToken
+	assert.Equal(t, http.StatusOK, responseRecoder.Code)
+
+}
+
+func TestGetUserIdHandler_Return_invalid_400(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakeId := "123"
+	fakeService.GetUserIdReturns(fakeId, nil)
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.GetUserHandler(fakeContest)
+
+	assert.Equal(t, http.StatusBadRequest, responseRecoder.Code)
+}
+
 func TestGetUserHandler_Return_invalid_400(t *testing.T) {
 	responseRecoder := httptest.NewRecorder()
 
@@ -172,7 +241,6 @@ func TestCreateUser_Return_valid_201_single(t *testing.T) {
 	}
 
 	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
-	fmt.Println(string(fakeUserSignupPayloadString))
 	responseRecorder := httptest.NewRecorder()
 
 	fakeContext, _ := gin.CreateTestContext(responseRecorder)
@@ -196,7 +264,6 @@ func TestCreateUser_Return_invalid_500_single_insufficent_data(t *testing.T) {
 	}
 
 	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
-	fmt.Println(string(fakeUserSignupPayloadString))
 	responseRecorder := httptest.NewRecorder()
 
 	fakeContext, _ := gin.CreateTestContext(responseRecorder)
@@ -297,7 +364,6 @@ func TestUpdateUserHandler(t *testing.T) {
 		fakeService.UpdateUsersReturns(tt.UpdateUserServiceReturn, tt.UpdateUserServiceError)
 		handlerInstance := handler.NewHandler(fakeService)
 		handlerInstance.UpdateUserHandler(fakeContext)
-		fmt.Println(responseRecorder.Code)
 		assert.Equal(t, responseRecorder.Code, tt.StatusCode)
 
 	}
@@ -866,7 +932,7 @@ func TestDeleteTimeEntries_user(t *testing.T) {
 	fakeContext.Params = append(fakeContext.Params, gin.Param{Key: "id", Value: "1"})
 
 	fakeService := &handlerfakes.FakeServiceInterface{}
-	fakeService.DeleteTimeEntriesReturns(&mongo.DeleteResult{DeletedCount: 0}, errors.New("no Timeuser have been deleted, please check the id"))
+	fakeService.DeleteTimeEntriesReturns(&mongo.DeleteResult{DeletedCount: 0}, errors.New("no Time user have been deleted, please check the id"))
 
 	handlerInstance := handler.NewHandler(fakeService)
 	handlerInstance.DeleteTimeEntry(fakeContext)
@@ -1081,7 +1147,6 @@ func Test_CreateTimeentry(t *testing.T) {
 		UserId: "123", Start: time.Time{}, End: time.Time{}, BreakStart: time.Time{}, BreakEnd: time.Time{}, Project: "135"}
 
 	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
-	fmt.Println(string(fakeUserSignupPayloadString))
 	responseRecorder := httptest.NewRecorder()
 
 	fakeContext, _ := gin.CreateTestContext(responseRecorder)
@@ -1105,7 +1170,6 @@ func Test_CreateTimeEntry(t *testing.T) {
 		UserId: "123", Start: time.Time{}, End: time.Time{}, BreakStart: time.Time{}, BreakEnd: time.Time{}, Project: "135"}
 
 	fakeUserSignupPayloadString, _ := json.Marshal(fakeUserSignupPayload)
-	fmt.Println(string(fakeUserSignupPayloadString))
 	responseRecorder := httptest.NewRecorder()
 
 	fakeContext, _ := gin.CreateTestContext(responseRecorder)
@@ -1184,3 +1248,128 @@ func Test_Calcul_TimeEntry(t *testing.T) {
 	assert.Equal(t, 400, responseRecoder.Code)
 
 }
+
+/*
+func TestHandler_IImplementrightManagementUser(t *testing.T) {
+	uuid := uuid.New()
+	uuidString := uuid.String()
+
+	//	mockEmployeeBoss := model.Employee{Admin: "user"}
+	//	mockEmployeeMaster := model.Employee{Admin: "Admin"}
+	mockEmployee := model.Employee{Admin: "employee"}
+
+	var tests = []struct {
+		noToken         bool
+		tokenValid      bool
+		token           string
+		fakeId          string
+		getByIdReturn   model.Employee
+		isAdminEmployee bool
+	}{
+		{true, true, uuidString, "1", mockEmployee, false},
+		{false, false, uuidString, "1", mockEmployee, false},
+		{false, false, uuidString, "1", mockEmployee, true},
+	}
+
+	for _, tt := range tests {
+
+		fakeService := &handlerfakes.FakeServiceInterface{}
+		handlerInstance := handler.NewHandler(fakeService)
+
+		responseRecoder := httptest.NewRecorder()
+		fakeContest, _ := gin.CreateTestContext(responseRecoder)
+
+		if tt.noToken {
+			handler.MyCacheMap = cache.AddToCacheMap(tt.fakeId, tt.token, handler.MyCacheMap)
+			fakeContest.Request = httptest.NewRequest("DELETE", "http://localhost:9090/1/delte", nil)
+			//			fakeContest.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tt.token))
+
+			handlerInstance.ImplementrightManagementemployee(fakeContest)
+			assert.Equal(t, 403, responseRecoder.Code)
+		}
+
+		if !tt.tokenValid {
+			handler.MyCacheMap = cache.RemoveFromCacheMap(tt.fakeId, handler.MyCacheMap)
+			fakeContest.Request = httptest.NewRequest("DELETE", "http://localhost:9090/1/delte", nil)
+			fakeContest.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tt.token))
+
+			handlerInstance.ImplementrightManagementemployee(fakeContest)
+			assert.Equal(t, 401, responseRecoder.Code)
+		}
+
+		if tt.isAdminEmployee {
+			handler.MyCacheMap = cache.AddToCacheMap(tt.fakeId, tt.token, handler.MyCacheMap)
+			fakeContest.Request = httptest.NewRequest("DELETE", "http://localhost:9090/1/delte", nil)
+			fakeContest.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tt.token))
+
+			fakeService.GetEmployeeByIdReturns(mockEmployee)
+			handlerInstance.ImplementrightManagementemployee(fakeContest)
+			assert.Equal(t, 401, responseRecoder.Code)
+
+		}
+	}
+
+}
+*/
+/*
+func TestHandler_ImplementrightManagementAdmin(t *testing.T) {
+	uuid := uuid.New()
+	uuidString := uuid.String()
+
+	//	mockEmployeeBoss := model.Employee{Admin: "user"}
+	//	mockEmployeeMaster := model.Employee{Admin: "Admin"}
+	mockEmployee := model.Employee{Admin: "employee"}
+
+	var tests = []struct {
+		noToken         bool
+		tokenValid      bool
+		token           string
+		fakeId          string
+		getByIdReturn   model.Employee
+		isAdminEmployee bool
+	}{
+		{true, true, uuidString, "1", mockEmployee, false},
+		{false, false, uuidString, "1", mockEmployee, false},
+		{false, false, uuidString, "1", mockEmployee, true},
+	}
+
+	for _, tt := range tests {
+
+		fakeService := &handlerfakes.FakeServiceInterface{}
+		handlerInstance := handler.NewHandler(fakeService)
+
+		responseRecoder := httptest.NewRecorder()
+		fakeContest, _ := gin.CreateTestContext(responseRecoder)
+
+		if tt.noToken {
+			handler.MyCacheMap = cache.AddToCacheMap(tt.fakeId, tt.token, handler.MyCacheMap)
+			fakeContest.Request = httptest.NewRequest("DELETE", "http://localhost:9090/1/delte", nil)
+			//			fakeContest.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tt.token))
+
+			handlerInstance.ImplementrightManagementemployee(fakeContest)
+			assert.Equal(t, 403, responseRecoder.Code)
+		}
+
+		if !tt.tokenValid {
+			handler.MyCacheMap = cache.RemoveFromCacheMap(tt.fakeId, handler.MyCacheMap)
+			fakeContest.Request = httptest.NewRequest("DELETE", "http://localhost:9090/1/delte", nil)
+			fakeContest.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tt.token))
+
+			handlerInstance.ImplementrightManagementemployee(fakeContest)
+			assert.Equal(t, 401, responseRecoder.Code)
+		}
+
+		if tt.isAdminEmployee {
+			handler.MyCacheMap = cache.AddToCacheMap(tt.fakeId, tt.token, handler.MyCacheMap)
+			fakeContest.Request = httptest.NewRequest("DELETE", "http://localhost:9090/1/delte", nil)
+			fakeContest.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tt.token))
+
+			fakeService.GetEmployeeByIdReturns(mockEmployee)
+			handlerInstance.ImplementrightManagementemployee(fakeContest)
+			assert.Equal(t, 401, responseRecoder.Code)
+
+		}
+	}
+
+}
+*/
