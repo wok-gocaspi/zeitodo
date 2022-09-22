@@ -90,6 +90,7 @@ func (s EmployeeService) UpdateUsers(users []model.UpdateUserPayload, userID str
 		var UMR model.UserUpdateResult
 		searchUser, err := s.DbService.GetUserByID(user.ID)
 		if err != nil || len(searchUser.Username) == 0 {
+			totalSuccess = false
 			UMR.Error = "no correlating user found"
 			UMR.Success = false
 			UMR.ID = user.ID
@@ -97,63 +98,34 @@ func (s EmployeeService) UpdateUsers(users []model.UpdateUserPayload, userID str
 			continue
 		}
 		filter := bson.M{"_id": user.ID}
-		var setElements bson.D
 		if user.ID.Hex() == userID || userGroup == "admin" {
-			if user.FirstName != "" {
-				setElements = append(setElements, bson.E{Key: "firstname", Value: user.FirstName})
-			}
-			if user.LastName != "" {
-				setElements = append(setElements, bson.E{Key: "lastname", Value: user.LastName})
-			}
-			if user.Email != "" {
-				setElements = append(setElements, bson.E{Key: "email", Value: user.Email})
-			}
-			if user.Team != "" {
-				setElements = append(setElements, bson.E{Key: "team", Value: user.Team})
-			}
-			if user.TotalWorkingHours != 0 {
-				setElements = append(setElements, bson.E{Key: "totalWorkingHours", Value: user.TotalWorkingHours})
-			}
-			if user.VacationDays != 0 {
-				setElements = append(setElements, bson.E{Key: "vacationDays", Value: user.VacationDays})
-			}
-			if user.Username != "" {
-				setElements = append(setElements, bson.E{Key: "username", Value: user.Username})
-			}
-			if user.Password != "" {
-				setElements = append(setElements, bson.E{Key: "password", Value: sha256.Sum256([]byte(user.Password))})
-			}
-			if userGroup == "admin" && user.Group != "" {
-				setElements = append(setElements, bson.E{Key: "group", Value: user.Group})
-			}
-			if len(user.Projects) != 0 {
-				setElements = append(setElements, bson.E{Key: "projects", Value: user.Projects})
-			} else if len(setElements) == 0 {
+			userSetter, err := utilities.UserUpdateSetter(user, userGroup)
+			if err != nil {
+				totalSuccess = false
+				UMR.Error = err.Error()
 				UMR.Success = false
+				UMR.UpdateResult = nil
 				UMR.ID = user.ID
-				UMR.Error = "no items changed"
 				userUpdateResults = append(userUpdateResults, UMR)
 				continue
 			}
-			setMap := bson.D{
-				{"$set", setElements},
-			}
-			updateResult, err := s.DbService.UpdateUserByID(filter, setMap)
+			updateResult, err := s.DbService.UpdateUserByID(filter, userSetter)
 			if err != nil {
+				totalSuccess = false
 				UMR.Error = err.Error()
 				UMR.Success = false
 				UMR.UpdateResult = updateResult
 				UMR.ID = user.ID
 				userUpdateResults = append(userUpdateResults, UMR)
 				continue
-			} else {
-				UMR.Success = true
-				UMR.UpdateResult = updateResult
-				UMR.ID = user.ID
-				userUpdateResults = append(userUpdateResults, UMR)
-				continue
 			}
+			UMR.Success = true
+			UMR.UpdateResult = updateResult
+			UMR.ID = user.ID
+			userUpdateResults = append(userUpdateResults, UMR)
+			continue
 		} else {
+			totalSuccess = false
 			UMR.Success = false
 			UMR.ID = user.ID
 			UMR.Error = "unauthorized user update, users can only update themself"
@@ -164,11 +136,6 @@ func (s EmployeeService) UpdateUsers(users []model.UpdateUserPayload, userID str
 	}
 	var resultInterface interface{}
 	resultInterface = userUpdateResults
-	for _, ur := range userUpdateResults {
-		if ur.Success == false {
-			totalSuccess = false
-		}
-	}
 	if !totalSuccess {
 		return resultInterface, errors.New("users couldn't be updated")
 	}

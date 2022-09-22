@@ -1,8 +1,10 @@
 package utilities
 
 import (
+	"errors"
 	"example-project/model"
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"testing"
 )
@@ -184,4 +186,22 @@ func TestValidateToken(t *testing.T) {
 	_, _, err := ValidateToken(fakeToken)
 
 	assert.Error(t, err)
+}
+
+func TestUserUpdateSetter(t *testing.T) {
+	var tests = []struct {
+		user         model.UpdateUserPayload
+		userGroup    string
+		returnSetter bson.D
+		isError      error
+	}{
+		{user: model.UpdateUserPayload{Username: "Thomas", Group: "admin", FirstName: "Jeff", LastName: "TheFirst", Email: "j.thefirst@gmail.com", Password: "mynameisjeff", TotalWorkingHours: 10, VacationDays: 5, Team: "okapi", Projects: []string{"okapi", "tetris"}}, userGroup: "admin", isError: nil, returnSetter: bson.D{primitive.E{Key: "$set", Value: primitive.D{primitive.E{Key: "firstname", Value: "Jeff"}, primitive.E{Key: "lastname", Value: "TheFirst"}, primitive.E{Key: "email", Value: "j.thefirst@gmail.com"}, primitive.E{Key: "team", Value: "okapi"}, primitive.E{Key: "totalWorkingHours", Value: float32(10)}, primitive.E{Key: "vacationDays", Value: 5}, primitive.E{Key: "username", Value: "Thomas"}, primitive.E{Key: "password", Value: [32]uint8{0x5c, 0x7c, 0x56, 0x22, 0xef, 0x18, 0x9d, 0x75, 0x4f, 0xf9, 0xcc, 0x6, 0xe0, 0x3e, 0xa9, 0xf9, 0x1f, 0xb6, 0x98, 0xe2, 0x7, 0xc3, 0x8, 0x67, 0x46, 0xd4, 0x92, 0x5, 0xa2, 0xd1, 0xfc, 0x0}}, primitive.E{Key: "group", Value: "admin"}, primitive.E{Key: "projects", Value: []string{"okapi", "tetris"}}}}}},
+		{user: model.UpdateUserPayload{Group: "admin"}, userGroup: "user", isError: errors.New("no data changed on user"), returnSetter: nil},
+	}
+
+	for _, tt := range tests {
+		result, err := UserUpdateSetter(tt.user, tt.userGroup)
+		assert.Equal(t, tt.returnSetter, result)
+		assert.Equal(t, err, tt.isError)
+	}
 }

@@ -1,10 +1,12 @@
 package utilities
 
 import (
+	"crypto/sha256"
 	"errors"
 	"example-project/model"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/retailify/go-interval"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"os"
 	"strings"
@@ -115,4 +117,55 @@ func ValidateToken(token string) (*jwt.Token, jwt.MapClaims, error) {
 		return nil, nil, err
 	}
 	return jwtoken, claims, nil
+}
+
+func UserUpdateSetter(user model.UpdateUserPayload, userGroup string) (bson.D, error) {
+	var setElements bson.D
+
+userLoop:
+	for {
+		switch {
+		case user.FirstName != "":
+			setElements = append(setElements, bson.E{Key: "firstname", Value: user.FirstName})
+			user.FirstName = ""
+		case user.LastName != "":
+			setElements = append(setElements, bson.E{Key: "lastname", Value: user.LastName})
+			user.LastName = ""
+		case user.Email != "":
+			setElements = append(setElements, bson.E{Key: "email", Value: user.Email})
+			user.Email = ""
+		case user.Team != "":
+			setElements = append(setElements, bson.E{Key: "team", Value: user.Team})
+			user.Team = ""
+		case user.TotalWorkingHours != 0:
+			setElements = append(setElements, bson.E{Key: "totalWorkingHours", Value: user.TotalWorkingHours})
+			user.TotalWorkingHours = 0
+		case user.VacationDays != 0:
+			setElements = append(setElements, bson.E{Key: "vacationDays", Value: user.VacationDays})
+			user.VacationDays = 0
+		case user.Username != "":
+			setElements = append(setElements, bson.E{Key: "username", Value: user.Username})
+			user.Username = ""
+		case user.Password != "":
+			setElements = append(setElements, bson.E{Key: "password", Value: sha256.Sum256([]byte(user.Password))})
+			user.Password = ""
+		case userGroup == "admin" && user.Group != "":
+			setElements = append(setElements, bson.E{Key: "group", Value: user.Group})
+			user.Group = ""
+		case len(user.Projects) != 0:
+			setElements = append(setElements, bson.E{Key: "projects", Value: user.Projects})
+			user.Projects = []string{}
+		default:
+			break userLoop
+		}
+
+	}
+
+	if len(setElements) == 0 {
+		return nil, errors.New("no data changed on user")
+	}
+	setMap := bson.D{
+		{"$set", setElements},
+	}
+	return setMap, nil
 }
