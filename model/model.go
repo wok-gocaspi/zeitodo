@@ -120,6 +120,15 @@ type Proposal struct {
 	TimeObject ProposalTimeObject `json:"timeObject" bson:"timeObject"`
 }
 
+type ProposalsByUser struct {
+	Userid    primitive.ObjectID `json:"userid"`
+	FirstName string             `json:"firstname" bson:"firstname"`
+	LastName  string             `json:"lastname" bson:"lastname"`
+	Username  string             `json:"username" bson:"username"`
+	Email     string             `json:"email" bson:"email"`
+	Proposals []Proposal         `json:"proposals"`
+}
+
 type ProposalTimeObject struct {
 	Duration time.Duration
 	Interval *interval.TimeInterval

@@ -87,5 +87,32 @@ func (s EmployeeService) UpdateProposalByDate(update model.Proposal, date string
 	} else {
 		return nil, errors.New("user can not update ")
 	}
+}
 
+func (s EmployeeService) GetAllProposals() ([]model.ProposalsByUser, error) {
+	var proposalUserArray []model.ProposalsByUser
+	users, err := s.DbService.GetAllUser()
+	if err != nil {
+		return proposalUserArray, err
+	}
+	for _, user := range users {
+		var proposalUserItem model.ProposalsByUser
+		proposalUserItem.Userid = user.ID
+		proposalUserItem.Username = user.Username
+		proposalUserItem.Email = user.Email
+		proposalUserItem.FirstName = user.FirstName
+		proposalUserItem.LastName = user.LastName
+
+		proposals, err := s.DbService.GetProposals(user.ID.Hex())
+		if err != nil {
+			return proposalUserArray, err
+		}
+		if len(proposals) == 0 {
+			continue
+		}
+		proposalUserItem.Proposals = append(proposalUserItem.Proposals, proposals...)
+		proposalUserArray = append(proposalUserArray, proposalUserItem)
+
+	}
+	return proposalUserArray, nil
 }
