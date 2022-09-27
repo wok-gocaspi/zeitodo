@@ -114,7 +114,7 @@ type Proposal struct {
 	UserId    string `json:"userId" bson:"userId"`
 	StartDate string `json:"startDate" bson:"startDate"`
 	EndDate   string `json:"endDate" bson:"endDate"`
-	Approved  bool   `json:"approved" bson:"approved"`
+	Status    string `json:"status" bson:"status"`
 	Type      string `json:"type" bson:"type"`
 	//	ID         primitive.ObjectID `bson:"_id" json:"id,omitempty"`
 	TimeObject ProposalTimeObject `json:"timeObject" bson:"timeObject"`

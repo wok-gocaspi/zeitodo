@@ -83,7 +83,7 @@ func CraftProposalFromPayload(payload []model.ProposalPayload) ([]model.Proposal
 			UserId:     p.UserId,
 			StartDate:  p.StartDate,
 			EndDate:    p.EndDate,
-			Approved:   false,
+			Status:     "pending",
 			Type:       p.Type,
 			TimeObject: obj,
 		}
