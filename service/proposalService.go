@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 	"strings"
+	"time"
 )
 
 func (s EmployeeService) GetProposalsByID(id string) ([]model.Proposal, error) {
@@ -115,4 +116,35 @@ func (s EmployeeService) GetAllProposals() ([]model.ProposalsByUser, error) {
 
 	}
 	return proposalUserArray, nil
+}
+
+func (s EmployeeService) GetTotalAbsence(userid string) (model.AbsenceObject, error) {
+	proposals, err := s.DbService.GetProposals(userid)
+	if err != nil {
+		return model.AbsenceObject{}, err
+	}
+	var totalSicknessDays int = 0
+	var totalVacationDays int = 0
+	var absenceTime model.AbsenceObject
+	for _, proposal := range proposals {
+		const layout = "2006-Jan-02"
+		startDate, err := time.Parse(layout, proposal.StartDate)
+		if err != nil {
+			return model.AbsenceObject{}, err
+		}
+		endDate, err := time.Parse(layout, proposal.EndDate)
+		if err != nil {
+			return model.AbsenceObject{}, err
+		}
+		days := endDate.Sub(startDate).Hours() / 24
+		if proposal.Type == "sickness" {
+			totalSicknessDays = totalSicknessDays + int(days)
+		}
+		if proposal.Type == "vacation" {
+			totalVacationDays = totalVacationDays + int(days)
+		}
+	}
+	absenceTime.VacationDays = totalVacationDays
+	absenceTime.SicknessDays = totalSicknessDays
+	return absenceTime, nil
 }

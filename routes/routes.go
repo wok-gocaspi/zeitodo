@@ -21,6 +21,7 @@ type HandlerInterface interface {
 	CreateProposalsHandler(c *gin.Context)
 	DeleteProposalHandler(c *gin.Context)
 	UpdateProposalsHandler(c *gin.Context)
+	TotalAbsenceTimeHandler(c *gin.Context)
 	CreatTimeEntry(c *gin.Context)
 	UpdateTimeEntry(c *gin.Context)
 	GetTimeEntry(c *gin.Context)
@@ -66,6 +67,7 @@ func CreateRoutes(group *gin.RouterGroup) {
 	route.POST("/:id", Handler.PermissionMiddleware, Handler.CreateProposalsHandler)
 	route.DELETE("/:id", Handler.PermissionMiddleware, Handler.DeleteProposalHandler)
 	route.PATCH("", Handler.PermissionMiddleware, Handler.UpdateProposalsHandler)
+	route.GET("/absence/:id", Handler.PermissionMiddleware, Handler.TotalAbsenceTimeHandler)
 
 	timeentry := group.Group("/timeentry")
 

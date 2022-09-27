@@ -15,8 +15,8 @@ import (
 func TestProposalService_GetProposalsByID(t *testing.T) {
 	fakeDb := &servicefakes.FakeDatabaseInterface{}
 	fakePayload := []model.Proposal{
-		{UserId: "1", Approved: false},
-		{UserId: "1", Approved: true},
+		{UserId: "1", Status: "approved"},
+		{UserId: "1", Status: "denied"},
 	}
 	fakeNilPayload := []model.Proposal{}
 	fakeDecodeErr := errors.New("Decode went wrong")
@@ -69,10 +69,10 @@ func TestEmployeeService_UpdateEmployee(t *testing.T) {
 
 	mockProposaluser := model.Proposal{
 
-		UserId: fakeuserid, StartDate: "2006-Nov-06", EndDate: "2006-Nov-02", Approved: false}
+		UserId: fakeuserid, StartDate: "2006-Nov-06", EndDate: "2006-Nov-02", Status: "denied"}
 
 	mockProposalAdmin := model.Proposal{
-		UserId: fakeAdminId, StartDate: "2006-Nov-06", EndDate: "2006-Nov-02", Approved: true}
+		UserId: fakeAdminId, StartDate: "2006-Nov-06", EndDate: "2006-Nov-02", Status: "approved"}
 
 	mockError := errors.New("fake userId")
 	mockErrorUser := errors.New("user can not update ")
@@ -206,4 +206,8 @@ func TestProposalService_DeleteProposalsByID(t *testing.T) {
 		}
 
 	}
+}
+
+func TestGetAllProposals(t *testing.T) {
+
 }

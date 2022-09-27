@@ -41,6 +41,7 @@ type ServiceInterface interface {
 	CalcultimeEntry(userid string) (map[string]float64, error)
 	CheckUserPolicy(c *gin.Context, pl model.PermissionList) error
 	CheckIsSameUser(c *gin.Context, pl model.PermissionList, userid string) error
+	GetTotalAbsence(userid string) (model.AbsenceObject, error)
 }
 
 type Handler struct {
@@ -573,4 +574,23 @@ func (handler Handler) GetAllProposalsHandler(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, result)
+}
+
+func (handler Handler) TotalAbsenceTimeHandler(c *gin.Context) {
+	userid, useridOK := c.Params.Get("id")
+	if !useridOK {
+		c.AbortWithStatusJSON(400, gin.H{
+			"errorMessage": "no userid supplied as param",
+		})
+		return
+	}
+	result, err := handler.ServiceInterface.GetTotalAbsence(userid)
+	if err != nil {
+		c.AbortWithStatusJSON(500, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, result)
+
 }

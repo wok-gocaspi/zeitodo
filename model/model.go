@@ -148,6 +148,11 @@ type ProposalTimeStringObject struct {
 	//	Err      error
 }
 
+type AbsenceObject struct {
+	VacationDays int `json:"vacation"`
+	SicknessDays int `json:"sickness"`
+}
+
 type Permission struct {
 	Whitelist   []string
 	Uri         string

@@ -632,8 +632,8 @@ func TestPermissionMiddleware(t *testing.T) {
 func TestHandler_GetProposalsById(t *testing.T) {
 
 	filterReturn := []model.Proposal{
-		{UserId: "1", Approved: false},
-		{UserId: "2", Approved: true},
+		{UserId: "1", Status: "denied"},
+		{UserId: "2", Status: "approved"},
 	}
 
 	filterEmptyReturn := []model.Proposal{}
