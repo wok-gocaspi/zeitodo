@@ -4,7 +4,9 @@ import (
 	"errors"
 	"example-project/model"
 	"example-project/utilities"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"strings"
 	"time"
@@ -119,13 +121,31 @@ func (s EmployeeService) GetAllProposals() ([]model.ProposalsByUser, error) {
 }
 
 func (s EmployeeService) GetTotalAbsence(userid string) (model.AbsenceObject, error) {
+	var absenceTime model.AbsenceObject
+	objectID, err := primitive.ObjectIDFromHex(userid)
+	if err != nil {
+		return absenceTime, err
+	}
+	user, err := s.DbService.GetUserByID(objectID)
+	if err != nil {
+		return absenceTime, err
+	}
 	proposals, err := s.DbService.GetProposals(userid)
 	if err != nil {
 		return model.AbsenceObject{}, err
 	}
+
 	var totalSicknessDays int = 0
 	var totalVacationDays int = 0
-	var absenceTime model.AbsenceObject
+	var userTotalVacationDays int = user.VacationDays
+	var daysPerMonth = user.VacationDays / 12
+	if user.EntryTime.Year() == time.Now().Year() {
+		var lastDate = time.Date(user.EntryTime.Year(), 12, 31, 0, 0, 0, 0, time.UTC)
+		lastMonths := (int(lastDate.Month() - 1)) + 1
+		fmt.Println(lastMonths)
+		userTotalVacationDays = lastMonths * daysPerMonth
+	}
+
 	for _, proposal := range proposals {
 		const layout = "2006-Jan-02"
 		startDate, err := time.Parse(layout, proposal.StartDate)
@@ -146,5 +166,6 @@ func (s EmployeeService) GetTotalAbsence(userid string) (model.AbsenceObject, er
 	}
 	absenceTime.VacationDays = totalVacationDays
 	absenceTime.SicknessDays = totalSicknessDays
+	absenceTime.TotalVacationDays = userTotalVacationDays
 	return absenceTime, nil
 }

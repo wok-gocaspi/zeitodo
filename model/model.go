@@ -27,6 +27,7 @@ type User struct {
 	TotalWorkingHours float32            `json:"totalWorkingHours" bson:"totalWorkingHours"`
 	VacationDays      int                `json:"vacationDays" bson:"vacationDays"`
 	Group             string             `json:"group" bson:"group"`
+	EntryTime         time.Time          `json:"entryTime" bson:"entryTime"`
 }
 
 type UpdateUserPayload struct {
@@ -52,12 +53,14 @@ type UserSignupPayload struct {
 }
 
 type UserSignup struct {
-	Username  string   `json:"username" bson:"username"`
-	Password  [32]byte `json:"password" bson:"password"`
-	FirstName string   `json:"firstname" bson:"firstname"`
-	LastName  string   `json:"lastname" bson:"lastname"`
-	Email     string   `json:"email" bson:"email"`
-	Group     string   `json:"group" bson:"group"`
+	Username     string    `json:"username" bson:"username"`
+	Password     [32]byte  `json:"password" bson:"password"`
+	FirstName    string    `json:"firstname" bson:"firstname"`
+	LastName     string    `json:"lastname" bson:"lastname"`
+	Email        string    `json:"email" bson:"email"`
+	Group        string    `json:"group" bson:"group"`
+	EntryTime    time.Time `json:"entryTime" bson:"entryTime"`
+	VacationDays int       `json:"vacationDays" bson:"vacationDays"`
 }
 
 type UserSignupResult struct {
@@ -79,6 +82,7 @@ type UserPayload struct {
 	VacationDays      int                `json:"vacationDays" bson:"vacationDays"`
 	Group             string             `json:"group" bson:"group"`
 	ID                primitive.ObjectID `json:"id" bson:"_id"`
+	EntryTime         time.Time          `json:"entryTime" bson:"entryTime"`
 }
 
 type UserUpdateResult struct {
@@ -149,8 +153,9 @@ type ProposalTimeStringObject struct {
 }
 
 type AbsenceObject struct {
-	VacationDays int `json:"vacation"`
-	SicknessDays int `json:"sickness"`
+	VacationDays      int `json:"vacation"`
+	TotalVacationDays int `json:"totalVacation"`
+	SicknessDays      int `json:"sickness"`
 }
 
 type Permission struct {

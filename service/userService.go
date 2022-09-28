@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"errors"
 	"example-project/model"
+	"time"
 
 	"example-project/utilities"
 
@@ -60,7 +61,7 @@ func (s EmployeeService) GetTeamMembersByName(team string) (interface{}, error) 
 
 func (s EmployeeService) CreateUser(userPayload model.UserSignupPayload) (interface{}, error) {
 	hashedPassword := sha256.Sum256([]byte(userPayload.Password))
-	user := model.UserSignup{Username: userPayload.Username, Password: hashedPassword, Email: userPayload.Email, FirstName: userPayload.FirstName, LastName: userPayload.LastName, Group: "user"}
+	user := model.UserSignup{Username: userPayload.Username, Password: hashedPassword, Email: userPayload.Email, FirstName: userPayload.FirstName, LastName: userPayload.LastName, Group: "user", EntryTime: time.Now(), VacationDays: 30}
 	checkDBEmpty, _ := s.DbService.GetAllUser()
 	if len(checkDBEmpty) == 0 {
 		user.Group = "admin"
