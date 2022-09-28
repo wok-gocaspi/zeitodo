@@ -5,6 +5,7 @@ import (
 	"example-project/model"
 	"example-project/service"
 	"example-project/service/servicefakes"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -209,5 +210,17 @@ func TestProposalService_DeleteProposalsByID(t *testing.T) {
 }
 
 func TestGetAllProposals(t *testing.T) {
-
+	var tests = []struct {
+		GetAllUserReturn   []model.UserPayload
+		GetAllUserError    error
+		GetProposalsReturn []model.Proposal
+		GetProposalsError  error
+		Return             []model.ProposalsByUser
+		Error              error
+	}{
+		{},
+	}
+	for _, tt := range tests {
+		fmt.Println(tt.GetProposalsReturn)
+	}
 }
