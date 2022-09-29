@@ -323,13 +323,52 @@ func TestGetTotalAbsence(t *testing.T) {
 			Error:             errors.New("some user error"),
 		},
 		{
-			UserID:            "ggrrfwr983er289",
-			GetUserByIDReturn: model.UserPayload{},
-			GetUserByIDError:  nil,
-			GetProposals:      nil,
-			GetProposalError:  nil,
-			Return:            model.AbsenceObject{},
-			Error:             nil,
+			UserID: userID,
+			GetUserByIDReturn: model.UserPayload{
+				VacationDays: 30,
+				EntryTime:    time.Date(currentTime.Year(), 8, 1, 0, 0, 0, 0, time.UTC),
+			},
+			GetUserByIDError: nil,
+			GetProposals:     nil,
+			GetProposalError: errors.New("some proposal service error"),
+			Return:           model.AbsenceObject{},
+			Error:            errors.New("some proposal service error"),
+		},
+		{
+			UserID: userID,
+			GetUserByIDReturn: model.UserPayload{
+				VacationDays: 30,
+				EntryTime:    time.Date(currentTime.Year(), 8, 1, 0, 0, 0, 0, time.UTC),
+			},
+			GetUserByIDError: nil,
+			GetProposals: []model.Proposal{
+				{StartDate: fmt.Sprint(currentTime.Year()) + "--10", EndDate: fmt.Sprint(currentTime.Year()) + "-Sep-15", Type: "sickness"},
+			},
+			GetProposalError: nil,
+			Return: model.AbsenceObject{
+				TotalVacationDays: 0,
+				VacationDays:      0,
+				SicknessDays:      0,
+			},
+			Error: &time.ParseError{Layout: "2006-Jan-02", Value: "2022--10", LayoutElem: "Jan", ValueElem: "-10", Message: ""},
+		},
+		{
+			UserID: userID,
+			GetUserByIDReturn: model.UserPayload{
+				VacationDays: 30,
+				EntryTime:    time.Date(currentTime.Year(), 8, 1, 0, 0, 0, 0, time.UTC),
+			},
+			GetUserByIDError: nil,
+			GetProposals: []model.Proposal{
+				{StartDate: fmt.Sprint(currentTime.Year()) + "-Sep-10", EndDate: fmt.Sprint(currentTime.Year()) + "-Sep15", Type: "vacation"},
+			},
+			GetProposalError: nil,
+			Return: model.AbsenceObject{
+				TotalVacationDays: 0,
+				VacationDays:      0,
+				SicknessDays:      0,
+			},
+			Error: &time.ParseError{Layout: "2006-Jan-02", Value: "2022-Sep15", LayoutElem: "-", ValueElem: "15", Message: ""},
 		},
 	}
 
@@ -340,7 +379,6 @@ func TestGetTotalAbsence(t *testing.T) {
 		fakeDB.GetProposalsReturns(tt.GetProposals, tt.GetProposalError)
 		result, err := serviceInstance.GetTotalAbsence(userID)
 		assert.Equal(t, result, tt.Return)
-		fmt.Println(err)
 		assert.Equal(t, err, tt.Error)
 	}
 

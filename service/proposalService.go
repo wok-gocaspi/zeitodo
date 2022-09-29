@@ -4,7 +4,6 @@ import (
 	"errors"
 	"example-project/model"
 	"example-project/utilities"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -127,7 +126,6 @@ func (s EmployeeService) GetTotalAbsence(userid string) (model.AbsenceObject, er
 	if err != nil {
 		return absenceTime, err
 	}
-	fmt.Println(err)
 	user, err := s.DbService.GetUserByID(objectID)
 	if err != nil {
 		return absenceTime, err
@@ -141,7 +139,6 @@ func (s EmployeeService) GetTotalAbsence(userid string) (model.AbsenceObject, er
 	var totalVacationDays = 0
 	var VacationResult int
 	var daysPerMonth = float64(user.VacationDays) / 12
-	fmt.Println(daysPerMonth)
 	VacationResult = user.VacationDays
 	if user.EntryTime.Year() == time.Now().Year() {
 		var lastDate = time.Date(user.EntryTime.Year(), 12, 31, 0, 0, 0, 0, time.UTC)
