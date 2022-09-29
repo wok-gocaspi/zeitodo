@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"math"
 	"strings"
 	"time"
 )
@@ -135,16 +136,18 @@ func (s EmployeeService) GetTotalAbsence(userid string) (model.AbsenceObject, er
 		return model.AbsenceObject{}, err
 	}
 
-	var totalSicknessDays int = 0
-	var totalVacationDays int = 0
-	var userTotalVacationDays float32 = float32(user.VacationDays)
-	var daysPerMonth float32 = userTotalVacationDays / 12
+	var totalSicknessDays = 0
+	var totalVacationDays = 0
+	var VacationResult int
+	var daysPerMonth = float64(user.VacationDays) / 12
 	fmt.Println(daysPerMonth)
+	VacationResult = user.VacationDays
 	if user.EntryTime.Year() == time.Now().Year() {
 		var lastDate = time.Date(user.EntryTime.Year(), 12, 31, 0, 0, 0, 0, time.UTC)
-		lastMonths := float32(lastDate.Month() - user.EntryTime.Month())
+		lastMonths := float64(lastDate.Month() - user.EntryTime.Month())
 		fmt.Println(lastMonths)
-		userTotalVacationDays = lastMonths * daysPerMonth
+		VacationResult = int(math.RoundToEven(lastMonths * daysPerMonth))
+
 	}
 
 	for _, proposal := range proposals {
@@ -168,6 +171,6 @@ func (s EmployeeService) GetTotalAbsence(userid string) (model.AbsenceObject, er
 
 	absenceTime.VacationDays = totalVacationDays
 	absenceTime.SicknessDays = totalSicknessDays
-	absenceTime.TotalVacationDays = int(userTotalVacationDays)
+	absenceTime.TotalVacationDays = VacationResult
 	return absenceTime, nil
 }
