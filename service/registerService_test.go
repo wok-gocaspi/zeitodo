@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"testing"
+	"time"
 )
 
 func TestProposalService_GetProposalsByID(t *testing.T) {
@@ -210,17 +211,137 @@ func TestProposalService_DeleteProposalsByID(t *testing.T) {
 }
 
 func TestGetAllProposals(t *testing.T) {
+	var exampleUserID1 = primitive.NewObjectID()
+	var exampleUserID2 = primitive.NewObjectID()
+
+	type ProposalCalls struct {
+		Proposals []model.Proposal
+		Error     error
+	}
+
 	var tests = []struct {
 		GetAllUserReturn   []model.UserPayload
 		GetAllUserError    error
-		GetProposalsReturn []model.Proposal
-		GetProposalsError  error
+		GetProposalsReturn []ProposalCalls
 		Return             []model.ProposalsByUser
 		Error              error
 	}{
-		{},
+		{GetAllUserReturn: []model.UserPayload{
+			{Username: "peter", ID: exampleUserID1},
+			{Username: "frank", ID: exampleUserID2},
+		}, GetProposalsReturn: []ProposalCalls{
+			{Proposals: []model.Proposal{
+				{StartDate: "2002-09-09"},
+			}, Error: nil},
+			{Proposals: []model.Proposal{
+				{UserId: exampleUserID2.Hex()},
+			}, Error: nil},
+		}, Return: []model.ProposalsByUser{
+			{Username: "peter", Userid: exampleUserID1, Proposals: []model.Proposal{{StartDate: "2002-09-09"}}},
+			{Username: "frank", Userid: exampleUserID2, Proposals: []model.Proposal{{UserId: exampleUserID2.Hex()}}},
+		}, Error: nil},
+		{
+			GetAllUserReturn:   []model.UserPayload{},
+			GetAllUserError:    errors.New("no Users exist"),
+			GetProposalsReturn: []ProposalCalls{},
+			Return:             nil,
+			Error:              errors.New("no Users exist"),
+		},
+		{
+			GetAllUserReturn: []model.UserPayload{
+				{Username: "peter", ID: exampleUserID1},
+				{Username: "frank", ID: exampleUserID2},
+			},
+			GetAllUserError: nil,
+			GetProposalsReturn: []ProposalCalls{
+				{
+					Proposals: []model.Proposal{},
+					Error:     nil,
+				},
+
+				{
+					Proposals: []model.Proposal{},
+					Error:     errors.New("some db error"),
+				},
+			},
+			Return: nil,
+			Error:  errors.New("some db error"),
+		},
 	}
 	for _, tt := range tests {
-		fmt.Println(tt.GetProposalsReturn)
+		fakeDB := &servicefakes.FakeDatabaseInterface{}
+		serviceInstance := service.NewEmployeeService(fakeDB)
+		fakeDB.GetAllUserReturns(tt.GetAllUserReturn, tt.GetAllUserError)
+		for index, pCall := range tt.GetProposalsReturn {
+			fakeDB.GetProposalsReturnsOnCall(index, pCall.Proposals, pCall.Error)
+		}
+		result, err := serviceInstance.GetAllProposals()
+		assert.Equal(t, tt.Error, err)
+		assert.Equal(t, tt.Return, result)
+
 	}
+}
+
+func TestGetTotalAbsence(t *testing.T) {
+	userID := primitive.NewObjectID().Hex()
+	currentTime := time.Now()
+	var tests = []struct {
+		UserID            string
+		GetUserByIDReturn model.UserPayload
+		GetUserByIDError  error
+		GetProposals      []model.Proposal
+		GetProposalError  error
+		Return            model.AbsenceObject
+		Error             error
+	}{
+		{
+			UserID: userID,
+			GetUserByIDReturn: model.UserPayload{
+				VacationDays: 30,
+				EntryTime:    time.Date(currentTime.Year(), 8, 1, 0, 0, 0, 0, time.UTC),
+			},
+			GetUserByIDError: nil,
+			GetProposals: []model.Proposal{
+				{StartDate: fmt.Sprint(currentTime.Year()) + "-Sep-10", EndDate: fmt.Sprint(currentTime.Year()) + "-Sep-15", Type: "sickness"},
+				{StartDate: fmt.Sprint(currentTime.Year()) + "-Oct-13", EndDate: fmt.Sprint(currentTime.Year()) + "-Oct-20", Type: "vacation"},
+			},
+			GetProposalError: nil,
+			Return: model.AbsenceObject{
+				TotalVacationDays: 10,
+				VacationDays:      7,
+				SicknessDays:      5,
+			},
+			Error: nil,
+		},
+		{
+			UserID:            userID,
+			GetUserByIDReturn: model.UserPayload{},
+			GetUserByIDError:  errors.New("some user error"),
+			GetProposals:      nil,
+			GetProposalError:  nil,
+			Return:            model.AbsenceObject{},
+			Error:             errors.New("some user error"),
+		},
+		{
+			UserID:            "ggrrfwr983er289",
+			GetUserByIDReturn: model.UserPayload{},
+			GetUserByIDError:  nil,
+			GetProposals:      nil,
+			GetProposalError:  nil,
+			Return:            model.AbsenceObject{},
+			Error:             nil,
+		},
+	}
+
+	for _, tt := range tests {
+		fakeDB := &servicefakes.FakeDatabaseInterface{}
+		serviceInstance := service.NewEmployeeService(fakeDB)
+		fakeDB.GetUserByIDReturns(tt.GetUserByIDReturn, tt.GetUserByIDError)
+		fakeDB.GetProposalsReturns(tt.GetProposals, tt.GetProposalError)
+		result, err := serviceInstance.GetTotalAbsence(userID)
+		assert.Equal(t, result, tt.Return)
+		fmt.Println(err)
+		assert.Equal(t, err, tt.Error)
+	}
+
 }

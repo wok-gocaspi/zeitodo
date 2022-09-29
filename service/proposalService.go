@@ -127,6 +127,7 @@ func (s EmployeeService) GetTotalAbsence(userid string) (model.AbsenceObject, er
 	if err != nil {
 		return absenceTime, err
 	}
+	fmt.Println(err)
 	user, err := s.DbService.GetUserByID(objectID)
 	if err != nil {
 		return absenceTime, err
@@ -145,7 +146,6 @@ func (s EmployeeService) GetTotalAbsence(userid string) (model.AbsenceObject, er
 	if user.EntryTime.Year() == time.Now().Year() {
 		var lastDate = time.Date(user.EntryTime.Year(), 12, 31, 0, 0, 0, 0, time.UTC)
 		lastMonths := float64(lastDate.Month() - user.EntryTime.Month())
-		fmt.Println(lastMonths)
 		VacationResult = int(math.RoundToEven(lastMonths * daysPerMonth))
 
 	}
