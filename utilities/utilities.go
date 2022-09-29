@@ -79,11 +79,15 @@ func CraftProposalFromPayload(payload []model.ProposalPayload) ([]model.Proposal
 	var proposals []model.Proposal
 	for _, p := range payload {
 		obj, err := CreateTimeObject(p.StartDate, p.EndDate)
+		var pStatus = "pending"
+		if p.Type == "sickness" {
+			pStatus = "approved"
+		}
 		newProposal := model.Proposal{
 			UserId:     p.UserId,
 			StartDate:  p.StartDate,
 			EndDate:    p.EndDate,
-			Status:     "pending",
+			Status:     pStatus,
 			Type:       p.Type,
 			TimeObject: obj,
 		}
@@ -137,9 +141,9 @@ userLoop:
 		case user.Team != "":
 			setElements = append(setElements, bson.E{Key: "team", Value: user.Team})
 			user.Team = ""
-		case user.TotalWorkingHours != 0:
-			setElements = append(setElements, bson.E{Key: "totalWorkingHours", Value: user.TotalWorkingHours})
-			user.TotalWorkingHours = 0
+		case user.TotalWorkingDays != 0:
+			setElements = append(setElements, bson.E{Key: "totalWorkingDays", Value: user.TotalWorkingDays})
+			user.TotalWorkingDays = 0
 		case user.VacationDays != 0:
 			setElements = append(setElements, bson.E{Key: "vacationDays", Value: user.VacationDays})
 			user.VacationDays = 0

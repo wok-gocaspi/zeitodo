@@ -16,32 +16,32 @@ type DbConfig struct {
 }
 
 type User struct {
-	ID                primitive.ObjectID `json:"id" bson:"_id"`
-	Username          string             `json:"username" bson:"username"`
-	Password          [32]byte           `json:"password" bson:"password"`
-	FirstName         string             `json:"firstname" bson:"firstname"`
-	LastName          string             `json:"lastname" bson:"lastname"`
-	Email             string             `json:"email" bson:"email"`
-	Team              string             `json:"team" bson:"team"`
-	Projects          []string           `json:"projects" bson:"projects"`
-	TotalWorkingHours float32            `json:"totalWorkingHours" bson:"totalWorkingHours"`
-	VacationDays      int                `json:"vacationDays" bson:"vacationDays"`
-	Group             string             `json:"group" bson:"group"`
-	EntryTime         time.Time          `json:"entryTime" bson:"entryTime"`
+	ID               primitive.ObjectID `json:"id" bson:"_id"`
+	Username         string             `json:"username" bson:"username"`
+	Password         [32]byte           `json:"password" bson:"password"`
+	FirstName        string             `json:"firstname" bson:"firstname"`
+	LastName         string             `json:"lastname" bson:"lastname"`
+	Email            string             `json:"email" bson:"email"`
+	Team             string             `json:"team" bson:"team"`
+	Projects         []string           `json:"projects" bson:"projects"`
+	TotalWorkingDays int                `json:"totalWorkingDays" bson:"totalWorkingDays"`
+	VacationDays     int                `json:"vacationDays" bson:"vacationDays"`
+	Group            string             `json:"group" bson:"group"`
+	EntryTime        time.Time          `json:"entryTime" bson:"entryTime"`
 }
 
 type UpdateUserPayload struct {
-	ID                primitive.ObjectID `json:"id" bson:"_id"`
-	Username          string             `json:"username" bson:"username"`
-	Password          string             `json:"password"`
-	FirstName         string             `json:"firstname" bson:"firstname"`
-	LastName          string             `json:"lastname" bson:"lastname"`
-	Email             string             `json:"email" bson:"email"`
-	Team              string             `json:"team" bson:"team"`
-	Projects          []string           `json:"projects" bson:"projects"`
-	TotalWorkingHours float32            `json:"totalWorkingHours" bson:"totalWorkingHours"`
-	VacationDays      int                `json:"vacationDays" bson:"vacationDays"`
-	Group             string             `json:"group" bson:"group"`
+	ID               primitive.ObjectID `json:"id" bson:"_id"`
+	Username         string             `json:"username" bson:"username"`
+	Password         string             `json:"password"`
+	FirstName        string             `json:"firstname" bson:"firstname"`
+	LastName         string             `json:"lastname" bson:"lastname"`
+	Email            string             `json:"email" bson:"email"`
+	Team             string             `json:"team" bson:"team"`
+	Projects         []string           `json:"projects" bson:"projects"`
+	TotalWorkingDays float32            `json:"totalWorkingDays" bson:"totalWorkingDays"`
+	VacationDays     int                `json:"vacationDays" bson:"vacationDays"`
+	Group            string             `json:"group" bson:"group"`
 }
 
 type UserSignupPayload struct {
@@ -72,17 +72,17 @@ type UserSignupResult struct {
 }
 
 type UserPayload struct {
-	Username          string             `json:"username" bson:"username"`
-	FirstName         string             `json:"firstname" bson:"firstname"`
-	LastName          string             `json:"lastname" bson:"lastname"`
-	Email             string             `json:"email" bson:"email"`
-	Team              string             `json:"team" bson:"team"`
-	Projects          []string           `json:"projects" bson:"projects"`
-	TotalWorkingHours float32            `json:"totalWorkingHours" bson:"totalWorkingHours"`
-	VacationDays      int                `json:"vacationDays" bson:"vacationDays"`
-	Group             string             `json:"group" bson:"group"`
-	ID                primitive.ObjectID `json:"id" bson:"_id"`
-	EntryTime         time.Time          `json:"entryTime" bson:"entryTime"`
+	Username         string             `json:"username" bson:"username"`
+	FirstName        string             `json:"firstname" bson:"firstname"`
+	LastName         string             `json:"lastname" bson:"lastname"`
+	Email            string             `json:"email" bson:"email"`
+	Team             string             `json:"team" bson:"team"`
+	Projects         []string           `json:"projects" bson:"projects"`
+	TotalWorkingDays float32            `json:"totalWorkingDays" bson:"totalWorkingDays"`
+	VacationDays     int                `json:"vacationDays" bson:"vacationDays"`
+	Group            string             `json:"group" bson:"group"`
+	ID               primitive.ObjectID `json:"id" bson:"_id"`
+	EntryTime        time.Time          `json:"entryTime" bson:"entryTime"`
 }
 
 type UserUpdateResult struct {
