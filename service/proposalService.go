@@ -159,10 +159,10 @@ func (s EmployeeService) GetTotalAbsence(userid string) (model.AbsenceObject, er
 		}
 		days := endDate.Sub(startDate).Hours() / 24
 		if proposal.Type == "sickness" {
-			totalSicknessDays = totalSicknessDays + int(days)
+			totalSicknessDays = totalSicknessDays + int(days) + 1
 		}
 		if proposal.Type == "vacation" {
-			totalVacationDays = totalVacationDays + int(days)
+			totalVacationDays = totalVacationDays + int(days) + 1
 		}
 	}
 
