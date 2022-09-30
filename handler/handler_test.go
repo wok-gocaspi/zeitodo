@@ -1373,3 +1373,93 @@ func TestHandler_ImplementrightManagementAdmin(t *testing.T) {
 
 }
 */
+
+func TestGetAllProposalsHandler(t *testing.T) {
+	var tests = []struct {
+		result []model.ProposalsByUser
+		Error  error
+		Code   int
+	}{
+		{
+			result: []model.ProposalsByUser{
+				{
+					Username: "Test1",
+					Proposals: []model.Proposal{
+						{
+							StartDate: "2022-10-10",
+							UserId:    "123",
+						},
+					},
+				},
+			},
+			Error: nil,
+			Code:  http.StatusOK,
+		},
+		{
+			result: []model.ProposalsByUser{},
+			Error:  errors.New("some service error"),
+			Code:   http.StatusInternalServerError,
+		},
+	}
+	for _, tt := range tests {
+		responseRecorder := httptest.NewRecorder()
+		fakeContest, _ := gin.CreateTestContext(responseRecorder)
+
+		fakeService := &handlerfakes.FakeServiceInterface{}
+		fakeService.GetAllProposalsReturns(tt.result, tt.Error)
+
+		handlerInstance := handler.NewHandler(fakeService)
+		handlerInstance.GetAllProposalsHandler(fakeContest)
+
+		assert.Equal(t, tt.Code, responseRecorder.Code)
+
+	}
+}
+
+func TestTotalAbsenceTimeHandler(t *testing.T) {
+	var tests = []struct {
+		IDQuery       string
+		ServiceReturn model.AbsenceObject
+		ServiceError  error
+		Code          int
+	}{
+		{
+			IDQuery: "123",
+			ServiceReturn: model.AbsenceObject{
+				TotalVacationDays: 10,
+				SicknessDays:      2,
+				VacationDays:      8,
+			},
+			ServiceError: nil,
+			Code:         http.StatusOK,
+		},
+		{
+			IDQuery:       "123",
+			ServiceReturn: model.AbsenceObject{},
+			ServiceError:  errors.New("some service error"),
+			Code:          http.StatusInternalServerError,
+		},
+		{
+			IDQuery:       "",
+			ServiceReturn: model.AbsenceObject{},
+			ServiceError:  nil,
+			Code:          http.StatusBadRequest,
+		},
+	}
+	for _, tt := range tests {
+		responseRecorder := httptest.NewRecorder()
+		fakeContext, _ := gin.CreateTestContext(responseRecorder)
+		if tt.IDQuery != "" {
+			fakeContext.Params = append(fakeContext.Params, gin.Param{Key: "id", Value: tt.IDQuery})
+		}
+
+		fakeService := &handlerfakes.FakeServiceInterface{}
+		fakeService.GetTotalAbsenceReturns(tt.ServiceReturn, tt.ServiceError)
+
+		handlerInstance := handler.NewHandler(fakeService)
+		handlerInstance.TotalAbsenceTimeHandler(fakeContext)
+
+		assert.Equal(t, tt.Code, responseRecorder.Code)
+
+	}
+}

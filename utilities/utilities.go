@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"errors"
 	"example-project/model"
+	"fmt"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/retailify/go-interval"
 	"go.mongodb.org/mongo-driver/bson"
@@ -164,7 +165,6 @@ userLoop:
 		}
 
 	}
-
 	if len(setElements) == 0 {
 		return nil, errors.New("no data changed on user")
 	}
@@ -172,4 +172,19 @@ userLoop:
 		{"$set", setElements},
 	}
 	return setMap, nil
+}
+
+func GetWeekdaysBetween(start, end time.Time) int {
+	days := 0
+	for end.After(start) {
+
+		if start.Weekday().String() != "Saturday" && start.Weekday().String() != "Sunday" {
+			fmt.Println(start.Weekday().String())
+
+			days++
+		}
+		start = start.Add(time.Hour * 24)
+
+	}
+	return days
 }

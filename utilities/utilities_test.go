@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"testing"
+	"time"
 )
 
 func TestCreateTimeObject(t *testing.T) {
@@ -203,5 +204,23 @@ func TestUserUpdateSetter(t *testing.T) {
 		result, err := UserUpdateSetter(tt.user, tt.userGroup)
 		assert.Equal(t, tt.returnSetter, result)
 		assert.Equal(t, err, tt.isError)
+	}
+}
+
+func TestGetWeekdaysBetween(t *testing.T) {
+	var tests = []struct {
+		startDate time.Time
+		endDate   time.Time
+		result    int
+	}{
+		{
+			startDate: time.Date(2022, 10, 3, 0, 0, 0, 0, time.UTC),
+			endDate:   time.Date(2022, 10, 12, 0, 0, 0, 0, time.UTC),
+			result:    7,
+		},
+	}
+	for _, tt := range tests {
+		result := GetWeekdaysBetween(tt.startDate, tt.endDate)
+		assert.Equal(t, result, tt.result)
 	}
 }

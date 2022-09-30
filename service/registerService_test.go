@@ -308,8 +308,8 @@ func TestGetTotalAbsence(t *testing.T) {
 			GetProposalError: nil,
 			Return: model.AbsenceObject{
 				TotalVacationDays: 10,
-				VacationDays:      7,
-				SicknessDays:      5,
+				VacationDays:      6,
+				SicknessDays:      4,
 			},
 			Error: nil,
 		},
@@ -370,6 +370,18 @@ func TestGetTotalAbsence(t *testing.T) {
 			},
 			Error: &time.ParseError{Layout: "2006-Jan-02", Value: "2022-Sep15", LayoutElem: "-", ValueElem: "15", Message: ""},
 		},
+		{
+			UserID: "",
+			GetUserByIDReturn: model.UserPayload{
+				VacationDays: 30,
+				EntryTime:    time.Date(currentTime.Year(), 8, 1, 0, 0, 0, 0, time.UTC),
+			},
+			GetUserByIDError: nil,
+			GetProposals:     []model.Proposal{},
+			GetProposalError: nil,
+			Return:           model.AbsenceObject{},
+			Error:            errors.New("the provided hex string is not a valid ObjectID"),
+		},
 	}
 
 	for _, tt := range tests {
@@ -377,7 +389,7 @@ func TestGetTotalAbsence(t *testing.T) {
 		serviceInstance := service.NewEmployeeService(fakeDB)
 		fakeDB.GetUserByIDReturns(tt.GetUserByIDReturn, tt.GetUserByIDError)
 		fakeDB.GetProposalsReturns(tt.GetProposals, tt.GetProposalError)
-		result, err := serviceInstance.GetTotalAbsence(userID)
+		result, err := serviceInstance.GetTotalAbsence(tt.UserID)
 		assert.Equal(t, result, tt.Return)
 		assert.Equal(t, err, tt.Error)
 	}

@@ -144,7 +144,6 @@ func (s EmployeeService) GetTotalAbsence(userid string) (model.AbsenceObject, er
 		var lastDate = time.Date(user.EntryTime.Year(), 12, 31, 0, 0, 0, 0, time.UTC)
 		lastMonths := float64(lastDate.Month() - user.EntryTime.Month())
 		VacationResult = int(math.RoundToEven(lastMonths * daysPerMonth))
-
 	}
 
 	for _, proposal := range proposals {
@@ -157,7 +156,7 @@ func (s EmployeeService) GetTotalAbsence(userid string) (model.AbsenceObject, er
 		if err != nil {
 			return model.AbsenceObject{}, err
 		}
-		days := endDate.Sub(startDate).Hours() / 24
+		days := utilities.GetWeekdaysBetween(startDate, endDate)
 		if proposal.Type == "sickness" {
 			totalSicknessDays = totalSicknessDays + int(days) + 1
 		}
