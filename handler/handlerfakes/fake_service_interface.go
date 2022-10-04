@@ -156,9 +156,10 @@ type FakeServiceInterface struct {
 		result1 interface{}
 		result2 error
 	}
-	GetAllProposalsStub        func() ([]model.ProposalsByUser, error)
+	GetAllProposalsStub        func(*gin.Context) ([]model.ProposalsByUser, error)
 	getAllProposalsMutex       sync.RWMutex
 	getAllProposalsArgsForCall []struct {
+		arg1 *gin.Context
 	}
 	getAllProposalsReturns struct {
 		result1 []model.ProposalsByUser
@@ -1062,17 +1063,18 @@ func (fake *FakeServiceInterface) DeleteUsersReturnsOnCall(i int, result1 interf
 	}{result1, result2}
 }
 
-func (fake *FakeServiceInterface) GetAllProposals() ([]model.ProposalsByUser, error) {
+func (fake *FakeServiceInterface) GetAllProposals(arg1 *gin.Context) ([]model.ProposalsByUser, error) {
 	fake.getAllProposalsMutex.Lock()
 	ret, specificReturn := fake.getAllProposalsReturnsOnCall[len(fake.getAllProposalsArgsForCall)]
 	fake.getAllProposalsArgsForCall = append(fake.getAllProposalsArgsForCall, struct {
-	}{})
+		arg1 *gin.Context
+	}{arg1})
 	stub := fake.GetAllProposalsStub
 	fakeReturns := fake.getAllProposalsReturns
-	fake.recordInvocation("GetAllProposals", []interface{}{})
+	fake.recordInvocation("GetAllProposals", []interface{}{arg1})
 	fake.getAllProposalsMutex.Unlock()
 	if stub != nil {
-		return stub()
+		return stub(arg1)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -1086,10 +1088,17 @@ func (fake *FakeServiceInterface) GetAllProposalsCallCount() int {
 	return len(fake.getAllProposalsArgsForCall)
 }
 
-func (fake *FakeServiceInterface) GetAllProposalsCalls(stub func() ([]model.ProposalsByUser, error)) {
+func (fake *FakeServiceInterface) GetAllProposalsCalls(stub func(*gin.Context) ([]model.ProposalsByUser, error)) {
 	fake.getAllProposalsMutex.Lock()
 	defer fake.getAllProposalsMutex.Unlock()
 	fake.GetAllProposalsStub = stub
+}
+
+func (fake *FakeServiceInterface) GetAllProposalsArgsForCall(i int) *gin.Context {
+	fake.getAllProposalsMutex.RLock()
+	defer fake.getAllProposalsMutex.RUnlock()
+	argsForCall := fake.getAllProposalsArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeServiceInterface) GetAllProposalsReturns(result1 []model.ProposalsByUser, result2 error) {

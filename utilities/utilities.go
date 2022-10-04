@@ -5,6 +5,7 @@ import (
 	"errors"
 	"example-project/model"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/retailify/go-interval"
 	"go.mongodb.org/mongo-driver/bson"
@@ -91,6 +92,7 @@ func CraftProposalFromPayload(payload []model.ProposalPayload) ([]model.Proposal
 			Status:     pStatus,
 			Type:       p.Type,
 			TimeObject: obj,
+			Timestamp:  time.Now(),
 		}
 		if err != nil {
 			timeIntervalErrMsg := errors.New("Error occured in building the time interval for a new proposal")
@@ -187,4 +189,28 @@ func GetWeekdaysBetween(start, end time.Time) int {
 
 	}
 	return days
+}
+
+func FormGetAllProposalsFilter(userid string, ctx *gin.Context) (bson.M, bson.D) {
+	filter := bson.M{}
+	sort := bson.D{{"timestamp", 1}}
+	typeQuery, typeOK := ctx.GetQuery("type")
+	filter["userId"] = userid
+	if typeOK {
+		filter["type"] = typeQuery
+	}
+	statusQuery, statusOK := ctx.GetQuery("status")
+	if statusOK {
+		filter["status"] = statusQuery
+	}
+	sortingQuery, sortingOK := ctx.GetQuery("sort")
+	if sortingOK {
+		if sortingQuery == "desc" {
+			sort = bson.D{{"timestamp", -1}}
+		}
+		if sortingQuery == "asce" {
+			sort = bson.D{{"timestamp", 1}}
+		}
+	}
+	return filter, sort
 }

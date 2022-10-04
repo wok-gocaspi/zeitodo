@@ -35,7 +35,7 @@ func TestProposalService_GetProposalsByID(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		fakeDb.GetProposalsReturns(tt.payload, tt.err)
+		fakeDb.GetProposalsByUserIDReturns(tt.payload, tt.err)
 		serviceInstance := service.NewEmployeeService(fakeDb)
 
 		if !tt.hasNoPayload && !tt.hasDecodeErr && tt.err == nil {
@@ -148,14 +148,14 @@ func TestEmployeeService_CreateProposals(t *testing.T) {
 		}
 
 		if tt.overlappingErr {
-			fakeDb.GetProposalsReturns(tt.GetProposalsReturn, nil)
+			fakeDb.GetProposalsByUserIDReturns(tt.GetProposalsReturn, nil)
 
 			actual, err := serviceInstance.CreateProposals(tt.Payload, "2006-Nov-07")
 			assert.Equal(t, nil, actual)
 			assert.Equal(t, errors.New(tt.expectedError), err)
 		}
 		if !tt.overlappingErr && !tt.startDateExceedsEndDate {
-			fakeDb.GetProposalsReturns(tt.GetProposalsReturn, nil)
+			fakeDb.GetProposalsByUserIDReturns(tt.GetProposalsReturn, nil)
 
 			actual, err := serviceInstance.CreateProposals(tt.Payload, "2010-Jan-07")
 			assert.Equal(t, nil, actual)

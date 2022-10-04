@@ -14,7 +14,7 @@ import (
 
 func (s EmployeeService) GetProposalsByID(id string) ([]model.Proposal, error) {
 
-	result, err := s.DbService.GetProposals(id)
+	result, err := s.DbService.GetProposalsByUserID(id)
 	if err != nil {
 		return []model.Proposal{}, err
 	}
@@ -92,8 +92,9 @@ func (s EmployeeService) UpdateProposalByDate(update model.Proposal, date string
 	}
 }
 
-func (s EmployeeService) GetAllProposals() ([]model.ProposalsByUser, error) {
+func (s EmployeeService) GetAllProposals(ctx *gin.Context) ([]model.ProposalsByUser, error) {
 	var proposalUserArray []model.ProposalsByUser
+
 	users, err := s.DbService.GetAllUser()
 	if err != nil {
 		return proposalUserArray, err
@@ -106,7 +107,8 @@ func (s EmployeeService) GetAllProposals() ([]model.ProposalsByUser, error) {
 		proposalUserItem.FirstName = user.FirstName
 		proposalUserItem.LastName = user.LastName
 
-		proposals, err := s.DbService.GetProposals(user.ID.Hex())
+		filter, sort := utilities.FormGetAllProposalsFilter(user.ID.Hex(), ctx)
+		proposals, err := s.DbService.GetProposalsByFilter(filter, sort)
 		if err != nil {
 			return proposalUserArray, err
 		}
@@ -130,7 +132,7 @@ func (s EmployeeService) GetTotalAbsence(userid string) (model.AbsenceObject, er
 	if err != nil {
 		return absenceTime, err
 	}
-	proposals, err := s.DbService.GetProposals(userid)
+	proposals, err := s.DbService.GetProposalsByUserID(userid)
 	if err != nil {
 		return model.AbsenceObject{}, err
 	}

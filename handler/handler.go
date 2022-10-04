@@ -31,7 +31,7 @@ type ServiceInterface interface {
 	CreateProposals(proposalPayloadArr []model.ProposalPayload, id string) (interface{}, error)
 	DeleteProposalsByID(id string, date string) error
 	UpdateProposalByDate(update model.Proposal, date string, ctx *gin.Context) (*mongo.UpdateResult, error)
-	GetAllProposals() ([]model.ProposalsByUser, error)
+	GetAllProposals(ctx *gin.Context) ([]model.ProposalsByUser, error)
 	CreatTimeEntries(te model.TimeEntry) (interface{}, error)
 	UpdateTimeEntries(update model.TimeEntry) (interface{}, error)
 	GetTimeEntries(id string) []model.TimeEntry
@@ -566,7 +566,8 @@ func (handler Handler) UpdateProposalsHandler(c *gin.Context) {
 }
 
 func (handler Handler) GetAllProposalsHandler(c *gin.Context) {
-	result, err := handler.ServiceInterface.GetAllProposals()
+
+	result, err := handler.ServiceInterface.GetAllProposals(c)
 	if err != nil {
 		c.AbortWithStatusJSON(500, gin.H{
 			"errorMessage": err.Error(),

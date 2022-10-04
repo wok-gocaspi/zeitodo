@@ -122,6 +122,7 @@ type Proposal struct {
 	Type      string `json:"type" bson:"type"`
 	//	ID         primitive.ObjectID `bson:"_id" json:"id,omitempty"`
 	TimeObject ProposalTimeObject `json:"timeObject" bson:"timeObject"`
+	Timestamp  time.Time          `json:"timestamp" bson:"timestamp"`
 }
 
 type ProposalsByUser struct {
