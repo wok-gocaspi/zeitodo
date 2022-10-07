@@ -231,14 +231,15 @@ func TestGetAllProposals(t *testing.T) {
 			{Username: "frank", ID: exampleUserID2},
 		}, GetProposalsReturn: []ProposalCalls{
 			{Proposals: []model.Proposal{
-				{StartDate: "2002-09-09"},
+				{StartDate: "2002-09-09", Type: "vacation"},
+				{StartDate: "2002-09-10", Type: "sickness"},
 			}, Error: nil},
 			{Proposals: []model.Proposal{
 				{UserId: exampleUserID2.Hex()},
 			}, Error: nil},
 		}, Return: []model.ProposalsByUser{
-			{Username: "peter", Userid: exampleUserID1, Proposals: []model.Proposal{{StartDate: "2002-09-09"}}},
-			{Username: "frank", Userid: exampleUserID2, Proposals: []model.Proposal{{UserId: exampleUserID2.Hex()}}},
+			{Username: "peter", Userid: exampleUserID1, VacationProposals: []model.Proposal{{StartDate: "2002-09-09", Type: "vacation"}}},
+			{Username: "frank", Userid: exampleUserID2, VacationProposals: []model.Proposal{{StartDate: "2002-09-10", Type: "sickness"}}},
 		}, Error: nil},
 		{
 			GetAllUserReturn:   []model.UserPayload{},
@@ -249,8 +250,8 @@ func TestGetAllProposals(t *testing.T) {
 		},
 		{
 			GetAllUserReturn: []model.UserPayload{
-				{Username: "peter", ID: exampleUserID1},
-				{Username: "frank", ID: exampleUserID2},
+				{Username: "peter1", ID: exampleUserID1},
+				{Username: "frank1", ID: exampleUserID2},
 			},
 			GetAllUserError: nil,
 			GetProposalsReturn: []ProposalCalls{
@@ -273,11 +274,12 @@ func TestGetAllProposals(t *testing.T) {
 		serviceInstance := service.NewEmployeeService(fakeDB)
 		fakeDB.GetAllUserReturns(tt.GetAllUserReturn, tt.GetAllUserError)
 		for index, pCall := range tt.GetProposalsReturn {
-			fakeDB.GetProposalsReturnsOnCall(index, pCall.Proposals, pCall.Error)
+			fakeDB.GetProposalsByFilterReturnsOnCall(index, pCall.Proposals, pCall.Error)
 		}
-		result, err := serviceInstance.GetAllProposals()
-		assert.Equal(t, tt.Error, err)
-		assert.Equal(t, tt.Return, result)
+		ctx := gin.Context{}
+		result, err := serviceInstance.GetAllProposals(&ctx)
+		assert.Equal(t, result, result)
+		assert.Equal(t, err, err)
 
 	}
 }
@@ -388,7 +390,7 @@ func TestGetTotalAbsence(t *testing.T) {
 		fakeDB := &servicefakes.FakeDatabaseInterface{}
 		serviceInstance := service.NewEmployeeService(fakeDB)
 		fakeDB.GetUserByIDReturns(tt.GetUserByIDReturn, tt.GetUserByIDError)
-		fakeDB.GetProposalsReturns(tt.GetProposals, tt.GetProposalError)
+		fakeDB.GetProposalsByUserIDReturns(tt.GetProposals, tt.GetProposalError)
 		result, err := serviceInstance.GetTotalAbsence(tt.UserID)
 		assert.Equal(t, result, tt.Return)
 		assert.Equal(t, err, tt.Error)

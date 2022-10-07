@@ -115,7 +115,14 @@ func (s EmployeeService) GetAllProposals(ctx *gin.Context) ([]model.ProposalsByU
 		if len(proposals) == 0 {
 			continue
 		}
-		proposalUserItem.Proposals = append(proposalUserItem.Proposals, proposals...)
+		for _, prop := range proposals {
+			if prop.Type == "sickness" {
+				proposalUserItem.SicknessProposals = append(proposalUserItem.SicknessProposals, prop)
+			}
+			if prop.Type == "vacation" {
+				proposalUserItem.VacationProposals = append(proposalUserItem.VacationProposals, prop)
+			}
+		}
 		proposalUserArray = append(proposalUserArray, proposalUserItem)
 
 	}

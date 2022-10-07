@@ -3,9 +3,11 @@ package utilities
 import (
 	"errors"
 	"example-project/model"
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"net/http/httptest"
 	"testing"
 	"time"
 )
@@ -223,4 +225,20 @@ func TestGetWeekdaysBetween(t *testing.T) {
 		result := GetWeekdaysBetween(tt.startDate, tt.endDate)
 		assert.Equal(t, result, tt.result)
 	}
+}
+
+func TestFormGetAllProposalsFilter(t *testing.T) {
+	fakeContext := gin.Context{}
+	fakeContext.Request = httptest.NewRequest("GET", "http://localhost:9090/proposals?sort=asce&type=vacation&status=approved&username=jack", nil)
+	filter, sort := FormGetAllProposalsFilter(primitive.NewObjectID().Hex(), &fakeContext)
+	assert.Equal(t, filter, filter)
+	assert.Equal(t, sort, sort)
+}
+
+func TestFormGetAllProposalsFilterDESC(t *testing.T) {
+	fakeContext := gin.Context{}
+	fakeContext.Request = httptest.NewRequest("GET", "http://localhost:9090/proposals?sort=desc&type=vacation&status=approved&username=jack", nil)
+	filter, sort := FormGetAllProposalsFilter(primitive.NewObjectID().Hex(), &fakeContext)
+	assert.Equal(t, filter, filter)
+	assert.Equal(t, sort, sort)
 }

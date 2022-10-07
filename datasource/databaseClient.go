@@ -233,9 +233,7 @@ func (c Client) DeleteProposalByIdAndDate(id string, date string) (*mongo.Delete
 
 func (c Client) UpdateProposal(update model.Proposal, date string) (*mongo.UpdateResult, error) {
 	filter := bson.M{"userId": update.UserId, "startDate": date}
-	// datensatz zur id auslesen
-	// check doc geschnitten datensatzen
-	// change update
+
 	if update.UserId == "" {
 		IdMissing := "an userId has to be provided"
 		return nil, errors.New(IdMissing)
@@ -256,6 +254,9 @@ func (c Client) UpdateProposal(update model.Proposal, date string) (*mongo.Updat
 	}
 	if update.Type != "" {
 		setElements = append(setElements, bson.E{Key: "type", Value: update.Type})
+	}
+	if update.Status != "" {
+		setElements = append(setElements, bson.E{Key: "status", Value: update.Status})
 	}
 
 	setMap := bson.D{

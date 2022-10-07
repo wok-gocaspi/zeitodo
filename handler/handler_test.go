@@ -1384,7 +1384,7 @@ func TestGetAllProposalsHandler(t *testing.T) {
 			result: []model.ProposalsByUser{
 				{
 					Username: "Test1",
-					Proposals: []model.Proposal{
+					SicknessProposals: []model.Proposal{
 						{
 							StartDate: "2022-10-10",
 							UserId:    "123",

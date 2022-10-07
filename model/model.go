@@ -126,12 +126,13 @@ type Proposal struct {
 }
 
 type ProposalsByUser struct {
-	Userid    primitive.ObjectID `json:"userid"`
-	FirstName string             `json:"firstname" bson:"firstname"`
-	LastName  string             `json:"lastname" bson:"lastname"`
-	Username  string             `json:"username" bson:"username"`
-	Email     string             `json:"email" bson:"email"`
-	Proposals []Proposal         `json:"proposals"`
+	Userid            primitive.ObjectID `json:"userid"`
+	FirstName         string             `json:"firstname" bson:"firstname"`
+	LastName          string             `json:"lastname" bson:"lastname"`
+	Username          string             `json:"username" bson:"username"`
+	Email             string             `json:"email" bson:"email"`
+	SicknessProposals []Proposal         `json:"sicknessProposals"`
+	VacationProposals []Proposal         `json:"vacationProposals"`
 }
 
 type ProposalTimeObject struct {
