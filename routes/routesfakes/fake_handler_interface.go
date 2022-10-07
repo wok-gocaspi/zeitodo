@@ -44,6 +44,11 @@ type FakeHandlerInterface struct {
 	deleteUserHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
+	GetAllProposalsHandlerStub        func(*gin.Context)
+	getAllProposalsHandlerMutex       sync.RWMutex
+	getAllProposalsHandlerArgsForCall []struct {
+		arg1 *gin.Context
+	}
 	GetAllTimeEntryStub        func(*gin.Context)
 	getAllTimeEntryMutex       sync.RWMutex
 	getAllTimeEntryArgsForCall []struct {
@@ -92,6 +97,11 @@ type FakeHandlerInterface struct {
 	RefreshTokenHandlerStub        func(*gin.Context)
 	refreshTokenHandlerMutex       sync.RWMutex
 	refreshTokenHandlerArgsForCall []struct {
+		arg1 *gin.Context
+	}
+	TotalAbsenceTimeHandlerStub        func(*gin.Context)
+	totalAbsenceTimeHandlerMutex       sync.RWMutex
+	totalAbsenceTimeHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
 	UpdateProposalsHandlerStub        func(*gin.Context)
@@ -334,6 +344,38 @@ func (fake *FakeHandlerInterface) DeleteUserHandlerArgsForCall(i int) *gin.Conte
 	fake.deleteUserHandlerMutex.RLock()
 	defer fake.deleteUserHandlerMutex.RUnlock()
 	argsForCall := fake.deleteUserHandlerArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeHandlerInterface) GetAllProposalsHandler(arg1 *gin.Context) {
+	fake.getAllProposalsHandlerMutex.Lock()
+	fake.getAllProposalsHandlerArgsForCall = append(fake.getAllProposalsHandlerArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.GetAllProposalsHandlerStub
+	fake.recordInvocation("GetAllProposalsHandler", []interface{}{arg1})
+	fake.getAllProposalsHandlerMutex.Unlock()
+	if stub != nil {
+		fake.GetAllProposalsHandlerStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) GetAllProposalsHandlerCallCount() int {
+	fake.getAllProposalsHandlerMutex.RLock()
+	defer fake.getAllProposalsHandlerMutex.RUnlock()
+	return len(fake.getAllProposalsHandlerArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) GetAllProposalsHandlerCalls(stub func(*gin.Context)) {
+	fake.getAllProposalsHandlerMutex.Lock()
+	defer fake.getAllProposalsHandlerMutex.Unlock()
+	fake.GetAllProposalsHandlerStub = stub
+}
+
+func (fake *FakeHandlerInterface) GetAllProposalsHandlerArgsForCall(i int) *gin.Context {
+	fake.getAllProposalsHandlerMutex.RLock()
+	defer fake.getAllProposalsHandlerMutex.RUnlock()
+	argsForCall := fake.getAllProposalsHandlerArgsForCall[i]
 	return argsForCall.arg1
 }
 
@@ -657,6 +699,38 @@ func (fake *FakeHandlerInterface) RefreshTokenHandlerArgsForCall(i int) *gin.Con
 	return argsForCall.arg1
 }
 
+func (fake *FakeHandlerInterface) TotalAbsenceTimeHandler(arg1 *gin.Context) {
+	fake.totalAbsenceTimeHandlerMutex.Lock()
+	fake.totalAbsenceTimeHandlerArgsForCall = append(fake.totalAbsenceTimeHandlerArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.TotalAbsenceTimeHandlerStub
+	fake.recordInvocation("TotalAbsenceTimeHandler", []interface{}{arg1})
+	fake.totalAbsenceTimeHandlerMutex.Unlock()
+	if stub != nil {
+		fake.TotalAbsenceTimeHandlerStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) TotalAbsenceTimeHandlerCallCount() int {
+	fake.totalAbsenceTimeHandlerMutex.RLock()
+	defer fake.totalAbsenceTimeHandlerMutex.RUnlock()
+	return len(fake.totalAbsenceTimeHandlerArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) TotalAbsenceTimeHandlerCalls(stub func(*gin.Context)) {
+	fake.totalAbsenceTimeHandlerMutex.Lock()
+	defer fake.totalAbsenceTimeHandlerMutex.Unlock()
+	fake.TotalAbsenceTimeHandlerStub = stub
+}
+
+func (fake *FakeHandlerInterface) TotalAbsenceTimeHandlerArgsForCall(i int) *gin.Context {
+	fake.totalAbsenceTimeHandlerMutex.RLock()
+	defer fake.totalAbsenceTimeHandlerMutex.RUnlock()
+	argsForCall := fake.totalAbsenceTimeHandlerArgsForCall[i]
+	return argsForCall.arg1
+}
+
 func (fake *FakeHandlerInterface) UpdateProposalsHandler(arg1 *gin.Context) {
 	fake.updateProposalsHandlerMutex.Lock()
 	fake.updateProposalsHandlerArgsForCall = append(fake.updateProposalsHandlerArgsForCall, struct {
@@ -770,6 +844,8 @@ func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	defer fake.deleteTimeEntryMutex.RUnlock()
 	fake.deleteUserHandlerMutex.RLock()
 	defer fake.deleteUserHandlerMutex.RUnlock()
+	fake.getAllProposalsHandlerMutex.RLock()
+	defer fake.getAllProposalsHandlerMutex.RUnlock()
 	fake.getAllTimeEntryMutex.RLock()
 	defer fake.getAllTimeEntryMutex.RUnlock()
 	fake.getAllUserHandlerMutex.RLock()
@@ -790,6 +866,8 @@ func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	defer fake.permissionMiddlewareMutex.RUnlock()
 	fake.refreshTokenHandlerMutex.RLock()
 	defer fake.refreshTokenHandlerMutex.RUnlock()
+	fake.totalAbsenceTimeHandlerMutex.RLock()
+	defer fake.totalAbsenceTimeHandlerMutex.RUnlock()
 	fake.updateProposalsHandlerMutex.RLock()
 	defer fake.updateProposalsHandlerMutex.RUnlock()
 	fake.updateTimeEntryMutex.RLock()

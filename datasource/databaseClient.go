@@ -159,10 +159,33 @@ func (c Client) DeleteUser(id primitive.ObjectID) (interface{}, error) {
 	return deleteResult, nil
 }
 
-func (c Client) GetProposals(id string) ([]model.Proposal, error) {
+func (c Client) GetProposalsByUserID(id string) ([]model.Proposal, error) {
 	var proposalArr []model.Proposal
 	filter := bson.M{"userId": id}
 	cur, err := c.Proposals.Find(context.TODO(), filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(context.Background())
+	for cur.Next(context.Background()) {
+		// To decode into a struct, use cursor.Decode()
+		var proposal model.Proposal
+		err = cur.Decode(&proposal)
+		if err != nil {
+			return nil, err
+		}
+		proposalArr = append(proposalArr, proposal)
+	}
+	if err = cur.Err(); err != nil {
+		return nil, err
+	}
+	return proposalArr, nil
+}
+
+func (c Client) GetProposalsByFilter(filter bson.M, sort bson.D) ([]model.Proposal, error) {
+	var proposalArr []model.Proposal
+	opts := options.Find().SetSort(sort)
+	cur, err := c.Proposals.Find(context.TODO(), filter, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -210,9 +233,7 @@ func (c Client) DeleteProposalByIdAndDate(id string, date string) (*mongo.Delete
 
 func (c Client) UpdateProposal(update model.Proposal, date string) (*mongo.UpdateResult, error) {
 	filter := bson.M{"userId": update.UserId, "startDate": date}
-	// datensatz zur id auslesen
-	// check doc geschnitten datensatzen
-	// change update
+
 	if update.UserId == "" {
 		IdMissing := "an userId has to be provided"
 		return nil, errors.New(IdMissing)
@@ -233,6 +254,9 @@ func (c Client) UpdateProposal(update model.Proposal, date string) (*mongo.Updat
 	}
 	if update.Type != "" {
 		setElements = append(setElements, bson.E{Key: "type", Value: update.Type})
+	}
+	if update.Status != "" {
+		setElements = append(setElements, bson.E{Key: "status", Value: update.Status})
 	}
 
 	setMap := bson.D{

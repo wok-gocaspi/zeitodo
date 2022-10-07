@@ -103,16 +103,30 @@ type FakeDatabaseInterface struct {
 		result1 []model.UserPayload
 		result2 error
 	}
-	GetProposalsStub        func(string) ([]model.Proposal, error)
-	getProposalsMutex       sync.RWMutex
-	getProposalsArgsForCall []struct {
-		arg1 string
+	GetProposalsByFilterStub        func(primitive.M, primitive.D) ([]model.Proposal, error)
+	getProposalsByFilterMutex       sync.RWMutex
+	getProposalsByFilterArgsForCall []struct {
+		arg1 primitive.M
+		arg2 primitive.D
 	}
-	getProposalsReturns struct {
+	getProposalsByFilterReturns struct {
 		result1 []model.Proposal
 		result2 error
 	}
-	getProposalsReturnsOnCall map[int]struct {
+	getProposalsByFilterReturnsOnCall map[int]struct {
+		result1 []model.Proposal
+		result2 error
+	}
+	GetProposalsByUserIDStub        func(string) ([]model.Proposal, error)
+	getProposalsByUserIDMutex       sync.RWMutex
+	getProposalsByUserIDArgsForCall []struct {
+		arg1 string
+	}
+	getProposalsByUserIDReturns struct {
+		result1 []model.Proposal
+		result2 error
+	}
+	getProposalsByUserIDReturnsOnCall map[int]struct {
 		result1 []model.Proposal
 		result2 error
 	}
@@ -671,16 +685,81 @@ func (fake *FakeDatabaseInterface) GetAllUserReturnsOnCall(i int, result1 []mode
 	}{result1, result2}
 }
 
-func (fake *FakeDatabaseInterface) GetProposals(arg1 string) ([]model.Proposal, error) {
-	fake.getProposalsMutex.Lock()
-	ret, specificReturn := fake.getProposalsReturnsOnCall[len(fake.getProposalsArgsForCall)]
-	fake.getProposalsArgsForCall = append(fake.getProposalsArgsForCall, struct {
+func (fake *FakeDatabaseInterface) GetProposalsByFilter(arg1 primitive.M, arg2 primitive.D) ([]model.Proposal, error) {
+	fake.getProposalsByFilterMutex.Lock()
+	ret, specificReturn := fake.getProposalsByFilterReturnsOnCall[len(fake.getProposalsByFilterArgsForCall)]
+	fake.getProposalsByFilterArgsForCall = append(fake.getProposalsByFilterArgsForCall, struct {
+		arg1 primitive.M
+		arg2 primitive.D
+	}{arg1, arg2})
+	stub := fake.GetProposalsByFilterStub
+	fakeReturns := fake.getProposalsByFilterReturns
+	fake.recordInvocation("GetProposalsByFilter", []interface{}{arg1, arg2})
+	fake.getProposalsByFilterMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeDatabaseInterface) GetProposalsByFilterCallCount() int {
+	fake.getProposalsByFilterMutex.RLock()
+	defer fake.getProposalsByFilterMutex.RUnlock()
+	return len(fake.getProposalsByFilterArgsForCall)
+}
+
+func (fake *FakeDatabaseInterface) GetProposalsByFilterCalls(stub func(primitive.M, primitive.D) ([]model.Proposal, error)) {
+	fake.getProposalsByFilterMutex.Lock()
+	defer fake.getProposalsByFilterMutex.Unlock()
+	fake.GetProposalsByFilterStub = stub
+}
+
+func (fake *FakeDatabaseInterface) GetProposalsByFilterArgsForCall(i int) (primitive.M, primitive.D) {
+	fake.getProposalsByFilterMutex.RLock()
+	defer fake.getProposalsByFilterMutex.RUnlock()
+	argsForCall := fake.getProposalsByFilterArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeDatabaseInterface) GetProposalsByFilterReturns(result1 []model.Proposal, result2 error) {
+	fake.getProposalsByFilterMutex.Lock()
+	defer fake.getProposalsByFilterMutex.Unlock()
+	fake.GetProposalsByFilterStub = nil
+	fake.getProposalsByFilterReturns = struct {
+		result1 []model.Proposal
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeDatabaseInterface) GetProposalsByFilterReturnsOnCall(i int, result1 []model.Proposal, result2 error) {
+	fake.getProposalsByFilterMutex.Lock()
+	defer fake.getProposalsByFilterMutex.Unlock()
+	fake.GetProposalsByFilterStub = nil
+	if fake.getProposalsByFilterReturnsOnCall == nil {
+		fake.getProposalsByFilterReturnsOnCall = make(map[int]struct {
+			result1 []model.Proposal
+			result2 error
+		})
+	}
+	fake.getProposalsByFilterReturnsOnCall[i] = struct {
+		result1 []model.Proposal
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeDatabaseInterface) GetProposalsByUserID(arg1 string) ([]model.Proposal, error) {
+	fake.getProposalsByUserIDMutex.Lock()
+	ret, specificReturn := fake.getProposalsByUserIDReturnsOnCall[len(fake.getProposalsByUserIDArgsForCall)]
+	fake.getProposalsByUserIDArgsForCall = append(fake.getProposalsByUserIDArgsForCall, struct {
 		arg1 string
 	}{arg1})
-	stub := fake.GetProposalsStub
-	fakeReturns := fake.getProposalsReturns
-	fake.recordInvocation("GetProposals", []interface{}{arg1})
-	fake.getProposalsMutex.Unlock()
+	stub := fake.GetProposalsByUserIDStub
+	fakeReturns := fake.getProposalsByUserIDReturns
+	fake.recordInvocation("GetProposalsByUserID", []interface{}{arg1})
+	fake.getProposalsByUserIDMutex.Unlock()
 	if stub != nil {
 		return stub(arg1)
 	}
@@ -690,46 +769,46 @@ func (fake *FakeDatabaseInterface) GetProposals(arg1 string) ([]model.Proposal, 
 	return fakeReturns.result1, fakeReturns.result2
 }
 
-func (fake *FakeDatabaseInterface) GetProposalsCallCount() int {
-	fake.getProposalsMutex.RLock()
-	defer fake.getProposalsMutex.RUnlock()
-	return len(fake.getProposalsArgsForCall)
+func (fake *FakeDatabaseInterface) GetProposalsByUserIDCallCount() int {
+	fake.getProposalsByUserIDMutex.RLock()
+	defer fake.getProposalsByUserIDMutex.RUnlock()
+	return len(fake.getProposalsByUserIDArgsForCall)
 }
 
-func (fake *FakeDatabaseInterface) GetProposalsCalls(stub func(string) ([]model.Proposal, error)) {
-	fake.getProposalsMutex.Lock()
-	defer fake.getProposalsMutex.Unlock()
-	fake.GetProposalsStub = stub
+func (fake *FakeDatabaseInterface) GetProposalsByUserIDCalls(stub func(string) ([]model.Proposal, error)) {
+	fake.getProposalsByUserIDMutex.Lock()
+	defer fake.getProposalsByUserIDMutex.Unlock()
+	fake.GetProposalsByUserIDStub = stub
 }
 
-func (fake *FakeDatabaseInterface) GetProposalsArgsForCall(i int) string {
-	fake.getProposalsMutex.RLock()
-	defer fake.getProposalsMutex.RUnlock()
-	argsForCall := fake.getProposalsArgsForCall[i]
+func (fake *FakeDatabaseInterface) GetProposalsByUserIDArgsForCall(i int) string {
+	fake.getProposalsByUserIDMutex.RLock()
+	defer fake.getProposalsByUserIDMutex.RUnlock()
+	argsForCall := fake.getProposalsByUserIDArgsForCall[i]
 	return argsForCall.arg1
 }
 
-func (fake *FakeDatabaseInterface) GetProposalsReturns(result1 []model.Proposal, result2 error) {
-	fake.getProposalsMutex.Lock()
-	defer fake.getProposalsMutex.Unlock()
-	fake.GetProposalsStub = nil
-	fake.getProposalsReturns = struct {
+func (fake *FakeDatabaseInterface) GetProposalsByUserIDReturns(result1 []model.Proposal, result2 error) {
+	fake.getProposalsByUserIDMutex.Lock()
+	defer fake.getProposalsByUserIDMutex.Unlock()
+	fake.GetProposalsByUserIDStub = nil
+	fake.getProposalsByUserIDReturns = struct {
 		result1 []model.Proposal
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeDatabaseInterface) GetProposalsReturnsOnCall(i int, result1 []model.Proposal, result2 error) {
-	fake.getProposalsMutex.Lock()
-	defer fake.getProposalsMutex.Unlock()
-	fake.GetProposalsStub = nil
-	if fake.getProposalsReturnsOnCall == nil {
-		fake.getProposalsReturnsOnCall = make(map[int]struct {
+func (fake *FakeDatabaseInterface) GetProposalsByUserIDReturnsOnCall(i int, result1 []model.Proposal, result2 error) {
+	fake.getProposalsByUserIDMutex.Lock()
+	defer fake.getProposalsByUserIDMutex.Unlock()
+	fake.GetProposalsByUserIDStub = nil
+	if fake.getProposalsByUserIDReturnsOnCall == nil {
+		fake.getProposalsByUserIDReturnsOnCall = make(map[int]struct {
 			result1 []model.Proposal
 			result2 error
 		})
 	}
-	fake.getProposalsReturnsOnCall[i] = struct {
+	fake.getProposalsByUserIDReturnsOnCall[i] = struct {
 		result1 []model.Proposal
 		result2 error
 	}{result1, result2}
@@ -1332,8 +1411,10 @@ func (fake *FakeDatabaseInterface) Invocations() map[string][][]interface{} {
 	defer fake.getAllTimeEntryMutex.RUnlock()
 	fake.getAllUserMutex.RLock()
 	defer fake.getAllUserMutex.RUnlock()
-	fake.getProposalsMutex.RLock()
-	defer fake.getProposalsMutex.RUnlock()
+	fake.getProposalsByFilterMutex.RLock()
+	defer fake.getProposalsByFilterMutex.RUnlock()
+	fake.getProposalsByUserIDMutex.RLock()
+	defer fake.getProposalsByUserIDMutex.RUnlock()
 	fake.getTimeEntryByIDMutex.RLock()
 	defer fake.getTimeEntryByIDMutex.RUnlock()
 	fake.getUserByIDMutex.RLock()

@@ -4,6 +4,8 @@ import (
 	"crypto/sha256"
 	"errors"
 	"example-project/model"
+	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/retailify/go-interval"
 	"go.mongodb.org/mongo-driver/bson"
@@ -79,13 +81,18 @@ func CraftProposalFromPayload(payload []model.ProposalPayload) ([]model.Proposal
 	var proposals []model.Proposal
 	for _, p := range payload {
 		obj, err := CreateTimeObject(p.StartDate, p.EndDate)
+		var pStatus = "pending"
+		if p.Type == "sickness" {
+			pStatus = "approved"
+		}
 		newProposal := model.Proposal{
 			UserId:     p.UserId,
 			StartDate:  p.StartDate,
 			EndDate:    p.EndDate,
-			Approved:   false,
+			Status:     pStatus,
 			Type:       p.Type,
 			TimeObject: obj,
+			Timestamp:  time.Now(),
 		}
 		if err != nil {
 			timeIntervalErrMsg := errors.New("Error occured in building the time interval for a new proposal")
@@ -137,9 +144,9 @@ userLoop:
 		case user.Team != "":
 			setElements = append(setElements, bson.E{Key: "team", Value: user.Team})
 			user.Team = ""
-		case user.TotalWorkingHours != 0:
-			setElements = append(setElements, bson.E{Key: "totalWorkingHours", Value: user.TotalWorkingHours})
-			user.TotalWorkingHours = 0
+		case user.TotalWorkingDays != 0:
+			setElements = append(setElements, bson.E{Key: "totalWorkingDays", Value: user.TotalWorkingDays})
+			user.TotalWorkingDays = 0
 		case user.VacationDays != 0:
 			setElements = append(setElements, bson.E{Key: "vacationDays", Value: user.VacationDays})
 			user.VacationDays = 0
@@ -160,7 +167,6 @@ userLoop:
 		}
 
 	}
-
 	if len(setElements) == 0 {
 		return nil, errors.New("no data changed on user")
 	}
@@ -168,4 +174,43 @@ userLoop:
 		{"$set", setElements},
 	}
 	return setMap, nil
+}
+
+func GetWeekdaysBetween(start, end time.Time) int {
+	days := 0
+	for end.After(start) {
+
+		if start.Weekday().String() != "Saturday" && start.Weekday().String() != "Sunday" {
+			fmt.Println(start.Weekday().String())
+
+			days++
+		}
+		start = start.Add(time.Hour * 24)
+
+	}
+	return days
+}
+
+func FormGetAllProposalsFilter(userid string, ctx *gin.Context) (bson.M, bson.D) {
+	filter := bson.M{}
+	sort := bson.D{{"timestamp", 1}}
+	typeQuery, typeOK := ctx.GetQuery("type")
+	filter["userId"] = userid
+	if typeOK {
+		filter["type"] = typeQuery
+	}
+	statusQuery, statusOK := ctx.GetQuery("status")
+	if statusOK {
+		filter["status"] = statusQuery
+	}
+	sortingQuery, sortingOK := ctx.GetQuery("sort")
+	if sortingOK {
+		if sortingQuery == "desc" {
+			sort = bson.D{{"timestamp", -1}}
+		}
+		if sortingQuery == "asce" {
+			sort = bson.D{{"timestamp", 1}}
+		}
+	}
+	return filter, sort
 }
