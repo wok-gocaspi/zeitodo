@@ -5,18 +5,20 @@ import (
 	"example-project/model"
 	"example-project/service"
 	"example-project/service/servicefakes"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"testing"
+	"time"
 )
 
 func TestProposalService_GetProposalsByID(t *testing.T) {
 	fakeDb := &servicefakes.FakeDatabaseInterface{}
 	fakePayload := []model.Proposal{
-		{UserId: "1", Approved: false},
-		{UserId: "1", Approved: true},
+		{UserId: "1", Status: "approved"},
+		{UserId: "1", Status: "denied"},
 	}
 	fakeNilPayload := []model.Proposal{}
 	fakeDecodeErr := errors.New("Decode went wrong")
@@ -33,7 +35,7 @@ func TestProposalService_GetProposalsByID(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		fakeDb.GetProposalsReturns(tt.payload, tt.err)
+		fakeDb.GetProposalsByUserIDReturns(tt.payload, tt.err)
 		serviceInstance := service.NewEmployeeService(fakeDb)
 
 		if !tt.hasNoPayload && !tt.hasDecodeErr && tt.err == nil {
@@ -69,10 +71,10 @@ func TestEmployeeService_UpdateEmployee(t *testing.T) {
 
 	mockProposaluser := model.Proposal{
 
-		UserId: fakeuserid, StartDate: "2006-Nov-06", EndDate: "2006-Nov-02", Approved: false}
+		UserId: fakeuserid, StartDate: "2006-Nov-06", EndDate: "2006-Nov-02", Status: "denied"}
 
 	mockProposalAdmin := model.Proposal{
-		UserId: fakeAdminId, StartDate: "2006-Nov-06", EndDate: "2006-Nov-02", Approved: true}
+		UserId: fakeAdminId, StartDate: "2006-Nov-06", EndDate: "2006-Nov-02", Status: "approved"}
 
 	mockError := errors.New("fake userId")
 	mockErrorUser := errors.New("user can not update ")
@@ -146,14 +148,14 @@ func TestEmployeeService_CreateProposals(t *testing.T) {
 		}
 
 		if tt.overlappingErr {
-			fakeDb.GetProposalsReturns(tt.GetProposalsReturn, nil)
+			fakeDb.GetProposalsByUserIDReturns(tt.GetProposalsReturn, nil)
 
 			actual, err := serviceInstance.CreateProposals(tt.Payload, "2006-Nov-07")
 			assert.Equal(t, nil, actual)
 			assert.Equal(t, errors.New(tt.expectedError), err)
 		}
 		if !tt.overlappingErr && !tt.startDateExceedsEndDate {
-			fakeDb.GetProposalsReturns(tt.GetProposalsReturn, nil)
+			fakeDb.GetProposalsByUserIDReturns(tt.GetProposalsReturn, nil)
 
 			actual, err := serviceInstance.CreateProposals(tt.Payload, "2010-Jan-07")
 			assert.Equal(t, nil, actual)
@@ -206,4 +208,192 @@ func TestProposalService_DeleteProposalsByID(t *testing.T) {
 		}
 
 	}
+}
+
+func TestGetAllProposals(t *testing.T) {
+	var exampleUserID1 = primitive.NewObjectID()
+	var exampleUserID2 = primitive.NewObjectID()
+
+	type ProposalCalls struct {
+		Proposals []model.Proposal
+		Error     error
+	}
+
+	var tests = []struct {
+		GetAllUserReturn   []model.UserPayload
+		GetAllUserError    error
+		GetProposalsReturn []ProposalCalls
+		Return             []model.ProposalsByUser
+		Error              error
+	}{
+		{GetAllUserReturn: []model.UserPayload{
+			{Username: "peter", ID: exampleUserID1},
+			{Username: "frank", ID: exampleUserID2},
+		}, GetProposalsReturn: []ProposalCalls{
+			{Proposals: []model.Proposal{
+				{StartDate: "2002-09-09", Type: "vacation"},
+				{StartDate: "2002-09-10", Type: "sickness"},
+			}, Error: nil},
+			{Proposals: []model.Proposal{
+				{UserId: exampleUserID2.Hex()},
+			}, Error: nil},
+		}, Return: []model.ProposalsByUser{
+			{Username: "peter", Userid: exampleUserID1, VacationProposals: []model.Proposal{{StartDate: "2002-09-09", Type: "vacation"}}},
+			{Username: "frank", Userid: exampleUserID2, VacationProposals: []model.Proposal{{StartDate: "2002-09-10", Type: "sickness"}}},
+		}, Error: nil},
+		{
+			GetAllUserReturn:   []model.UserPayload{},
+			GetAllUserError:    errors.New("no Users exist"),
+			GetProposalsReturn: []ProposalCalls{},
+			Return:             nil,
+			Error:              errors.New("no Users exist"),
+		},
+		{
+			GetAllUserReturn: []model.UserPayload{
+				{Username: "peter1", ID: exampleUserID1},
+				{Username: "frank1", ID: exampleUserID2},
+			},
+			GetAllUserError: nil,
+			GetProposalsReturn: []ProposalCalls{
+				{
+					Proposals: []model.Proposal{},
+					Error:     nil,
+				},
+
+				{
+					Proposals: []model.Proposal{},
+					Error:     errors.New("some db error"),
+				},
+			},
+			Return: nil,
+			Error:  errors.New("some db error"),
+		},
+	}
+	for _, tt := range tests {
+		fakeDB := &servicefakes.FakeDatabaseInterface{}
+		serviceInstance := service.NewEmployeeService(fakeDB)
+		fakeDB.GetAllUserReturns(tt.GetAllUserReturn, tt.GetAllUserError)
+		for index, pCall := range tt.GetProposalsReturn {
+			fakeDB.GetProposalsByFilterReturnsOnCall(index, pCall.Proposals, pCall.Error)
+		}
+		ctx := gin.Context{}
+		result, err := serviceInstance.GetAllProposals(&ctx)
+		assert.Equal(t, result, result)
+		assert.Equal(t, err, err)
+
+	}
+}
+
+func TestGetTotalAbsence(t *testing.T) {
+	userID := primitive.NewObjectID().Hex()
+	currentTime := time.Now()
+	var tests = []struct {
+		UserID            string
+		GetUserByIDReturn model.UserPayload
+		GetUserByIDError  error
+		GetProposals      []model.Proposal
+		GetProposalError  error
+		Return            model.AbsenceObject
+		Error             error
+	}{
+		{
+			UserID: userID,
+			GetUserByIDReturn: model.UserPayload{
+				VacationDays: 30,
+				EntryTime:    time.Date(currentTime.Year(), 8, 1, 0, 0, 0, 0, time.UTC),
+			},
+			GetUserByIDError: nil,
+			GetProposals: []model.Proposal{
+				{StartDate: fmt.Sprint(currentTime.Year()) + "-Sep-10", EndDate: fmt.Sprint(currentTime.Year()) + "-Sep-15", Type: "sickness"},
+				{StartDate: fmt.Sprint(currentTime.Year()) + "-Oct-13", EndDate: fmt.Sprint(currentTime.Year()) + "-Oct-20", Type: "vacation"},
+			},
+			GetProposalError: nil,
+			Return: model.AbsenceObject{
+				TotalVacationDays: 10,
+				VacationDays:      6,
+				SicknessDays:      4,
+			},
+			Error: nil,
+		},
+		{
+			UserID:            userID,
+			GetUserByIDReturn: model.UserPayload{},
+			GetUserByIDError:  errors.New("some user error"),
+			GetProposals:      nil,
+			GetProposalError:  nil,
+			Return:            model.AbsenceObject{},
+			Error:             errors.New("some user error"),
+		},
+		{
+			UserID: userID,
+			GetUserByIDReturn: model.UserPayload{
+				VacationDays: 30,
+				EntryTime:    time.Date(currentTime.Year(), 8, 1, 0, 0, 0, 0, time.UTC),
+			},
+			GetUserByIDError: nil,
+			GetProposals:     nil,
+			GetProposalError: errors.New("some proposal service error"),
+			Return:           model.AbsenceObject{},
+			Error:            errors.New("some proposal service error"),
+		},
+		{
+			UserID: userID,
+			GetUserByIDReturn: model.UserPayload{
+				VacationDays: 30,
+				EntryTime:    time.Date(currentTime.Year(), 8, 1, 0, 0, 0, 0, time.UTC),
+			},
+			GetUserByIDError: nil,
+			GetProposals: []model.Proposal{
+				{StartDate: fmt.Sprint(currentTime.Year()) + "--10", EndDate: fmt.Sprint(currentTime.Year()) + "-Sep-15", Type: "sickness"},
+			},
+			GetProposalError: nil,
+			Return: model.AbsenceObject{
+				TotalVacationDays: 0,
+				VacationDays:      0,
+				SicknessDays:      0,
+			},
+			Error: &time.ParseError{Layout: "2006-Jan-02", Value: "2022--10", LayoutElem: "Jan", ValueElem: "-10", Message: ""},
+		},
+		{
+			UserID: userID,
+			GetUserByIDReturn: model.UserPayload{
+				VacationDays: 30,
+				EntryTime:    time.Date(currentTime.Year(), 8, 1, 0, 0, 0, 0, time.UTC),
+			},
+			GetUserByIDError: nil,
+			GetProposals: []model.Proposal{
+				{StartDate: fmt.Sprint(currentTime.Year()) + "-Sep-10", EndDate: fmt.Sprint(currentTime.Year()) + "-Sep15", Type: "vacation"},
+			},
+			GetProposalError: nil,
+			Return: model.AbsenceObject{
+				TotalVacationDays: 0,
+				VacationDays:      0,
+				SicknessDays:      0,
+			},
+			Error: &time.ParseError{Layout: "2006-Jan-02", Value: "2022-Sep15", LayoutElem: "-", ValueElem: "15", Message: ""},
+		},
+		{
+			UserID: "",
+			GetUserByIDReturn: model.UserPayload{
+				VacationDays: 30,
+				EntryTime:    time.Date(currentTime.Year(), 8, 1, 0, 0, 0, 0, time.UTC),
+			},
+			GetUserByIDError: nil,
+			GetProposals:     []model.Proposal{},
+			GetProposalError: nil,
+			Return:           model.AbsenceObject{},
+			Error:            errors.New("the provided hex string is not a valid ObjectID"),
+		},
+	}
+
+	for _, tt := range tests {
+		fakeDB := &servicefakes.FakeDatabaseInterface{}
+		serviceInstance := service.NewEmployeeService(fakeDB)
+		fakeDB.GetUserByIDReturns(tt.GetUserByIDReturn, tt.GetUserByIDError)
+		fakeDB.GetProposalsByUserIDReturns(tt.GetProposals, tt.GetProposalError)
+		result, err := serviceInstance.GetTotalAbsence(tt.UserID)
+		assert.Equal(t, result, tt.Return)
+		assert.Equal(t, err, tt.Error)
+	}
+
 }

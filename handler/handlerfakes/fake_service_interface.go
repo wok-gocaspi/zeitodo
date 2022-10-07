@@ -156,6 +156,19 @@ type FakeServiceInterface struct {
 		result1 interface{}
 		result2 error
 	}
+	GetAllProposalsStub        func(*gin.Context) ([]model.ProposalsByUser, error)
+	getAllProposalsMutex       sync.RWMutex
+	getAllProposalsArgsForCall []struct {
+		arg1 *gin.Context
+	}
+	getAllProposalsReturns struct {
+		result1 []model.ProposalsByUser
+		result2 error
+	}
+	getAllProposalsReturnsOnCall map[int]struct {
+		result1 []model.ProposalsByUser
+		result2 error
+	}
 	GetAllTimeEntriesStub        func() ([]model.TimeEntry, error)
 	getAllTimeEntriesMutex       sync.RWMutex
 	getAllTimeEntriesArgsForCall []struct {
@@ -229,6 +242,19 @@ type FakeServiceInterface struct {
 	}
 	getTimeEntriesReturnsOnCall map[int]struct {
 		result1 []model.TimeEntry
+	}
+	GetTotalAbsenceStub        func(string) (model.AbsenceObject, error)
+	getTotalAbsenceMutex       sync.RWMutex
+	getTotalAbsenceArgsForCall []struct {
+		arg1 string
+	}
+	getTotalAbsenceReturns struct {
+		result1 model.AbsenceObject
+		result2 error
+	}
+	getTotalAbsenceReturnsOnCall map[int]struct {
+		result1 model.AbsenceObject
+		result2 error
 	}
 	GetUserByIDStub        func(string) (model.UserPayload, error)
 	getUserByIDMutex       sync.RWMutex
@@ -1037,6 +1063,70 @@ func (fake *FakeServiceInterface) DeleteUsersReturnsOnCall(i int, result1 interf
 	}{result1, result2}
 }
 
+func (fake *FakeServiceInterface) GetAllProposals(arg1 *gin.Context) ([]model.ProposalsByUser, error) {
+	fake.getAllProposalsMutex.Lock()
+	ret, specificReturn := fake.getAllProposalsReturnsOnCall[len(fake.getAllProposalsArgsForCall)]
+	fake.getAllProposalsArgsForCall = append(fake.getAllProposalsArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.GetAllProposalsStub
+	fakeReturns := fake.getAllProposalsReturns
+	fake.recordInvocation("GetAllProposals", []interface{}{arg1})
+	fake.getAllProposalsMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeServiceInterface) GetAllProposalsCallCount() int {
+	fake.getAllProposalsMutex.RLock()
+	defer fake.getAllProposalsMutex.RUnlock()
+	return len(fake.getAllProposalsArgsForCall)
+}
+
+func (fake *FakeServiceInterface) GetAllProposalsCalls(stub func(*gin.Context) ([]model.ProposalsByUser, error)) {
+	fake.getAllProposalsMutex.Lock()
+	defer fake.getAllProposalsMutex.Unlock()
+	fake.GetAllProposalsStub = stub
+}
+
+func (fake *FakeServiceInterface) GetAllProposalsArgsForCall(i int) *gin.Context {
+	fake.getAllProposalsMutex.RLock()
+	defer fake.getAllProposalsMutex.RUnlock()
+	argsForCall := fake.getAllProposalsArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeServiceInterface) GetAllProposalsReturns(result1 []model.ProposalsByUser, result2 error) {
+	fake.getAllProposalsMutex.Lock()
+	defer fake.getAllProposalsMutex.Unlock()
+	fake.GetAllProposalsStub = nil
+	fake.getAllProposalsReturns = struct {
+		result1 []model.ProposalsByUser
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) GetAllProposalsReturnsOnCall(i int, result1 []model.ProposalsByUser, result2 error) {
+	fake.getAllProposalsMutex.Lock()
+	defer fake.getAllProposalsMutex.Unlock()
+	fake.GetAllProposalsStub = nil
+	if fake.getAllProposalsReturnsOnCall == nil {
+		fake.getAllProposalsReturnsOnCall = make(map[int]struct {
+			result1 []model.ProposalsByUser
+			result2 error
+		})
+	}
+	fake.getAllProposalsReturnsOnCall[i] = struct {
+		result1 []model.ProposalsByUser
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeServiceInterface) GetAllTimeEntries() ([]model.TimeEntry, error) {
 	fake.getAllTimeEntriesMutex.Lock()
 	ret, specificReturn := fake.getAllTimeEntriesReturnsOnCall[len(fake.getAllTimeEntriesArgsForCall)]
@@ -1400,6 +1490,70 @@ func (fake *FakeServiceInterface) GetTimeEntriesReturnsOnCall(i int, result1 []m
 	fake.getTimeEntriesReturnsOnCall[i] = struct {
 		result1 []model.TimeEntry
 	}{result1}
+}
+
+func (fake *FakeServiceInterface) GetTotalAbsence(arg1 string) (model.AbsenceObject, error) {
+	fake.getTotalAbsenceMutex.Lock()
+	ret, specificReturn := fake.getTotalAbsenceReturnsOnCall[len(fake.getTotalAbsenceArgsForCall)]
+	fake.getTotalAbsenceArgsForCall = append(fake.getTotalAbsenceArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.GetTotalAbsenceStub
+	fakeReturns := fake.getTotalAbsenceReturns
+	fake.recordInvocation("GetTotalAbsence", []interface{}{arg1})
+	fake.getTotalAbsenceMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeServiceInterface) GetTotalAbsenceCallCount() int {
+	fake.getTotalAbsenceMutex.RLock()
+	defer fake.getTotalAbsenceMutex.RUnlock()
+	return len(fake.getTotalAbsenceArgsForCall)
+}
+
+func (fake *FakeServiceInterface) GetTotalAbsenceCalls(stub func(string) (model.AbsenceObject, error)) {
+	fake.getTotalAbsenceMutex.Lock()
+	defer fake.getTotalAbsenceMutex.Unlock()
+	fake.GetTotalAbsenceStub = stub
+}
+
+func (fake *FakeServiceInterface) GetTotalAbsenceArgsForCall(i int) string {
+	fake.getTotalAbsenceMutex.RLock()
+	defer fake.getTotalAbsenceMutex.RUnlock()
+	argsForCall := fake.getTotalAbsenceArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeServiceInterface) GetTotalAbsenceReturns(result1 model.AbsenceObject, result2 error) {
+	fake.getTotalAbsenceMutex.Lock()
+	defer fake.getTotalAbsenceMutex.Unlock()
+	fake.GetTotalAbsenceStub = nil
+	fake.getTotalAbsenceReturns = struct {
+		result1 model.AbsenceObject
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) GetTotalAbsenceReturnsOnCall(i int, result1 model.AbsenceObject, result2 error) {
+	fake.getTotalAbsenceMutex.Lock()
+	defer fake.getTotalAbsenceMutex.Unlock()
+	fake.GetTotalAbsenceStub = nil
+	if fake.getTotalAbsenceReturnsOnCall == nil {
+		fake.getTotalAbsenceReturnsOnCall = make(map[int]struct {
+			result1 model.AbsenceObject
+			result2 error
+		})
+	}
+	fake.getTotalAbsenceReturnsOnCall[i] = struct {
+		result1 model.AbsenceObject
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeServiceInterface) GetUserByID(arg1 string) (model.UserPayload, error) {
@@ -1885,6 +2039,8 @@ func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	defer fake.deleteTimeEntriesMutex.RUnlock()
 	fake.deleteUsersMutex.RLock()
 	defer fake.deleteUsersMutex.RUnlock()
+	fake.getAllProposalsMutex.RLock()
+	defer fake.getAllProposalsMutex.RUnlock()
 	fake.getAllTimeEntriesMutex.RLock()
 	defer fake.getAllTimeEntriesMutex.RUnlock()
 	fake.getAllUserMutex.RLock()
@@ -1897,6 +2053,8 @@ func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	defer fake.getTeamMembersByUserIDMutex.RUnlock()
 	fake.getTimeEntriesMutex.RLock()
 	defer fake.getTimeEntriesMutex.RUnlock()
+	fake.getTotalAbsenceMutex.RLock()
+	defer fake.getTotalAbsenceMutex.RUnlock()
 	fake.getUserByIDMutex.RLock()
 	defer fake.getUserByIDMutex.RUnlock()
 	fake.getUserIdMutex.RLock()

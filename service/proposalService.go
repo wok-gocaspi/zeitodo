@@ -5,13 +5,16 @@ import (
 	"example-project/model"
 	"example-project/utilities"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"math"
 	"strings"
+	"time"
 )
 
 func (s EmployeeService) GetProposalsByID(id string) ([]model.Proposal, error) {
 
-	result, err := s.DbService.GetProposals(id)
+	result, err := s.DbService.GetProposalsByUserID(id)
 	if err != nil {
 		return []model.Proposal{}, err
 	}
@@ -87,5 +90,92 @@ func (s EmployeeService) UpdateProposalByDate(update model.Proposal, date string
 	} else {
 		return nil, errors.New("user can not update ")
 	}
+}
 
+func (s EmployeeService) GetAllProposals(ctx *gin.Context) ([]model.ProposalsByUser, error) {
+	var proposalUserArray []model.ProposalsByUser
+
+	users, err := s.DbService.GetAllUser()
+	if err != nil {
+		return proposalUserArray, err
+	}
+	for _, user := range users {
+		var proposalUserItem model.ProposalsByUser
+		proposalUserItem.Userid = user.ID
+		proposalUserItem.Username = user.Username
+		proposalUserItem.Email = user.Email
+		proposalUserItem.FirstName = user.FirstName
+		proposalUserItem.LastName = user.LastName
+
+		filter, sort := utilities.FormGetAllProposalsFilter(user.ID.Hex(), ctx)
+		proposals, err := s.DbService.GetProposalsByFilter(filter, sort)
+		if err != nil {
+			return proposalUserArray, err
+		}
+		if len(proposals) == 0 {
+			continue
+		}
+		for _, prop := range proposals {
+			if prop.Type == "sickness" {
+				proposalUserItem.SicknessProposals = append(proposalUserItem.SicknessProposals, prop)
+			}
+			if prop.Type == "vacation" {
+				proposalUserItem.VacationProposals = append(proposalUserItem.VacationProposals, prop)
+			}
+		}
+		proposalUserArray = append(proposalUserArray, proposalUserItem)
+
+	}
+	return proposalUserArray, nil
+}
+
+func (s EmployeeService) GetTotalAbsence(userid string) (model.AbsenceObject, error) {
+	var absenceTime model.AbsenceObject
+	objectID, err := primitive.ObjectIDFromHex(userid)
+	if err != nil {
+		return absenceTime, err
+	}
+	user, err := s.DbService.GetUserByID(objectID)
+	if err != nil {
+		return absenceTime, err
+	}
+	proposals, err := s.DbService.GetProposalsByUserID(userid)
+	if err != nil {
+		return model.AbsenceObject{}, err
+	}
+
+	var totalSicknessDays = 0
+	var totalVacationDays = 0
+	var VacationResult int
+	var daysPerMonth = float64(user.VacationDays) / 12
+	VacationResult = user.VacationDays
+	if user.EntryTime.Year() == time.Now().Year() {
+		var lastDate = time.Date(user.EntryTime.Year(), 12, 31, 0, 0, 0, 0, time.UTC)
+		lastMonths := float64(lastDate.Month() - user.EntryTime.Month())
+		VacationResult = int(math.RoundToEven(lastMonths * daysPerMonth))
+	}
+
+	for _, proposal := range proposals {
+		const layout = "2006-Jan-02"
+		startDate, err := time.Parse(layout, proposal.StartDate)
+		if err != nil {
+			return model.AbsenceObject{}, err
+		}
+		endDate, err := time.Parse(layout, proposal.EndDate)
+		if err != nil {
+			return model.AbsenceObject{}, err
+		}
+		days := utilities.GetWeekdaysBetween(startDate, endDate)
+		if proposal.Type == "sickness" {
+			totalSicknessDays = totalSicknessDays + int(days) + 1
+		}
+		if proposal.Type == "vacation" {
+			totalVacationDays = totalVacationDays + int(days) + 1
+		}
+	}
+
+	absenceTime.VacationDays = totalVacationDays
+	absenceTime.SicknessDays = totalSicknessDays
+	absenceTime.TotalVacationDays = VacationResult
+	return absenceTime, nil
 }
