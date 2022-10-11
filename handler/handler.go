@@ -38,7 +38,7 @@ type ServiceInterface interface {
 	DeleteTimeEntries(userId string, starttime time.Time) (interface{}, error)
 	GetAllTimeEntries() ([]model.TimeEntry, error)
 	CollideTimeEntry(a, b model.TimeEntry) bool
-	CalcultimeEntry(userid string) (map[string]float64, error)
+	CalculateTimeEntries(ctx *gin.Context) (map[string]float64, error)
 	CheckUserPolicy(c *gin.Context, pl model.PermissionList) error
 	CheckIsSameUser(c *gin.Context, pl model.PermissionList, userid string) error
 	GetTotalAbsence(userid string) (model.AbsenceObject, error)
@@ -76,25 +76,15 @@ func (handler Handler) CreatTimeEntry(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, response)
 }
-func (handler Handler) CalcultimeEntry(context *gin.Context) {
-	pathParam, ok := context.Params.Get("id")
-	if !ok {
-		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"errorMessage": "time is not given",
-		})
-		return
-	}
 
-	response, err := handler.ServiceInterface.CalcultimeEntry(pathParam)
+func (handler Handler) CalculateTimeEntriesHandler(context *gin.Context) {
+
+	response, err := handler.ServiceInterface.CalculateTimeEntries(context)
 	if err != nil {
 		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"errorMessage": err.Error(),
 		})
 		return
-	}
-	dt := time.Now()
-	{
-		fmt.Println("Current date and time is : ", dt.String())
 	}
 	context.JSON(http.StatusOK, response)
 

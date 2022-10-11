@@ -214,3 +214,8 @@ func FormGetAllProposalsFilter(userid string, ctx *gin.Context) (bson.M, bson.D)
 	}
 	return filter, sort
 }
+
+func FormGetTimeEntryFilter(userid string, ctx *gin.Context) bson.M {
+	filter := bson.M{}
+
+}

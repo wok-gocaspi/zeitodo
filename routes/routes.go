@@ -76,7 +76,7 @@ func CreateRoutes(group *gin.RouterGroup) {
 	timeentry.GET("/gettime/:id", Handler.PermissionMiddleware, Handler.GetTimeEntry)
 	timeentry.DELETE("/delete/:id", Handler.PermissionMiddleware, Handler.DeleteTimeEntry)
 	timeentry.GET("", Handler.PermissionMiddleware, Handler.GetAllTimeEntry)
-	timeentry.GET("/calcul/:id", Handler.PermissionMiddleware, Handler.CalcultimeEntry)
+	timeentry.GET("/calculate", Handler.PermissionMiddleware, Handler.CalcultimeEntry)
 }
 
 /*
