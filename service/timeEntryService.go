@@ -74,7 +74,6 @@ func (s EmployeeService) UpdateTimeEntries(update model.TimeEntry) (interface{},
 	}
 
 	for _, timeentry := range timeentriesDb {
-
 		if timeentry.UserId != update.UserId {
 			continue
 		}
@@ -82,7 +81,6 @@ func (s EmployeeService) UpdateTimeEntries(update model.TimeEntry) (interface{},
 			err = errors.New("check if update TimeEntries collide")
 			return nil, err
 		}
-
 	}
 	return s.DbService.UpdateTimeEntryById(update)
 }

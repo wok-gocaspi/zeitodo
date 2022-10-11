@@ -215,7 +215,23 @@ func FormGetAllProposalsFilter(userid string, ctx *gin.Context) (bson.M, bson.D)
 	return filter, sort
 }
 
-func FormGetTimeEntryFilter(userid string, ctx *gin.Context) bson.M {
+func FormGetTimeEntryFilter(ctx *gin.Context) (bson.M, error) {
 	filter := bson.M{}
-
+	userID, userIDOK := ctx.GetQuery("userid")
+	if !userIDOK {
+		return filter, errors.New("no userid have been supplied as a query")
+	}
+	filter["userid"] = userID
+	start, startOK := ctx.GetQuery("start")
+	end, endOK := ctx.GetQuery("end")
+	if (!startOK && !endOK) || (!startOK && endOK) {
+		return filter, errors.New("start and end have been supplied in a wrong way. Please check the documentation")
+	}
+	if startOK {
+		filter["start"] = bson.M{"$gt": start}
+	}
+	if startOK && endOK {
+		filter["start"] = bson.M{"$gt": start}
+		filter["end"] = bson.M{"$lt": end}
+	}
 }
