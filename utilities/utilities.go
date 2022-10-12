@@ -221,17 +221,32 @@ func FormGetTimeEntryFilter(ctx *gin.Context) (bson.M, error) {
 	if !userIDOK {
 		return filter, errors.New("no userid have been supplied as a query")
 	}
-	filter["userid"] = userID
+	filter["userId"] = userID
 	start, startOK := ctx.GetQuery("start")
-	end, endOK := ctx.GetQuery("end")
-	if (!startOK && !endOK) || (!startOK && endOK) {
-		return filter, errors.New("start and end have been supplied in a wrong way. Please check the documentation")
-	}
 	if startOK {
-		filter["start"] = bson.M{"$gt": start}
+		startTime, err := time.Parse("2006-01-02T15:04:05-0700", start)
+		if err != nil {
+			return filter, err
+		}
+	}
+
+	end, endOK := ctx.GetQuery("end")
+	if endOK {
+		endTime, err := time.Parse("2006-01-02T15:04:05-0700", end)
+		if err != nil {
+			return filter, err
+		}
+	}
+
+	if startOK {
+		filter["start"] = bson.M{"$gt": startTime}
+	}
+	if endOK {
+		filter["end"] = bson.M{"$lt": endTime}
 	}
 	if startOK && endOK {
 		filter["start"] = bson.M{"$gt": start}
 		filter["end"] = bson.M{"$lt": end}
 	}
+	return filter, nil
 }

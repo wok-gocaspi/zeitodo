@@ -27,7 +27,7 @@ type HandlerInterface interface {
 	GetTimeEntry(c *gin.Context)
 	DeleteTimeEntry(c *gin.Context)
 	GetAllTimeEntry(c *gin.Context)
-	CalcultimeEntry(c *gin.Context)
+	CalculateTimeEntriesHandler(c *gin.Context)
 	GetUserByToken(c *gin.Context)
 	GetAllProposalsHandler(c *gin.Context)
 }
@@ -76,7 +76,7 @@ func CreateRoutes(group *gin.RouterGroup) {
 	timeentry.GET("/gettime/:id", Handler.PermissionMiddleware, Handler.GetTimeEntry)
 	timeentry.DELETE("/delete/:id", Handler.PermissionMiddleware, Handler.DeleteTimeEntry)
 	timeentry.GET("", Handler.PermissionMiddleware, Handler.GetAllTimeEntry)
-	timeentry.GET("/calculate", Handler.PermissionMiddleware, Handler.CalcultimeEntry)
+	timeentry.GET("/calculate", Handler.PermissionMiddleware, Handler.CalculateTimeEntriesHandler)
 }
 
 /*

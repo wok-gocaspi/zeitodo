@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"example-project/model"
+	"example-project/utilities"
 	"github.com/gin-gonic/gin"
 	"time"
 )
@@ -88,15 +89,16 @@ func (s EmployeeService) UpdateTimeEntries(update model.TimeEntry) (interface{},
 func (s EmployeeService) CalculateTimeEntries(ctx *gin.Context) (map[string]float64, error) {
 
 	m := make(map[string]float64)
-	timeentries, err := s.DbService.GetAllTimeEntry()
+	filter, err := utilities.FormGetTimeEntryFilter(ctx)
+	if err != nil {
+		return m, err
+	}
+	timeentries, err := s.DbService.GetTimeEntriesByFilter(filter)
 
 	if err != nil {
 		return nil, err
 	}
 	for _, timeentry := range timeentries {
-		if timeentry.UserId != userid {
-			continue
-		}
 		dur := timeentry.End.Sub(timeentry.Start)
 		if _, prs := m[timeentry.Project]; prs {
 
