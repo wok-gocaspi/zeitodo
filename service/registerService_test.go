@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"net/http/httptest"
 	"testing"
 	"time"
 )
@@ -396,4 +397,27 @@ func TestGetTotalAbsence(t *testing.T) {
 		assert.Equal(t, err, tt.Error)
 	}
 
+}
+
+func TestProposal_Service_withQueryParam_Userid(t *testing.T) {
+	// Zuweisungen + fakes
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	serviceInstance := service.NewEmployeeService(fakeDB)
+	fakeHexId, _ := primitive.ObjectIDFromHex("1")
+	fakeProposals := []model.Proposal{{UserId: "1"}}
+	fakeTeamMemberByIdReturn := []model.UserPayload{model.UserPayload{Username: "fake", ID: fakeHexId}}
+	fakeGetAlldReturn := []model.UserPayload{model.UserPayload{Username: "fake", ID: fakeHexId}}
+
+	// methoden returns festlegen (database mocks)
+	fakeDB.GetUserTeamMembersByIDReturns(fakeTeamMemberByIdReturn, nil)
+	fakeDB.GetAllUserReturns(fakeGetAlldReturn, nil)
+	fakeDB.GetProposalsByFilterReturns(fakeProposals, nil)
+
+	responseRecoder := httptest.NewRecorder()
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/user?userid=1", nil)
+
+	// ausführen der funktion
+	_, err := serviceInstance.GetAllProposals(fakeContest)
+	assert.Equal(t, err, nil)
 }
