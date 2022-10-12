@@ -38,7 +38,7 @@ type ServiceInterface interface {
 	DeleteTimeEntries(userId string, starttime time.Time) (interface{}, error)
 	GetAllTimeEntries() ([]model.TimeEntry, error)
 	CollideTimeEntry(a, b model.TimeEntry) bool
-	CalculateTimeEntries(ctx *gin.Context) (map[string]float64, error)
+	CalculateTimeEntries(ctx *gin.Context) (model.WorkingHoursPayload, error)
 	CheckUserPolicy(c *gin.Context, pl model.PermissionList) error
 	CheckIsSameUser(c *gin.Context, pl model.PermissionList, userid string) error
 	GetTotalAbsence(userid string) (model.AbsenceObject, error)

@@ -144,9 +144,9 @@ userLoop:
 		case user.Team != "":
 			setElements = append(setElements, bson.E{Key: "team", Value: user.Team})
 			user.Team = ""
-		case user.TotalWorkingDays != 0:
-			setElements = append(setElements, bson.E{Key: "totalWorkingDays", Value: user.TotalWorkingDays})
-			user.TotalWorkingDays = 0
+		case user.HoursPerWeek != 0:
+			setElements = append(setElements, bson.E{Key: "totalWorkingDays", Value: user.HoursPerWeek})
+			user.HoursPerWeek = 0
 		case user.VacationDays != 0:
 			setElements = append(setElements, bson.E{Key: "vacationDays", Value: user.VacationDays})
 			user.VacationDays = 0
@@ -194,6 +194,7 @@ func GetWeekdaysBetween(start, end time.Time) int {
 func FormGetAllProposalsFilter(userid string, ctx *gin.Context) (bson.M, bson.D) {
 	filter := bson.M{}
 	sort := bson.D{{"timestamp", 1}}
+	const layout = "2006-Jan-02"
 	typeQuery, typeOK := ctx.GetQuery("type")
 	filter["userId"] = userid
 	if typeOK {
@@ -203,6 +204,23 @@ func FormGetAllProposalsFilter(userid string, ctx *gin.Context) (bson.M, bson.D)
 	if statusOK {
 		filter["status"] = statusQuery
 	}
+
+	startQuery, startOK := ctx.GetQuery("start")
+	if startOK {
+		startTime, err := time.Parse(time.RFC3339, startQuery)
+		if err == nil {
+			filter["startDate"] = bson.M{"$gt": startTime}
+		}
+	}
+
+	endQuery, endOK := ctx.GetQuery("end")
+	if endOK {
+		endTime, err := time.Parse(time.RFC3339, endQuery)
+		if err == nil {
+			filter["endDate"] = bson.M{"$lt": endTime}
+		}
+	}
+
 	sortingQuery, sortingOK := ctx.GetQuery("sort")
 	if sortingOK {
 		if sortingQuery == "desc" {
@@ -223,30 +241,62 @@ func FormGetTimeEntryFilter(ctx *gin.Context) (bson.M, error) {
 	}
 	filter["userId"] = userID
 	start, startOK := ctx.GetQuery("start")
-	if startOK {
-		startTime, err := time.Parse("2006-01-02T15:04:05-0700", start)
-		if err != nil {
-			return filter, err
-		}
-	}
-
 	end, endOK := ctx.GetQuery("end")
-	if endOK {
-		endTime, err := time.Parse("2006-01-02T15:04:05-0700", end)
+
+	if startOK {
+		startTime, err := time.Parse(time.RFC3339, start)
 		if err != nil {
 			return filter, err
 		}
-	}
-
-	if startOK {
 		filter["start"] = bson.M{"$gt": startTime}
 	}
 	if endOK {
+		endTime, err := time.Parse(time.RFC3339, end)
+		if err != nil {
+			return filter, err
+		}
 		filter["end"] = bson.M{"$lt": endTime}
 	}
 	if startOK && endOK {
-		filter["start"] = bson.M{"$gt": start}
-		filter["end"] = bson.M{"$lt": end}
+		startTime, err := time.Parse(time.RFC3339, start)
+		if err != nil {
+			return filter, err
+		}
+		endTime, err := time.Parse(time.RFC3339, end)
+		if err != nil {
+			return filter, err
+		}
+		filter["start"] = bson.M{"$gt": startTime}
+		filter["end"] = bson.M{"$lt": endTime}
 	}
 	return filter, nil
+}
+
+func CalculateRequiredWorkingHours(user model.UserPayload, proposals []model.Proposal, ctx *gin.Context) (float64, error) {
+	var hoursPerDay = user.HoursPerWeek / 5
+	var daysPerWeek = user.HoursPerWeek / hoursPerDay
+	var startTime time.Time
+	var endTime time.Time
+	start, startOK := ctx.GetQuery("start")
+	if startOK {
+		var err error
+		startTime, err = time.Parse(time.RFC3339, start)
+		if err != nil {
+			return 0, err
+		}
+	} else {
+		startTime = user.EntryTime
+	}
+	end, endOK := ctx.GetQuery("end")
+	if endOK {
+		var err error
+		endTime, err = time.Parse(time.RFC3339, end)
+		if err != nil {
+			return 0, err
+		}
+	} else {
+		endTime = time.Now()
+	}
+	fmt.Println(daysPerWeek)
+	return ((endTime.Sub(startTime).Hours() / 24) * hoursPerDay) + 8, nil
 }

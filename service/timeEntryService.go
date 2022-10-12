@@ -5,6 +5,7 @@ import (
 	"example-project/model"
 	"example-project/utilities"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
 )
 
@@ -86,30 +87,50 @@ func (s EmployeeService) UpdateTimeEntries(update model.TimeEntry) (interface{},
 	return s.DbService.UpdateTimeEntryById(update)
 }
 
-func (s EmployeeService) CalculateTimeEntries(ctx *gin.Context) (map[string]float64, error) {
+func (s EmployeeService) CalculateTimeEntries(ctx *gin.Context) (model.WorkingHoursPayload, error) {
+	var workingPayload model.WorkingHoursPayload
 
-	m := make(map[string]float64)
+	userID, userIDOK := ctx.GetQuery("userid")
+	if !userIDOK {
+		return workingPayload, errors.New("no user id supplied")
+	}
+	userIDObj, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return workingPayload, err
+	}
+	user, err := s.DbService.GetUserByID(userIDObj)
+
+	proposalFilter, proposalSort := utilities.FormGetAllProposalsFilter(userID, ctx)
+	proposals, err := s.DbService.GetProposalsByFilter(proposalFilter, proposalSort)
+	if err != nil {
+		return workingPayload, err
+	}
+
+	requiredWorkingHours, err := utilities.CalculateRequiredWorkingHours(user, proposals, ctx)
+	if err != nil {
+		return workingPayload, err
+	}
+	workingPayload.Required = requiredWorkingHours
+
 	filter, err := utilities.FormGetTimeEntryFilter(ctx)
 	if err != nil {
-		return m, err
+		return workingPayload, err
 	}
-	timeentries, err := s.DbService.GetTimeEntriesByFilter(filter)
+	timeEntries, err := s.DbService.GetTimeEntriesByFilter(filter)
 
 	if err != nil {
-		return nil, err
+		return workingPayload, err
 	}
-	for _, timeentry := range timeentries {
-		dur := timeentry.End.Sub(timeentry.Start)
-		if _, prs := m[timeentry.Project]; prs {
-
-			//Project in Map
-
-			m[timeentry.Project] += dur.Hours()
-
+	m := make(map[string]float64)
+	for _, timeEntry := range timeEntries {
+		dur := timeEntry.End.Sub(timeEntry.Start)
+		if _, prs := m[timeEntry.Project]; prs {
+			m[timeEntry.Project] += dur.Hours()
 		} else {
-			m[timeentry.Project] = dur.Hours()
+			m[timeEntry.Project] = dur.Hours()
 		}
 
 	}
-	return m, nil
+	workingPayload.Projects = m
+	return workingPayload, nil
 }
