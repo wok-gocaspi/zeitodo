@@ -246,10 +246,10 @@ func (c Client) UpdateProposal(update model.Proposal, date string) (*mongo.Updat
 		return nil, errors.New(IdWrong)
 	}
 	var setElements bson.D
-	if update.StartDate != "" {
+	if update.StartDate.IsZero() {
 		setElements = append(setElements, bson.E{Key: "startDate", Value: update.StartDate})
 	}
-	if update.EndDate != "" {
+	if update.EndDate.IsZero() {
 		setElements = append(setElements, bson.E{Key: "endDate", Value: update.EndDate})
 	}
 	if update.Type != "" {
