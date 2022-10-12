@@ -94,8 +94,17 @@ func (s EmployeeService) UpdateProposalByDate(update model.Proposal, date string
 
 func (s EmployeeService) GetAllProposals(ctx *gin.Context) ([]model.ProposalsByUser, error) {
 	var proposalUserArray []model.ProposalsByUser
+	var users []model.UserPayload
+	var err error
 
-	users, err := s.DbService.GetAllUser()
+	userid, useridok := ctx.GetQuery("userid")
+	if useridok {
+		userid, _ := primitive.ObjectIDFromHex(userid)
+		users, err = s.DbService.GetUserTeamMembersByID(userid)
+	} else {
+		users, err = s.DbService.GetAllUser()
+	}
+
 	if err != nil {
 		return proposalUserArray, err
 	}

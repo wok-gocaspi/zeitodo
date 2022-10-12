@@ -167,17 +167,17 @@ type FakeDatabaseInterface struct {
 		result1 model.User
 		result2 error
 	}
-	GetUserTeamMembersByIDStub        func(primitive.ObjectID) (interface{}, error)
+	GetUserTeamMembersByIDStub        func(primitive.ObjectID) ([]model.UserPayload, error)
 	getUserTeamMembersByIDMutex       sync.RWMutex
 	getUserTeamMembersByIDArgsForCall []struct {
 		arg1 primitive.ObjectID
 	}
 	getUserTeamMembersByIDReturns struct {
-		result1 interface{}
+		result1 []model.UserPayload
 		result2 error
 	}
 	getUserTeamMembersByIDReturnsOnCall map[int]struct {
-		result1 interface{}
+		result1 []model.UserPayload
 		result2 error
 	}
 	GetUserTeamMembersByNameStub        func(string) (interface{}, error)
@@ -1003,7 +1003,7 @@ func (fake *FakeDatabaseInterface) GetUserByUsernameReturnsOnCall(i int, result1
 	}{result1, result2}
 }
 
-func (fake *FakeDatabaseInterface) GetUserTeamMembersByID(arg1 primitive.ObjectID) (interface{}, error) {
+func (fake *FakeDatabaseInterface) GetUserTeamMembersByID(arg1 primitive.ObjectID) ([]model.UserPayload, error) {
 	fake.getUserTeamMembersByIDMutex.Lock()
 	ret, specificReturn := fake.getUserTeamMembersByIDReturnsOnCall[len(fake.getUserTeamMembersByIDArgsForCall)]
 	fake.getUserTeamMembersByIDArgsForCall = append(fake.getUserTeamMembersByIDArgsForCall, struct {
@@ -1028,7 +1028,7 @@ func (fake *FakeDatabaseInterface) GetUserTeamMembersByIDCallCount() int {
 	return len(fake.getUserTeamMembersByIDArgsForCall)
 }
 
-func (fake *FakeDatabaseInterface) GetUserTeamMembersByIDCalls(stub func(primitive.ObjectID) (interface{}, error)) {
+func (fake *FakeDatabaseInterface) GetUserTeamMembersByIDCalls(stub func(primitive.ObjectID) ([]model.UserPayload, error)) {
 	fake.getUserTeamMembersByIDMutex.Lock()
 	defer fake.getUserTeamMembersByIDMutex.Unlock()
 	fake.GetUserTeamMembersByIDStub = stub
@@ -1041,28 +1041,28 @@ func (fake *FakeDatabaseInterface) GetUserTeamMembersByIDArgsForCall(i int) prim
 	return argsForCall.arg1
 }
 
-func (fake *FakeDatabaseInterface) GetUserTeamMembersByIDReturns(result1 interface{}, result2 error) {
+func (fake *FakeDatabaseInterface) GetUserTeamMembersByIDReturns(result1 []model.UserPayload, result2 error) {
 	fake.getUserTeamMembersByIDMutex.Lock()
 	defer fake.getUserTeamMembersByIDMutex.Unlock()
 	fake.GetUserTeamMembersByIDStub = nil
 	fake.getUserTeamMembersByIDReturns = struct {
-		result1 interface{}
+		result1 []model.UserPayload
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeDatabaseInterface) GetUserTeamMembersByIDReturnsOnCall(i int, result1 interface{}, result2 error) {
+func (fake *FakeDatabaseInterface) GetUserTeamMembersByIDReturnsOnCall(i int, result1 []model.UserPayload, result2 error) {
 	fake.getUserTeamMembersByIDMutex.Lock()
 	defer fake.getUserTeamMembersByIDMutex.Unlock()
 	fake.GetUserTeamMembersByIDStub = nil
 	if fake.getUserTeamMembersByIDReturnsOnCall == nil {
 		fake.getUserTeamMembersByIDReturnsOnCall = make(map[int]struct {
-			result1 interface{}
+			result1 []model.UserPayload
 			result2 error
 		})
 	}
 	fake.getUserTeamMembersByIDReturnsOnCall[i] = struct {
-		result1 interface{}
+		result1 []model.UserPayload
 		result2 error
 	}{result1, result2}
 }

@@ -15,7 +15,7 @@ type DatabaseInterface interface {
 	GetUserByUsername(username string) (model.User, error)
 	GetAllUser() ([]model.UserPayload, error)
 	CreateUser(docs interface{}) (interface{}, error)
-	GetUserTeamMembersByID(id primitive.ObjectID) (interface{}, error)
+	GetUserTeamMembersByID(id primitive.ObjectID) ([]model.UserPayload, error)
 	GetUserTeamMembersByName(name string) (interface{}, error)
 	UpdateUserByID(filter bson.M, setter bson.D) (*mongo.UpdateResult, error)
 	DeleteUser(id primitive.ObjectID) (interface{}, error)
