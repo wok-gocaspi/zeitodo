@@ -124,6 +124,9 @@ func (s EmployeeService) CalculateTimeEntries(ctx *gin.Context) (model.WorkingHo
 	m := make(map[string]float64)
 	for _, timeEntry := range timeEntries {
 		dur := timeEntry.End.Sub(timeEntry.Start)
+		breakDur := timeEntry.BreakEnd.Sub(timeEntry.BreakStart)
+		dur -= breakDur
+		workingPayload.Actual += dur.Hours()
 		if _, prs := m[timeEntry.Project]; prs {
 			m[timeEntry.Project] += dur.Hours()
 		} else {

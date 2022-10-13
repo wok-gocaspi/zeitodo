@@ -305,3 +305,47 @@ func TestCalcul_timeEntry_end(t *testing.T) {
 	assert.Equal(t, nil, err)
 	assert.NotNil(t, result)
 }
+
+func TestEmployeeService_CalculateTimeEntries(t *testing.T) {
+
+	fakeHexId, _ := primitive.ObjectIDFromHex("1")
+	//	fakeProposals := []model.Proposal{{UserId: "1"}}
+	//	fakeTeamMemberByIdReturn := []model.UserPayload{model.UserPayload{Username: "fake", ID: fakeHexId}}
+	//	fakeGetAlldReturn := []model.UserPayload{model.UserPayload{Username: "fake", ID: fakeHexId}}
+
+	timeEntryReturn := []model.TimeEntry{
+		model.TimeEntry{UserId: "1"},
+	}
+	proposalReturn := []model.Proposal{
+		model.Proposal{UserId: "1"},
+	}
+	getUserReturn := model.UserPayload{ID: fakeHexId}
+
+	var tests = []struct {
+		hasUserIdQuery          bool
+		hasUserIdFormatationErr bool
+		proposalReturn          []model.Proposal
+		proposalReturnErr       bool
+		timeEntryReturn         []model.TimeEntry
+		timeEntryReturnErr      bool
+		getUserByIdReturn       model.UserPayload
+	}{
+		{true, false, proposalReturn, false, timeEntryReturn, false, getUserReturn},
+	}
+	for _, tt := range tests {
+		fakeDB := &servicefakes.FakeDatabaseInterface{}
+		serviceInstance := service.NewEmployeeService(fakeDB)
+		fakeDB.GetUserByIDReturns(tt.getUserByIdReturn, nil)
+		fakeDB.GetProposalsByFilterReturns(tt.proposalReturn, nil)
+		fakeDB.GetTimeEntriesByFilterReturns(tt.timeEntryReturn, nil)
+		if tt.hasUserIdQuery && !tt.hasUserIdFormatationErr {
+			responseRecoder := httptest.NewRecorder()
+			fakeContest, _ := gin.CreateTestContext(responseRecoder)
+			fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/user?userid=1", nil)
+
+			_, err := serviceInstance.GetAllProposals(fakeContest)
+			assert.Equal(t, err, nil)
+		}
+	}
+
+}
