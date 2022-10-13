@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"errors"
 	"example-project/model"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/retailify/go-interval"
@@ -272,6 +271,18 @@ func FormGetAllProposalsFilter(user model.UserPayload, ctx *gin.Context) (bson.M
 				},
 			},
 		},
+		{
+			"startDate": startTime,
+		},
+		{
+			"endDate": endTime,
+		},
+		{
+			"endDate": startTime,
+		},
+		{
+			"startDate": endTime,
+		},
 	}
 	filter["$or"] = filterTimeArray
 
@@ -351,19 +362,23 @@ func CalculateRequiredWorkingHours(user model.UserPayload, proposals []model.Pro
 	} else {
 		endTime = time.Now()
 	}
-
-	for _, proposal := range proposals {
-		if proposal.StartDate.Before(startTime) || proposal.EndDate.After(endTime) {
-			if proposal.StartDate.Before(startTime) {
-				diff := startTime.Sub(proposal.StartDate).Hours()
-				proposal.StartDate = proposal.StartDate.Add((time.Hour * diff))
-			}
-		}
-		totalProposalDays = totalProposalDays + float64(GetWeekdaysBetween(proposal.StartDate, proposal.EndDate)+1)
-	}
-	fmt.Println(proposals)
-	var totalProposalHours = totalProposalDays * hoursPerDay
 	var totalHours = float64(GetWeekdaysBetween(startTime, endTime)) * hoursPerDay
+	for _, proposal := range proposals {
+		var proposalTotalDays float64 = 0
+		var proposalStartOffset float64 = 0
+		var proposalEndOffset float64 = 0
+		proposalTotalDays = float64(GetWeekdaysBetween(proposal.StartDate, proposal.EndDate))
+		if proposal.StartDate.Before(startTime) {
+			proposalStartOffset = float64(GetWeekdaysBetween(proposal.StartDate, startTime))
+		} else if (proposal.StartDate.Equal(endTime) || proposal.EndDate.Equal(startTime)) && !proposal.StartDate.Before(startTime) {
+			proposalStartOffset += proposalTotalDays - 1
+		}
+		if proposal.EndDate.After(endTime) {
+			proposalEndOffset = float64(GetWeekdaysBetween(proposal.StartDate, endTime))
+		}
+		totalProposalDays = totalProposalDays + (proposalTotalDays - (proposalStartOffset + proposalEndOffset))
+	}
+	var totalProposalHours = totalProposalDays * hoursPerDay
 
 	return totalHours - totalProposalHours, nil
 }

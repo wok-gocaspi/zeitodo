@@ -6,6 +6,7 @@ import (
 	"example-project/model"
 	"example-project/service"
 	"example-project/service/servicefakes"
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"

@@ -130,6 +130,19 @@ type FakeDatabaseInterface struct {
 		result1 []model.Proposal
 		result2 error
 	}
+	GetTimeEntriesByFilterStub        func(primitive.M) ([]model.TimeEntry, error)
+	getTimeEntriesByFilterMutex       sync.RWMutex
+	getTimeEntriesByFilterArgsForCall []struct {
+		arg1 primitive.M
+	}
+	getTimeEntriesByFilterReturns struct {
+		result1 []model.TimeEntry
+		result2 error
+	}
+	getTimeEntriesByFilterReturnsOnCall map[int]struct {
+		result1 []model.TimeEntry
+		result2 error
+	}
 	GetTimeEntryByIDStub        func(string) []model.TimeEntry
 	getTimeEntryByIDMutex       sync.RWMutex
 	getTimeEntryByIDArgsForCall []struct {
@@ -814,6 +827,70 @@ func (fake *FakeDatabaseInterface) GetProposalsByUserIDReturnsOnCall(i int, resu
 	}{result1, result2}
 }
 
+func (fake *FakeDatabaseInterface) GetTimeEntriesByFilter(arg1 primitive.M) ([]model.TimeEntry, error) {
+	fake.getTimeEntriesByFilterMutex.Lock()
+	ret, specificReturn := fake.getTimeEntriesByFilterReturnsOnCall[len(fake.getTimeEntriesByFilterArgsForCall)]
+	fake.getTimeEntriesByFilterArgsForCall = append(fake.getTimeEntriesByFilterArgsForCall, struct {
+		arg1 primitive.M
+	}{arg1})
+	stub := fake.GetTimeEntriesByFilterStub
+	fakeReturns := fake.getTimeEntriesByFilterReturns
+	fake.recordInvocation("GetTimeEntriesByFilter", []interface{}{arg1})
+	fake.getTimeEntriesByFilterMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeDatabaseInterface) GetTimeEntriesByFilterCallCount() int {
+	fake.getTimeEntriesByFilterMutex.RLock()
+	defer fake.getTimeEntriesByFilterMutex.RUnlock()
+	return len(fake.getTimeEntriesByFilterArgsForCall)
+}
+
+func (fake *FakeDatabaseInterface) GetTimeEntriesByFilterCalls(stub func(primitive.M) ([]model.TimeEntry, error)) {
+	fake.getTimeEntriesByFilterMutex.Lock()
+	defer fake.getTimeEntriesByFilterMutex.Unlock()
+	fake.GetTimeEntriesByFilterStub = stub
+}
+
+func (fake *FakeDatabaseInterface) GetTimeEntriesByFilterArgsForCall(i int) primitive.M {
+	fake.getTimeEntriesByFilterMutex.RLock()
+	defer fake.getTimeEntriesByFilterMutex.RUnlock()
+	argsForCall := fake.getTimeEntriesByFilterArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeDatabaseInterface) GetTimeEntriesByFilterReturns(result1 []model.TimeEntry, result2 error) {
+	fake.getTimeEntriesByFilterMutex.Lock()
+	defer fake.getTimeEntriesByFilterMutex.Unlock()
+	fake.GetTimeEntriesByFilterStub = nil
+	fake.getTimeEntriesByFilterReturns = struct {
+		result1 []model.TimeEntry
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeDatabaseInterface) GetTimeEntriesByFilterReturnsOnCall(i int, result1 []model.TimeEntry, result2 error) {
+	fake.getTimeEntriesByFilterMutex.Lock()
+	defer fake.getTimeEntriesByFilterMutex.Unlock()
+	fake.GetTimeEntriesByFilterStub = nil
+	if fake.getTimeEntriesByFilterReturnsOnCall == nil {
+		fake.getTimeEntriesByFilterReturnsOnCall = make(map[int]struct {
+			result1 []model.TimeEntry
+			result2 error
+		})
+	}
+	fake.getTimeEntriesByFilterReturnsOnCall[i] = struct {
+		result1 []model.TimeEntry
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeDatabaseInterface) GetTimeEntryByID(arg1 string) []model.TimeEntry {
 	fake.getTimeEntryByIDMutex.Lock()
 	ret, specificReturn := fake.getTimeEntryByIDReturnsOnCall[len(fake.getTimeEntryByIDArgsForCall)]
@@ -1415,6 +1492,8 @@ func (fake *FakeDatabaseInterface) Invocations() map[string][][]interface{} {
 	defer fake.getProposalsByFilterMutex.RUnlock()
 	fake.getProposalsByUserIDMutex.RLock()
 	defer fake.getProposalsByUserIDMutex.RUnlock()
+	fake.getTimeEntriesByFilterMutex.RLock()
+	defer fake.getTimeEntriesByFilterMutex.RUnlock()
 	fake.getTimeEntryByIDMutex.RLock()
 	defer fake.getTimeEntryByIDMutex.RUnlock()
 	fake.getUserByIDMutex.RLock()
