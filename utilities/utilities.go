@@ -2,13 +2,17 @@ package utilities
 
 import (
 	"crypto/sha256"
+	"encoding/json"
 	"errors"
 	"example-project/model"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/retailify/go-interval"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"time"
 )
@@ -362,7 +366,12 @@ func CalculateRequiredWorkingHours(user model.UserPayload, proposals []model.Pro
 	} else {
 		endTime = time.Now()
 	}
-	var totalHours = float64(GetWeekdaysBetween(startTime, endTime)) * hoursPerDay
+	var totalHours = float64(GetWeekdaysBetween(startTime, endTime)+1) * hoursPerDay
+	totalHolidays, err := GetPublicHolidays(startTime, endTime)
+	if err != nil {
+		return 0, err
+	}
+	totalHours = totalHours - (float64(totalHolidays) * hoursPerDay)
 	for _, proposal := range proposals {
 		var proposalTotalDays float64 = 0
 		var proposalStartOffset float64 = 0
@@ -376,9 +385,37 @@ func CalculateRequiredWorkingHours(user model.UserPayload, proposals []model.Pro
 		if proposal.EndDate.After(endTime) {
 			proposalEndOffset = float64(GetWeekdaysBetween(proposal.StartDate, endTime))
 		}
-		totalProposalDays = totalProposalDays + (proposalTotalDays - (proposalStartOffset + proposalEndOffset))
+		totalProposalDays = totalProposalDays + (proposalTotalDays - (proposalStartOffset + proposalEndOffset)) + 1
 	}
 	var totalProposalHours = totalProposalDays * hoursPerDay
-
 	return totalHours - totalProposalHours, nil
+}
+
+func GetPublicHolidays(start, end time.Time) (int, error) {
+	var totalDays int = 0
+	year := time.Now().Year()
+	url := fmt.Sprintf("https://get.api-feiertage.de/?years=%v&states=hb", year)
+	resp, err := http.Get(url)
+	if err != nil {
+		return 0, err
+	}
+	body := resp.Body
+	rawData, err := ioutil.ReadAll(body)
+	if err != nil {
+		return 0, err
+	}
+	var responseInterface map[string]interface{}
+	json.Unmarshal(rawData, &responseInterface)
+	holidays := responseInterface["feiertage"].([]interface{})
+	for _, hol := range holidays {
+		obj := hol.(map[string]interface{})
+		time, err := time.Parse("2006-01-02", fmt.Sprint(obj["date"]))
+		if err != nil {
+			return 0, err
+		}
+		if time.After(start) && time.Before(end) {
+			totalDays++
+		}
+	}
+	return totalDays, nil
 }
