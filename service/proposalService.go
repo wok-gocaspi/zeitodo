@@ -98,11 +98,10 @@ func (s EmployeeService) GetAllProposals(ctx *gin.Context) ([]model.ProposalsByU
 	var err error
 
 	userid, useridok := ctx.GetQuery("userid")
+	users, err = s.DbService.GetAllUser()
 	if useridok {
 		userid, _ := primitive.ObjectIDFromHex(userid)
 		users, err = s.DbService.GetUserTeamMembersByID(userid)
-	} else {
-		users, err = s.DbService.GetAllUser()
 	}
 
 	if err != nil {
