@@ -83,7 +83,7 @@ func (c Client) GetAllUser() ([]model.UserPayload, error) {
 	return users, nil
 }
 
-func (c Client) GetUserTeamMembersByID(userid primitive.ObjectID) (interface{}, error) {
+func (c Client) GetUserTeamMembersByID(userid primitive.ObjectID) ([]model.UserPayload, error) {
 	userFilter := bson.M{"_id": userid}
 	UserCoursor := c.Users.FindOne(context.TODO(), userFilter)
 	var matchingUser model.User
@@ -96,9 +96,9 @@ func (c Client) GetUserTeamMembersByID(userid primitive.ObjectID) (interface{}, 
 	if err != nil {
 		return nil, err
 	}
-	var teamMembers []model.TeamMember
+	var teamMembers []model.UserPayload
 	for teamCoursor.Next(context.TODO()) {
-		var teamMember model.TeamMember
+		var teamMember model.UserPayload
 		err := teamCoursor.Decode(&teamMember)
 		if err != nil {
 			return nil, err

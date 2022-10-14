@@ -91,7 +91,7 @@ func TestGetAllUser_Return_invalid_database_error(t *testing.T) {
 
 func TestGetTeamMembersByUserID_Return_valid(t *testing.T) {
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
-	var dbReturn []model.TeamMember
+	var dbReturn []model.UserPayload
 	fakeDB.GetUserTeamMembersByIDReturns(dbReturn, nil)
 	serviceInstance := service.NewEmployeeService(fakeDB)
 	fakeIDString := primitive.NewObjectID().Hex()
@@ -101,7 +101,7 @@ func TestGetTeamMembersByUserID_Return_valid(t *testing.T) {
 
 func TestGetTeamMembersByUserID_Return_invalid_userid(t *testing.T) {
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
-	var dbReturn []model.TeamMember
+	var dbReturn []model.UserPayload
 	fakeDB.GetUserTeamMembersByIDReturns(dbReturn, nil)
 	serviceInstance := service.NewEmployeeService(fakeDB)
 	_, err := serviceInstance.GetTeamMembersByUserID("1")
@@ -110,7 +110,7 @@ func TestGetTeamMembersByUserID_Return_invalid_userid(t *testing.T) {
 
 func TestGetTeamMembersByUserID_Return_invalid_database_error(t *testing.T) {
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
-	var dbReturn []model.TeamMember
+	var dbReturn []model.UserPayload
 	fakeDB.GetUserTeamMembersByIDReturns(dbReturn, errors.New("assert.Error(t, err, \"mongo: no documents in result\")"))
 	serviceInstance := service.NewEmployeeService(fakeDB)
 	fakeIDString := primitive.NewObjectID().Hex()
