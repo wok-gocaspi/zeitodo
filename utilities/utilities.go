@@ -423,6 +423,9 @@ func CalculateTotalProposalHours(startTime, endTime time.Time, hoursPerDay float
 		if proposal.StartDate.Before(startTime) {
 			proposalStartOffset = float64(GetWeekdaysBetween(proposal.StartDate, startTime) + 1)
 		}
+		if proposal.StartDate.Equal(startTime) {
+			proposalTotalDays++
+		}
 		if proposal.EndDate.After(endTime) && !proposal.StartDate.Equal(endTime) {
 			proposalEndOffset = float64(GetWeekdaysBetween(endTime, proposal.EndDate) + 1)
 		}
