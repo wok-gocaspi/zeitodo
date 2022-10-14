@@ -409,6 +409,7 @@ timeLoop:
 			totalDays++
 		}
 	}
+	fmt.Println(totalDays)
 	return totalDays, nil
 }
 
@@ -423,9 +424,6 @@ func CalculateTotalProposalHours(startTime, endTime time.Time, hoursPerDay float
 			proposalStartOffset = float64(GetWeekdaysBetween(proposal.StartDate, startTime) + 1)
 		}
 		if proposal.EndDate.After(endTime) && !proposal.StartDate.Equal(endTime) {
-			proposalEndOffset = float64(GetWeekdaysBetween(endTime, proposal.EndDate) + 1)
-		}
-		if proposal.EndDate.Before(endTime) {
 			proposalEndOffset = float64(GetWeekdaysBetween(endTime, proposal.EndDate) + 1)
 		}
 		totalProposalDays = totalProposalDays + (proposalTotalDays - (proposalStartOffset + proposalEndOffset))
