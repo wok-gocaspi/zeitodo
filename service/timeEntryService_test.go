@@ -6,7 +6,6 @@ import (
 	"example-project/model"
 	"example-project/service"
 	"example-project/service/servicefakes"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -244,96 +243,6 @@ func TestUpdate_timeEntries_coll(t *testing.T) {
 	assert.Equal(t, &mongo.UpdateResult{UpsertedCount: 1}, nil)
 	assert.Nil(t, result)
 }*/
-
-func TestCalcultimeEntry_err(t *testing.T) {
-	mockStartDate := time.Now()
-	mockEndDate := time.Now().Add(time.Hour * 72)
-	url := fmt.Sprintf("http://localhost:9090/test?start=%v&end=%v", mockStartDate.String(), mockEndDate.String())
-	responseRecorder := httptest.NewRecorder()
-	fakeContest, _ := gin.CreateTestContext(responseRecorder)
-	fakeContest.Request = httptest.NewRequest("GET", url, nil)
-
-	fakeDB := &servicefakes.FakeDatabaseInterface{}
-	servicefakes := service.NewEmployeeService(fakeDB)
-
-	fakeerr := errors.New("fakeDB err")
-	fakeDB.GetAllTimeEntryReturns(nil, fakeerr)
-	result, err := servicefakes.CalculateTimeEntries(fakeContest)
-
-	assert.Equal(t, fakeerr, err)
-	assert.Nil(t, result)
-}
-
-func TestCalcultimeEntry(t *testing.T) {
-
-	mockStartDate := time.Now()
-	mockEndDate := time.Now().Add(time.Hour * 72)
-	url := fmt.Sprintf("http://localhost:9090/test?start=%v&end=%v", mockStartDate.String(), mockEndDate.String())
-	responseRecorder := httptest.NewRecorder()
-	fakeContest, _ := gin.CreateTestContext(responseRecorder)
-	fakeContest.Request = httptest.NewRequest("GET", url, nil)
-
-	fakeDB := &servicefakes.FakeDatabaseInterface{}
-	servicefakes := service.NewEmployeeService(fakeDB)
-
-	//fakeerr := errors.New("fakeDB err")
-	faketimeentries := []model.TimeEntry{
-		model.TimeEntry{
-			UserId: "123", Start: time.Time{}, End: time.Time{}, BreakStart: time.Time{}, BreakEnd: time.Time{}, Project: "135"},
-	}
-	fakeDB.GetAllTimeEntryReturns(faketimeentries, nil)
-	result, err := servicefakes.CalculateTimeEntries(fakeContest)
-
-	assert.Equal(t, nil, err)
-	assert.NotNil(t, result)
-}
-func TestCalcultimeEntryend(t *testing.T) {
-
-	mockStartDate := time.Now()
-	mockEndDate := time.Now().Add(time.Hour * 72)
-	url := fmt.Sprintf("http://localhost:9090/test?start=%v&end=%v", mockStartDate.String(), mockEndDate.String())
-	responseRecorder := httptest.NewRecorder()
-	fakeContest, _ := gin.CreateTestContext(responseRecorder)
-	fakeContest.Request = httptest.NewRequest("GET", url, nil)
-
-	fakeDB := &servicefakes.FakeDatabaseInterface{}
-	servicefakes := service.NewEmployeeService(fakeDB)
-
-	//fakeerr := errors.New("fakeDB err")
-	faketimeentries := []model.TimeEntry{
-		model.TimeEntry{
-			UserId: "1", Start: time.Time{}, End: time.Time{}, BreakStart: time.Time{}, BreakEnd: time.Time{}, Project: "135"},
-	}
-	fakeDB.GetAllTimeEntryReturns(faketimeentries, nil)
-	result, err := servicefakes.CalculateTimeEntries(fakeContest)
-
-	assert.Equal(t, nil, err)
-	assert.NotNil(t, result)
-}
-func TestCalcul_timeEntry_end(t *testing.T) {
-
-	fakeDB := &servicefakes.FakeDatabaseInterface{}
-	servicefakes := service.NewEmployeeService(fakeDB)
-
-	mockStartDate := time.Now()
-	mockEndDate := time.Now().Add(time.Hour * 72)
-	url := fmt.Sprintf("http://localhost:9090/test?start=%v&end=%v", mockStartDate.String(), mockEndDate.String())
-	responseRecorder := httptest.NewRecorder()
-	fakeContest, _ := gin.CreateTestContext(responseRecorder)
-	fakeContest.Request = httptest.NewRequest("GET", url, nil)
-
-	//fakeerr := errors.New("fakeDB err")
-	faketimeentries := []model.TimeEntry{
-		model.TimeEntry{
-			UserId: "1", Start: time.Time{}, End: time.Time{}, BreakStart: time.Time{}, BreakEnd: time.Time{}, Project: "135"},
-	}
-	fakeDB.GetAllTimeEntryReturns(faketimeentries, nil)
-	result, err := servicefakes.CalculateTimeEntries(fakeContest)
-
-	assert.Equal(t, nil, err)
-	assert.NotNil(t, result)
-}
-
 func TestEmployeeService_CalculateTimeEntries(t *testing.T) {
 
 	fakeHexId, _ := primitive.ObjectIDFromHex("6346c9d1b8489ecce7c010f8")

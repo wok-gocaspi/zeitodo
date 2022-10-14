@@ -345,7 +345,6 @@ func CalculateRequiredWorkingHours(user model.UserPayload, proposals []model.Pro
 	var hoursPerDay = user.HoursPerWeek / 5
 	var startTime time.Time
 	var endTime time.Time
-	var totalProposalDays float64 = 0
 	start, startOK := ctx.GetQuery("start")
 	if startOK {
 		var err error
@@ -373,23 +372,8 @@ func CalculateRequiredWorkingHours(user model.UserPayload, proposals []model.Pro
 	}
 	totalHours = totalHours - (float64(totalHolidays) * hoursPerDay)
 
-	for _, proposal := range proposals {
-		var proposalTotalDays float64 = 0
-		var proposalStartOffset float64 = 0
-		var proposalEndOffset float64 = 0
-		proposalTotalDays = float64(GetWeekdaysBetween(proposal.StartDate, proposal.EndDate) + 1)
-		if proposal.StartDate.Before(startTime) {
-			proposalStartOffset = float64(GetWeekdaysBetween(proposal.StartDate, startTime) + 1)
-		}
-		if proposal.StartDate.Equal(endTime) {
-			proposalTotalDays = 1
-		}
-		if proposal.EndDate.After(endTime) && !proposal.StartDate.Equal(endTime) {
-			proposalEndOffset = float64(GetWeekdaysBetween(proposal.EndDate, endTime) + 1)
-		}
-		totalProposalDays = totalProposalDays + (proposalTotalDays - (proposalStartOffset + proposalEndOffset))
-	}
-	var totalProposalHours = totalProposalDays * hoursPerDay
+	totalProposalHours := CalculateTotalProposalHours(startTime, endTime, hoursPerDay, proposals)
+
 	return totalHours - totalProposalHours, nil
 }
 
@@ -426,4 +410,25 @@ timeLoop:
 		}
 	}
 	return totalDays, nil
+}
+
+func CalculateTotalProposalHours(startTime, endTime time.Time, hoursPerDay float64, proposals []model.Proposal) float64 {
+	var totalProposalDays float64 = 0
+	for _, proposal := range proposals {
+		var proposalTotalDays float64 = 0
+		var proposalStartOffset float64 = 0
+		var proposalEndOffset float64 = 0
+		proposalTotalDays = float64(GetWeekdaysBetween(proposal.StartDate, proposal.EndDate) + 1)
+		if proposal.StartDate.Before(startTime) {
+			proposalStartOffset = float64(GetWeekdaysBetween(proposal.StartDate, startTime) + 1)
+		}
+		if proposal.EndDate.After(endTime) && !proposal.StartDate.Equal(endTime) {
+			proposalEndOffset = float64(GetWeekdaysBetween(endTime, proposal.EndDate) + 1)
+		}
+		if proposal.EndDate.Before(endTime) {
+			proposalEndOffset = float64(GetWeekdaysBetween(endTime, proposal.EndDate) + 1)
+		}
+		totalProposalDays = totalProposalDays + (proposalTotalDays - (proposalStartOffset + proposalEndOffset))
+	}
+	return totalProposalDays * hoursPerDay
 }
