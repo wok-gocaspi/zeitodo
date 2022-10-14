@@ -197,7 +197,7 @@ func GetWeekdaysBetween(start, end time.Time) int {
 	return days
 }
 
-func FormGetAllProposalsFilter(user model.UserPayload, ctx *gin.Context) (bson.M, bson.D) {
+func FormGetAllProposalsFilterCalc(user model.UserPayload, ctx *gin.Context) (bson.M, bson.D) {
 	filter := bson.M{}
 	var filterTimeArray []bson.M
 	sort := bson.D{{"timestamp", 1}}
@@ -289,6 +289,32 @@ func FormGetAllProposalsFilter(user model.UserPayload, ctx *gin.Context) (bson.M
 		},
 	}
 	filter["$or"] = filterTimeArray
+
+	sortingQuery, sortingOK := ctx.GetQuery("sort")
+	if sortingOK {
+		if sortingQuery == "desc" {
+			sort = bson.D{{"timestamp", -1}}
+		}
+		if sortingQuery == "asce" {
+			sort = bson.D{{"timestamp", 1}}
+		}
+	}
+	return filter, sort
+}
+
+func FormGetAllProposalsFilter(user model.UserPayload, ctx *gin.Context) (bson.M, bson.D) {
+	filter := bson.M{}
+	sort := bson.D{{"timestamp", 1}}
+	typeQuery, typeOK := ctx.GetQuery("type")
+
+	filter["userId"] = user.ID.Hex()
+	if typeOK {
+		filter["type"] = typeQuery
+	}
+	statusQuery, statusOK := ctx.GetQuery("status")
+	if statusOK {
+		filter["status"] = statusQuery
+	}
 
 	sortingQuery, sortingOK := ctx.GetQuery("sort")
 	if sortingOK {

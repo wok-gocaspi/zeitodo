@@ -232,17 +232,18 @@ func (c Client) DeleteProposalByIdAndDate(id string, date string) (*mongo.Delete
 }
 
 func (c Client) UpdateProposal(update model.Proposal, date string) (*mongo.UpdateResult, error) {
-	filter := bson.M{"userId": update.UserId, "startDate": date}
-
+	updateTime, _ := time.Parse(time.RFC3339, date)
+	filter := bson.M{"userId": update.UserId, "startDate": updateTime}
+	fmt.Println(update.UserId)
 	if update.UserId == "" {
-		IdMissing := "an userId has to be provided"
+		IdMissing := "an userId has to be provided "
 		return nil, errors.New(IdMissing)
 	}
 	courser := c.Proposals.FindOne(context.TODO(), filter)
 	var proposal model.Proposal
 	err := courser.Decode(&proposal)
 	if proposal.UserId == "" {
-		IdWrong := "an userId has to be provided"
+		IdWrong := "an userId has to be provided DECODE!!!"
 		return nil, errors.New(IdWrong)
 	}
 	var setElements bson.D

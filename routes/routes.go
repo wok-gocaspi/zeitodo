@@ -37,7 +37,7 @@ var PermissionList model.PermissionList
 
 func CreateRoutes(group *gin.RouterGroup) {
 
-	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/timeentry", Methods: []string{"GET", "DELETE", "PUT"}, GetSameUser: true, Group: "user"})
+	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/timeentry", Methods: []string{"GET", "DELETE", "PUT"}, GetSameUser: false, Group: "user", Whitelist: []string{"timeentry/calculate"}})
 	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/timeentry", Methods: []string{"GET", "POST", "PUT", "DELETE"}, GetSameUser: false, Group: "admin"})
 
 	PermissionList.Permissions = append(PermissionList.Permissions, model.Permission{Uri: "/proposals", Methods: []string{"GET", "DELETE", "PATCH"}, GetSameUser: true, Group: "user"})

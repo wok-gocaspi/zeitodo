@@ -100,7 +100,7 @@ func (s EmployeeService) CalculateTimeEntries(ctx *gin.Context) (model.WorkingHo
 	}
 	user, err := s.DbService.GetUserByID(userIDObj)
 
-	proposalFilter, proposalSort := utilities.FormGetAllProposalsFilter(user, ctx)
+	proposalFilter, proposalSort := utilities.FormGetAllProposalsFilterCalc(user, ctx)
 	proposals, err := s.DbService.GetProposalsByFilter(proposalFilter, proposalSort)
 	if err != nil {
 		return workingPayload, err
