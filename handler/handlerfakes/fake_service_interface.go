@@ -27,17 +27,17 @@ type FakeServiceInterface struct {
 		result2 string
 		result3 error
 	}
-	CalcultimeEntryStub        func(string) (map[string]float64, error)
-	calcultimeEntryMutex       sync.RWMutex
-	calcultimeEntryArgsForCall []struct {
-		arg1 string
+	CalculateTimeEntriesStub        func(*gin.Context) (model.WorkingHoursPayload, error)
+	calculateTimeEntriesMutex       sync.RWMutex
+	calculateTimeEntriesArgsForCall []struct {
+		arg1 *gin.Context
 	}
-	calcultimeEntryReturns struct {
-		result1 map[string]float64
+	calculateTimeEntriesReturns struct {
+		result1 model.WorkingHoursPayload
 		result2 error
 	}
-	calcultimeEntryReturnsOnCall map[int]struct {
-		result1 map[string]float64
+	calculateTimeEntriesReturnsOnCall map[int]struct {
+		result1 model.WorkingHoursPayload
 		result2 error
 	}
 	CheckIsSameUserStub        func(*gin.Context, model.PermissionList, string) error
@@ -423,16 +423,16 @@ func (fake *FakeServiceInterface) AuthenticateUserReturnsOnCall(i int, result1 s
 	}{result1, result2, result3}
 }
 
-func (fake *FakeServiceInterface) CalcultimeEntry(arg1 string) (map[string]float64, error) {
-	fake.calcultimeEntryMutex.Lock()
-	ret, specificReturn := fake.calcultimeEntryReturnsOnCall[len(fake.calcultimeEntryArgsForCall)]
-	fake.calcultimeEntryArgsForCall = append(fake.calcultimeEntryArgsForCall, struct {
-		arg1 string
+func (fake *FakeServiceInterface) CalculateTimeEntries(arg1 *gin.Context) (model.WorkingHoursPayload, error) {
+	fake.calculateTimeEntriesMutex.Lock()
+	ret, specificReturn := fake.calculateTimeEntriesReturnsOnCall[len(fake.calculateTimeEntriesArgsForCall)]
+	fake.calculateTimeEntriesArgsForCall = append(fake.calculateTimeEntriesArgsForCall, struct {
+		arg1 *gin.Context
 	}{arg1})
-	stub := fake.CalcultimeEntryStub
-	fakeReturns := fake.calcultimeEntryReturns
-	fake.recordInvocation("CalcultimeEntry", []interface{}{arg1})
-	fake.calcultimeEntryMutex.Unlock()
+	stub := fake.CalculateTimeEntriesStub
+	fakeReturns := fake.calculateTimeEntriesReturns
+	fake.recordInvocation("CalculateTimeEntries", []interface{}{arg1})
+	fake.calculateTimeEntriesMutex.Unlock()
 	if stub != nil {
 		return stub(arg1)
 	}
@@ -442,47 +442,47 @@ func (fake *FakeServiceInterface) CalcultimeEntry(arg1 string) (map[string]float
 	return fakeReturns.result1, fakeReturns.result2
 }
 
-func (fake *FakeServiceInterface) CalcultimeEntryCallCount() int {
-	fake.calcultimeEntryMutex.RLock()
-	defer fake.calcultimeEntryMutex.RUnlock()
-	return len(fake.calcultimeEntryArgsForCall)
+func (fake *FakeServiceInterface) CalculateTimeEntriesCallCount() int {
+	fake.calculateTimeEntriesMutex.RLock()
+	defer fake.calculateTimeEntriesMutex.RUnlock()
+	return len(fake.calculateTimeEntriesArgsForCall)
 }
 
-func (fake *FakeServiceInterface) CalcultimeEntryCalls(stub func(string) (map[string]float64, error)) {
-	fake.calcultimeEntryMutex.Lock()
-	defer fake.calcultimeEntryMutex.Unlock()
-	fake.CalcultimeEntryStub = stub
+func (fake *FakeServiceInterface) CalculateTimeEntriesCalls(stub func(*gin.Context) (model.WorkingHoursPayload, error)) {
+	fake.calculateTimeEntriesMutex.Lock()
+	defer fake.calculateTimeEntriesMutex.Unlock()
+	fake.CalculateTimeEntriesStub = stub
 }
 
-func (fake *FakeServiceInterface) CalcultimeEntryArgsForCall(i int) string {
-	fake.calcultimeEntryMutex.RLock()
-	defer fake.calcultimeEntryMutex.RUnlock()
-	argsForCall := fake.calcultimeEntryArgsForCall[i]
+func (fake *FakeServiceInterface) CalculateTimeEntriesArgsForCall(i int) *gin.Context {
+	fake.calculateTimeEntriesMutex.RLock()
+	defer fake.calculateTimeEntriesMutex.RUnlock()
+	argsForCall := fake.calculateTimeEntriesArgsForCall[i]
 	return argsForCall.arg1
 }
 
-func (fake *FakeServiceInterface) CalcultimeEntryReturns(result1 map[string]float64, result2 error) {
-	fake.calcultimeEntryMutex.Lock()
-	defer fake.calcultimeEntryMutex.Unlock()
-	fake.CalcultimeEntryStub = nil
-	fake.calcultimeEntryReturns = struct {
-		result1 map[string]float64
+func (fake *FakeServiceInterface) CalculateTimeEntriesReturns(result1 model.WorkingHoursPayload, result2 error) {
+	fake.calculateTimeEntriesMutex.Lock()
+	defer fake.calculateTimeEntriesMutex.Unlock()
+	fake.CalculateTimeEntriesStub = nil
+	fake.calculateTimeEntriesReturns = struct {
+		result1 model.WorkingHoursPayload
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeServiceInterface) CalcultimeEntryReturnsOnCall(i int, result1 map[string]float64, result2 error) {
-	fake.calcultimeEntryMutex.Lock()
-	defer fake.calcultimeEntryMutex.Unlock()
-	fake.CalcultimeEntryStub = nil
-	if fake.calcultimeEntryReturnsOnCall == nil {
-		fake.calcultimeEntryReturnsOnCall = make(map[int]struct {
-			result1 map[string]float64
+func (fake *FakeServiceInterface) CalculateTimeEntriesReturnsOnCall(i int, result1 model.WorkingHoursPayload, result2 error) {
+	fake.calculateTimeEntriesMutex.Lock()
+	defer fake.calculateTimeEntriesMutex.Unlock()
+	fake.CalculateTimeEntriesStub = nil
+	if fake.calculateTimeEntriesReturnsOnCall == nil {
+		fake.calculateTimeEntriesReturnsOnCall = make(map[int]struct {
+			result1 model.WorkingHoursPayload
 			result2 error
 		})
 	}
-	fake.calcultimeEntryReturnsOnCall[i] = struct {
-		result1 map[string]float64
+	fake.calculateTimeEntriesReturnsOnCall[i] = struct {
+		result1 model.WorkingHoursPayload
 		result2 error
 	}{result1, result2}
 }
@@ -2019,8 +2019,8 @@ func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	defer fake.invocationsMutex.RUnlock()
 	fake.authenticateUserMutex.RLock()
 	defer fake.authenticateUserMutex.RUnlock()
-	fake.calcultimeEntryMutex.RLock()
-	defer fake.calcultimeEntryMutex.RUnlock()
+	fake.calculateTimeEntriesMutex.RLock()
+	defer fake.calculateTimeEntriesMutex.RUnlock()
 	fake.checkIsSameUserMutex.RLock()
 	defer fake.checkIsSameUserMutex.RUnlock()
 	fake.checkUserPolicyMutex.RLock()

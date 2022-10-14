@@ -5,7 +5,6 @@ import (
 	"example-project/model"
 	"example-project/service"
 	"example-project/service/servicefakes"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -58,7 +57,8 @@ func TestProposalService_GetProposalsByID(t *testing.T) {
 }
 
 func TestEmployeeService_UpdateEmployee(t *testing.T) {
-
+	mockStartDate := time.Now()
+	mockEndDate := time.Now().Add(time.Hour * 72)
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
 	fakeAdminId := primitive.NewObjectID().String()
 	fakecontextAdmin := gin.Context{}
@@ -71,10 +71,10 @@ func TestEmployeeService_UpdateEmployee(t *testing.T) {
 
 	mockProposaluser := model.Proposal{
 
-		UserId: fakeuserid, StartDate: "2006-Nov-06", EndDate: "2006-Nov-02", Status: "denied"}
+		UserId: fakeuserid, StartDate: mockStartDate, EndDate: mockEndDate, Status: "denied"}
 
 	mockProposalAdmin := model.Proposal{
-		UserId: fakeAdminId, StartDate: "2006-Nov-06", EndDate: "2006-Nov-02", Status: "approved"}
+		UserId: fakeAdminId, StartDate: mockStartDate, EndDate: mockStartDate, Status: "approved"}
 
 	mockError := errors.New("fake userId")
 	mockErrorUser := errors.New("user can not update ")
@@ -83,7 +83,7 @@ func TestEmployeeService_UpdateEmployee(t *testing.T) {
 
 	var tests = []struct {
 		Proposal  model.Proposal
-		Date      string
+		Date      time.Time
 		hasError  bool
 		mockError error
 		Result    *mongo.UpdateResult
@@ -99,7 +99,7 @@ func TestEmployeeService_UpdateEmployee(t *testing.T) {
 		fakeDB.UpdateProposalReturns(tt.Result, tt.mockError)
 		serviceInstance := service.NewEmployeeService(fakeDB)
 
-		actual, err := serviceInstance.UpdateProposalByDate(tt.Proposal, tt.Proposal.StartDate, tt.context)
+		actual, err := serviceInstance.UpdateProposalByDate(tt.Proposal, tt.Proposal.StartDate.String(), tt.context)
 
 		assert.Equal(t, actual, tt.Result)
 		assert.Equal(t, tt.mockError, err)
@@ -109,6 +109,8 @@ func TestEmployeeService_UpdateEmployee(t *testing.T) {
 }
 
 func TestEmployeeService_CreateProposals(t *testing.T) {
+	mockStartDate := time.Now()
+	mockEndDate := time.Now().Add(time.Hour * 72)
 	StartExceedsEnd := []model.ProposalPayload{
 		{UserId: "1", StartDate: "2006-Nov-08", EndDate: "2005-Nov-07"},
 	}
@@ -116,11 +118,11 @@ func TestEmployeeService_CreateProposals(t *testing.T) {
 		{UserId: "1", StartDate: "2006-Nov-04", EndDate: "2006-Nov-10"},
 	}
 	GetByIdReturn := []model.Proposal{
-		{UserId: "1", StartDate: "2006-Nov-06", EndDate: "2006-Nov-07"},
+		{UserId: "1", StartDate: mockStartDate, EndDate: mockEndDate},
 	}
 	GetByIdReturnOverlapp := []model.Proposal{
-		{UserId: "1", StartDate: "2006-Nov-07", EndDate: "2006-Nov-08"},
-		{UserId: "1", StartDate: "2006-Nov-06", EndDate: "2006-Nov-09"},
+		{UserId: "1", StartDate: mockStartDate, EndDate: mockEndDate},
+		{UserId: "1", StartDate: mockStartDate, EndDate: mockEndDate},
 	}
 
 	StartExceedsEndMsg := "The startdate must be before the enddate"
@@ -213,6 +215,7 @@ func TestProposalService_DeleteProposalsByID(t *testing.T) {
 func TestGetAllProposals(t *testing.T) {
 	var exampleUserID1 = primitive.NewObjectID()
 	var exampleUserID2 = primitive.NewObjectID()
+	mockStartDate := time.Now()
 
 	type ProposalCalls struct {
 		Proposals []model.Proposal
@@ -231,15 +234,15 @@ func TestGetAllProposals(t *testing.T) {
 			{Username: "frank", ID: exampleUserID2},
 		}, GetProposalsReturn: []ProposalCalls{
 			{Proposals: []model.Proposal{
-				{StartDate: "2002-09-09", Type: "vacation"},
-				{StartDate: "2002-09-10", Type: "sickness"},
+				{StartDate: mockStartDate, Type: "vacation"},
+				{StartDate: mockStartDate, Type: "sickness"},
 			}, Error: nil},
 			{Proposals: []model.Proposal{
 				{UserId: exampleUserID2.Hex()},
 			}, Error: nil},
 		}, Return: []model.ProposalsByUser{
-			{Username: "peter", Userid: exampleUserID1, VacationProposals: []model.Proposal{{StartDate: "2002-09-09", Type: "vacation"}}},
-			{Username: "frank", Userid: exampleUserID2, VacationProposals: []model.Proposal{{StartDate: "2002-09-10", Type: "sickness"}}},
+			{Username: "peter", Userid: exampleUserID1, VacationProposals: []model.Proposal{{StartDate: mockStartDate, Type: "vacation"}}},
+			{Username: "frank", Userid: exampleUserID2, VacationProposals: []model.Proposal{{StartDate: mockStartDate, Type: "sickness"}}},
 		}, Error: nil},
 		{
 			GetAllUserReturn:   []model.UserPayload{},
@@ -285,6 +288,8 @@ func TestGetAllProposals(t *testing.T) {
 }
 
 func TestGetTotalAbsence(t *testing.T) {
+	mockStartDate := time.Now()
+	mockEndDate := time.Now().Add(time.Hour * 72)
 	userID := primitive.NewObjectID().Hex()
 	currentTime := time.Now()
 	var tests = []struct {
@@ -304,14 +309,14 @@ func TestGetTotalAbsence(t *testing.T) {
 			},
 			GetUserByIDError: nil,
 			GetProposals: []model.Proposal{
-				{StartDate: fmt.Sprint(currentTime.Year()) + "-Sep-10", EndDate: fmt.Sprint(currentTime.Year()) + "-Sep-15", Type: "sickness"},
-				{StartDate: fmt.Sprint(currentTime.Year()) + "-Oct-13", EndDate: fmt.Sprint(currentTime.Year()) + "-Oct-20", Type: "vacation"},
+				{StartDate: mockStartDate, EndDate: mockEndDate, Type: "sickness"},
+				{StartDate: mockStartDate, EndDate: mockEndDate, Type: "vacation"},
 			},
 			GetProposalError: nil,
 			Return: model.AbsenceObject{
 				TotalVacationDays: 10,
-				VacationDays:      6,
-				SicknessDays:      4,
+				VacationDays:      3,
+				SicknessDays:      3,
 			},
 			Error: nil,
 		},
@@ -344,7 +349,7 @@ func TestGetTotalAbsence(t *testing.T) {
 			},
 			GetUserByIDError: nil,
 			GetProposals: []model.Proposal{
-				{StartDate: fmt.Sprint(currentTime.Year()) + "--10", EndDate: fmt.Sprint(currentTime.Year()) + "-Sep-15", Type: "sickness"},
+				{StartDate: mockStartDate, EndDate: mockEndDate, Type: "sickness"},
 			},
 			GetProposalError: nil,
 			Return: model.AbsenceObject{
@@ -362,7 +367,7 @@ func TestGetTotalAbsence(t *testing.T) {
 			},
 			GetUserByIDError: nil,
 			GetProposals: []model.Proposal{
-				{StartDate: fmt.Sprint(currentTime.Year()) + "-Sep-10", EndDate: fmt.Sprint(currentTime.Year()) + "-Sep15", Type: "vacation"},
+				{StartDate: mockStartDate, EndDate: mockEndDate, Type: "vacation"},
 			},
 			GetProposalError: nil,
 			Return: model.AbsenceObject{

@@ -8,7 +8,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"math"
-	"strings"
 	"time"
 )
 
@@ -60,9 +59,7 @@ func (s EmployeeService) CreateProposals(proposalPayloadArr []model.ProposalPayl
 	for _, ps := range actualProposals {
 		newP := ps
 
-		Start := strings.Split(ps.StartDate, " ")
-		End := strings.Split(ps.EndDate, " ")
-		newTIme, _ := utilities.CreateTimeObject(Start[0], End[0])
+		newTIme, _ := utilities.CreateTimeObject(ps.StartDate, ps.EndDate)
 		newP.TimeObject = newTIme
 		actualProposalsString = append(actualProposalsString, newP)
 	}
@@ -107,7 +104,7 @@ func (s EmployeeService) GetAllProposals(ctx *gin.Context) ([]model.ProposalsByU
 		proposalUserItem.FirstName = user.FirstName
 		proposalUserItem.LastName = user.LastName
 
-		filter, sort := utilities.FormGetAllProposalsFilter(user.ID.Hex(), ctx)
+		filter, sort := utilities.FormGetAllProposalsFilter(user, ctx)
 		proposals, err := s.DbService.GetProposalsByFilter(filter, sort)
 		if err != nil {
 			return proposalUserArray, err
@@ -156,16 +153,8 @@ func (s EmployeeService) GetTotalAbsence(userid string) (model.AbsenceObject, er
 	}
 
 	for _, proposal := range proposals {
-		const layout = "2006-Jan-02"
-		startDate, err := time.Parse(layout, proposal.StartDate)
-		if err != nil {
-			return model.AbsenceObject{}, err
-		}
-		endDate, err := time.Parse(layout, proposal.EndDate)
-		if err != nil {
-			return model.AbsenceObject{}, err
-		}
-		days := utilities.GetWeekdaysBetween(startDate, endDate)
+
+		days := utilities.GetWeekdaysBetween(proposal.StartDate, proposal.EndDate)
 		if proposal.Type == "sickness" {
 			totalSicknessDays = totalSicknessDays + int(days) + 1
 		}

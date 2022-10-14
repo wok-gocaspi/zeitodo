@@ -2,6 +2,7 @@ package utilities
 
 import (
 	"crypto/sha256"
+	"encoding/json"
 	"errors"
 	"example-project/model"
 	"fmt"
@@ -10,8 +11,9 @@ import (
 	"github.com/retailify/go-interval"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"io/ioutil"
+	"net/http"
 	"os"
-	"strings"
 	"time"
 )
 
@@ -62,12 +64,9 @@ func CustomOverlaps(p1 model.Proposal, p2 model.Proposal) bool {
 	return false
 }
 
-func CreateTimeObject(start, end string) (model.ProposalTimeObject, error) {
-	const shortForm = "2006-Jan-02"
-	Start := strings.Split(start, " ")
-	End := strings.Split(end, " ")
+func CreateTimeObject(start, end time.Time) (model.ProposalTimeObject, error) {
 
-	Interval, err := interval.MakeTimeIntervalFromStrings(Start[0], End[0], shortForm)
+	Interval, err := interval.MakeTimeInterval(&start, &end)
 	obj := model.ProposalTimeObject{
 		Duration: Interval.Duration(),
 		Interval: Interval,
@@ -80,15 +79,24 @@ func CraftProposalFromPayload(payload []model.ProposalPayload) ([]model.Proposal
 
 	var proposals []model.Proposal
 	for _, p := range payload {
-		obj, err := CreateTimeObject(p.StartDate, p.EndDate)
+		startObj, err := time.Parse("2006-Jan-02", p.StartDate)
+		if err != nil {
+			return proposals, err
+		}
+		endObj, err := time.Parse("2006-Jan-02", p.EndDate)
+		if err != nil {
+			return proposals, err
+		}
+		obj, err := CreateTimeObject(startObj, endObj)
 		var pStatus = "pending"
 		if p.Type == "sickness" {
 			pStatus = "approved"
 		}
+
 		newProposal := model.Proposal{
 			UserId:     p.UserId,
-			StartDate:  p.StartDate,
-			EndDate:    p.EndDate,
+			StartDate:  startObj,
+			EndDate:    endObj,
 			Status:     pStatus,
 			Type:       p.Type,
 			TimeObject: obj,
@@ -144,9 +152,9 @@ userLoop:
 		case user.Team != "":
 			setElements = append(setElements, bson.E{Key: "team", Value: user.Team})
 			user.Team = ""
-		case user.TotalWorkingDays != 0:
-			setElements = append(setElements, bson.E{Key: "totalWorkingDays", Value: user.TotalWorkingDays})
-			user.TotalWorkingDays = 0
+		case user.HoursPerWeek != 0:
+			setElements = append(setElements, bson.E{Key: "totalWorkingDays", Value: user.HoursPerWeek})
+			user.HoursPerWeek = 0
 		case user.VacationDays != 0:
 			setElements = append(setElements, bson.E{Key: "vacationDays", Value: user.VacationDays})
 			user.VacationDays = 0
@@ -181,8 +189,6 @@ func GetWeekdaysBetween(start, end time.Time) int {
 	for end.After(start) {
 
 		if start.Weekday().String() != "Saturday" && start.Weekday().String() != "Sunday" {
-			fmt.Println(start.Weekday().String())
-
 			days++
 		}
 		start = start.Add(time.Hour * 24)
@@ -191,11 +197,14 @@ func GetWeekdaysBetween(start, end time.Time) int {
 	return days
 }
 
-func FormGetAllProposalsFilter(userid string, ctx *gin.Context) (bson.M, bson.D) {
+func FormGetAllProposalsFilter(user model.UserPayload, ctx *gin.Context) (bson.M, bson.D) {
 	filter := bson.M{}
+	var filterTimeArray []bson.M
 	sort := bson.D{{"timestamp", 1}}
 	typeQuery, typeOK := ctx.GetQuery("type")
-	filter["userId"] = userid
+	var startTime time.Time
+	var endTime time.Time
+	filter["userId"] = user.ID.Hex()
 	if typeOK {
 		filter["type"] = typeQuery
 	}
@@ -203,6 +212,84 @@ func FormGetAllProposalsFilter(userid string, ctx *gin.Context) (bson.M, bson.D)
 	if statusOK {
 		filter["status"] = statusQuery
 	}
+
+	startQuery, startOK := ctx.GetQuery("start")
+	endQuery, endOK := ctx.GetQuery("end")
+	if startOK {
+		sTime, err := time.Parse(time.RFC3339, startQuery)
+		if err == nil {
+			startTime = sTime
+		}
+
+	} else {
+		startTime = user.EntryTime
+	}
+
+	if endOK {
+		eTime, err := time.Parse(time.RFC3339, endQuery)
+		if err == nil {
+			endTime = eTime
+		}
+	} else {
+		endTime = time.Now()
+	}
+
+	filterTimeArray = []bson.M{
+		{
+			"$and": []bson.M{
+				{
+					"startDate": bson.M{"$gt": startTime},
+				},
+				{
+					"endDate": bson.M{"$lt": endTime},
+				},
+			},
+		},
+		{
+			"$and": []bson.M{
+				{
+					"startDate": bson.M{"$gt": startTime},
+				},
+				{
+					"startDate": bson.M{"$lt": endTime},
+				},
+			},
+		},
+		{
+			"$and": []bson.M{
+				{
+					"endDate": bson.M{"$gt": startTime},
+				},
+				{
+					"endDate": bson.M{"$lt": endTime},
+				},
+			},
+		},
+		{
+			"$and": []bson.M{
+				{
+					"startDate": bson.M{"$lt": startTime},
+				},
+				{
+					"endDate": bson.M{"$gt": endTime},
+				},
+			},
+		},
+		{
+			"startDate": startTime,
+		},
+		{
+			"endDate": endTime,
+		},
+		{
+			"endDate": startTime,
+		},
+		{
+			"startDate": endTime,
+		},
+	}
+	filter["$or"] = filterTimeArray
+
 	sortingQuery, sortingOK := ctx.GetQuery("sort")
 	if sortingOK {
 		if sortingQuery == "desc" {
@@ -213,4 +300,136 @@ func FormGetAllProposalsFilter(userid string, ctx *gin.Context) (bson.M, bson.D)
 		}
 	}
 	return filter, sort
+}
+
+func FormGetTimeEntryFilter(ctx *gin.Context) (bson.M, error) {
+	filter := bson.M{}
+	userID, userIDOK := ctx.GetQuery("userid")
+	if !userIDOK {
+		return filter, errors.New("no userid have been supplied as a query")
+	}
+	filter["userId"] = userID
+	start, startOK := ctx.GetQuery("start")
+	end, endOK := ctx.GetQuery("end")
+
+	if startOK {
+		startTime, err := time.Parse(time.RFC3339, start)
+		if err != nil {
+			return filter, err
+		}
+		filter["start"] = bson.M{"$gt": startTime}
+	}
+	if endOK {
+		endTime, err := time.Parse(time.RFC3339, end)
+		if err != nil {
+			return filter, err
+		}
+		filter["end"] = bson.M{"$lt": endTime}
+	}
+	if startOK && endOK {
+		startTime, err := time.Parse(time.RFC3339, start)
+		if err != nil {
+			return filter, err
+		}
+		endTime, err := time.Parse(time.RFC3339, end)
+		if err != nil {
+			return filter, err
+		}
+		filter["start"] = bson.M{"$gt": startTime}
+		filter["end"] = bson.M{"$lt": endTime}
+	}
+	return filter, nil
+}
+
+func CalculateRequiredWorkingHours(user model.UserPayload, proposals []model.Proposal, ctx *gin.Context) (float64, error) {
+	var hoursPerDay = user.HoursPerWeek / 5
+	var startTime time.Time
+	var endTime time.Time
+	start, startOK := ctx.GetQuery("start")
+	if startOK {
+		var err error
+		startTime, err = time.Parse(time.RFC3339, start)
+		if err != nil {
+			return 0, err
+		}
+	} else {
+		startTime = user.EntryTime
+	}
+	end, endOK := ctx.GetQuery("end")
+	if endOK {
+		var err error
+		endTime, err = time.Parse(time.RFC3339, end)
+		if err != nil {
+			return 0, err
+		}
+	} else {
+		endTime = time.Now().UTC().Truncate(time.Hour * 24)
+	}
+	var totalHours = float64(GetWeekdaysBetween(startTime, endTime)+1) * hoursPerDay
+	totalHolidays, err := GetPublicHolidays(startTime, endTime, proposals)
+	if err != nil {
+		return 0, err
+	}
+	totalHours = totalHours - (float64(totalHolidays) * hoursPerDay)
+
+	totalProposalHours := CalculateTotalProposalHours(startTime, endTime, hoursPerDay, proposals)
+
+	return totalHours - totalProposalHours, nil
+}
+
+func GetPublicHolidays(start, end time.Time, proposals []model.Proposal) (int, error) {
+	var totalDays int = 0
+	year := time.Now().Year()
+	url := fmt.Sprintf("https://get.api-feiertage.de/?years=%v&states=hb", year)
+	resp, err := http.Get(url)
+	if err != nil {
+		return 0, err
+	}
+	body := resp.Body
+	rawData, err := ioutil.ReadAll(body)
+	if err != nil {
+		return 0, err
+	}
+	var responseInterface map[string]interface{}
+	json.Unmarshal(rawData, &responseInterface)
+	holidays := responseInterface["feiertage"].([]interface{})
+timeLoop:
+	for _, hol := range holidays {
+		obj := hol.(map[string]interface{})
+		holiday, err := time.Parse("2006-01-02", fmt.Sprint(obj["date"]))
+		if err != nil {
+			return 0, err
+		}
+		if holiday.After(start) && holiday.Before(end) {
+			for _, proposal := range proposals {
+				if (holiday.After(proposal.StartDate) || holiday.Equal(proposal.StartDate)) && (holiday.Before(proposal.EndDate) || holiday.Equal(proposal.EndDate)) {
+					continue timeLoop
+				}
+			}
+			totalDays++
+		}
+	}
+	fmt.Println(totalDays)
+	return totalDays, nil
+}
+
+func CalculateTotalProposalHours(startTime, endTime time.Time, hoursPerDay float64, proposals []model.Proposal) float64 {
+	var totalProposalDays float64 = 0
+	for _, proposal := range proposals {
+		var proposalTotalDays float64 = 0
+		var proposalStartOffset float64 = 0
+		var proposalEndOffset float64 = 0
+		proposalTotalDays = float64(GetWeekdaysBetween(proposal.StartDate, proposal.EndDate) + 1)
+		if proposal.StartDate.Before(startTime) {
+			proposalStartOffset = float64(GetWeekdaysBetween(proposal.StartDate, startTime) + 1)
+		}
+		if proposal.StartDate.Equal(startTime) {
+			proposalTotalDays++
+		}
+		if proposal.EndDate.After(endTime) && !proposal.StartDate.Equal(endTime) {
+			proposalEndOffset = float64(GetWeekdaysBetween(endTime, proposal.EndDate) + 1)
+		}
+		totalProposalDays = totalProposalDays + (proposalTotalDays - (proposalStartOffset + proposalEndOffset))
+	}
+	return totalProposalDays * hoursPerDay
 }

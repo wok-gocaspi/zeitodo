@@ -2597,13 +2597,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{host}}/proposals/{{userID1}}",
+							"raw": "{{host}}/proposals/{{userID2}}",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"proposals",
-								"{{userID1}}"
+								"{{userID2}}"
 							]
 						}
 					},
@@ -2723,6 +2723,70 @@
 							"body": "{\n    \"errorMessage\": \"No results could be found to your query\"\n}"
 						}
 					]
+				},
+				{
+					"name": "GetAllProposals",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.add({",
+									"    key: \"Authorization\",",
+									"    value: \"Bearer \" + pm.environment.get(\"userToken1\")",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/proposals",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"proposals"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetTotalAbsence",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.add({",
+									"    key: \"Authorization\",",
+									"    value: \"Bearer \" + pm.environment.get(\"userToken1\")",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/proposals/absence/{{userID1}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"proposals",
+								"absence",
+								"{{userID1}}"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -3538,14 +3602,19 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/timeentry/calcul/{{userID1}}",
+							"raw": "{{host}}/timeentry/calculate?userid={{userID1}}",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"timeentry",
-								"calcul",
-								"{{userID1}}"
+								"calculate"
+							],
+							"query": [
+								{
+									"key": "userid",
+									"value": "{{userID1}}"
+								}
 							]
 						}
 					},

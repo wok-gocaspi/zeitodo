@@ -3,6 +3,9 @@ package service
 import (
 	"errors"
 	"example-project/model"
+	"example-project/utilities"
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
 )
 
@@ -73,7 +76,6 @@ func (s EmployeeService) UpdateTimeEntries(update model.TimeEntry) (interface{},
 	}
 
 	for _, timeentry := range timeentriesDb {
-
 		if timeentry.UserId != update.UserId {
 			continue
 		}
@@ -81,34 +83,57 @@ func (s EmployeeService) UpdateTimeEntries(update model.TimeEntry) (interface{},
 			err = errors.New("check if update TimeEntries collide")
 			return nil, err
 		}
-
 	}
 	return s.DbService.UpdateTimeEntryById(update)
 }
 
-func (s EmployeeService) CalcultimeEntry(userid string) (map[string]float64, error) {
+func (s EmployeeService) CalculateTimeEntries(ctx *gin.Context) (model.WorkingHoursPayload, error) {
+	var workingPayload model.WorkingHoursPayload
 
-	m := make(map[string]float64)
-	timeentries, err := s.DbService.GetAllTimeEntry()
+	userID, userIDOK := ctx.GetQuery("userid")
+	if !userIDOK {
+		return workingPayload, errors.New("no user id supplied")
+	}
+	userIDObj, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return workingPayload, err
+	}
+	user, err := s.DbService.GetUserByID(userIDObj)
+
+	proposalFilter, proposalSort := utilities.FormGetAllProposalsFilter(user, ctx)
+	proposals, err := s.DbService.GetProposalsByFilter(proposalFilter, proposalSort)
+	if err != nil {
+		return workingPayload, err
+	}
+
+	requiredWorkingHours, err := utilities.CalculateRequiredWorkingHours(user, proposals, ctx)
+	if err != nil {
+		return workingPayload, err
+	}
+	workingPayload.Required = requiredWorkingHours
+
+	filter, err := utilities.FormGetTimeEntryFilter(ctx)
+	if err != nil {
+		return workingPayload, err
+	}
+	timeEntries, err := s.DbService.GetTimeEntriesByFilter(filter)
 
 	if err != nil {
-		return nil, err
+		return workingPayload, err
 	}
-	for _, timeentry := range timeentries {
-		if timeentry.UserId != userid {
-			continue
-		}
-		dur := timeentry.End.Sub(timeentry.Start)
-		if _, prs := m[timeentry.Project]; prs {
-
-			//Project in Map
-
-			m[timeentry.Project] += dur.Hours()
-
+	m := make(map[string]float64)
+	for _, timeEntry := range timeEntries {
+		dur := timeEntry.End.Sub(timeEntry.Start)
+		breakDur := timeEntry.BreakEnd.Sub(timeEntry.BreakStart)
+		dur -= breakDur
+		workingPayload.Actual += dur.Hours()
+		if _, prs := m[timeEntry.Project]; prs {
+			m[timeEntry.Project] += dur.Hours()
 		} else {
-			m[timeentry.Project] = dur.Hours()
+			m[timeEntry.Project] = dur.Hours()
 		}
 
 	}
-	return m, nil
+	workingPayload.Projects = m
+	return workingPayload, nil
 }

@@ -16,32 +16,32 @@ type DbConfig struct {
 }
 
 type User struct {
-	ID               primitive.ObjectID `json:"id" bson:"_id"`
-	Username         string             `json:"username" bson:"username"`
-	Password         [32]byte           `json:"password" bson:"password"`
-	FirstName        string             `json:"firstname" bson:"firstname"`
-	LastName         string             `json:"lastname" bson:"lastname"`
-	Email            string             `json:"email" bson:"email"`
-	Team             string             `json:"team" bson:"team"`
-	Projects         []string           `json:"projects" bson:"projects"`
-	TotalWorkingDays int                `json:"totalWorkingDays" bson:"totalWorkingDays"`
-	VacationDays     int                `json:"vacationDays" bson:"vacationDays"`
-	Group            string             `json:"group" bson:"group"`
-	EntryTime        time.Time          `json:"entryTime" bson:"entryTime"`
+	ID           primitive.ObjectID `json:"id" bson:"_id"`
+	Username     string             `json:"username" bson:"username"`
+	Password     [32]byte           `json:"password" bson:"password"`
+	FirstName    string             `json:"firstname" bson:"firstname"`
+	LastName     string             `json:"lastname" bson:"lastname"`
+	Email        string             `json:"email" bson:"email"`
+	Team         string             `json:"team" bson:"team"`
+	Projects     []string           `json:"projects" bson:"projects"`
+	HoursPerWeek float64            `json:"hoursPerWeek" bson:"hoursPerWeek"`
+	VacationDays int                `json:"vacationDays" bson:"vacationDays"`
+	Group        string             `json:"group" bson:"group"`
+	EntryTime    time.Time          `json:"entryTime" bson:"entryTime"`
 }
 
 type UpdateUserPayload struct {
-	ID               primitive.ObjectID `json:"id" bson:"_id"`
-	Username         string             `json:"username" bson:"username"`
-	Password         string             `json:"password"`
-	FirstName        string             `json:"firstname" bson:"firstname"`
-	LastName         string             `json:"lastname" bson:"lastname"`
-	Email            string             `json:"email" bson:"email"`
-	Team             string             `json:"team" bson:"team"`
-	Projects         []string           `json:"projects" bson:"projects"`
-	TotalWorkingDays float32            `json:"totalWorkingDays" bson:"totalWorkingDays"`
-	VacationDays     int                `json:"vacationDays" bson:"vacationDays"`
-	Group            string             `json:"group" bson:"group"`
+	ID           primitive.ObjectID `json:"id" bson:"_id"`
+	Username     string             `json:"username" bson:"username"`
+	Password     string             `json:"password"`
+	FirstName    string             `json:"firstname" bson:"firstname"`
+	LastName     string             `json:"lastname" bson:"lastname"`
+	Email        string             `json:"email" bson:"email"`
+	Team         string             `json:"team" bson:"team"`
+	Projects     []string           `json:"projects" bson:"projects"`
+	HoursPerWeek float64            `json:"hoursPerWeek" bson:"hoursPerWeek"`
+	VacationDays int                `json:"vacationDays" bson:"vacationDays"`
+	Group        string             `json:"group" bson:"group"`
 }
 
 type UserSignupPayload struct {
@@ -60,6 +60,7 @@ type UserSignup struct {
 	Email        string    `json:"email" bson:"email"`
 	Group        string    `json:"group" bson:"group"`
 	EntryTime    time.Time `json:"entryTime" bson:"entryTime"`
+	HoursPerWeek float64   `json:"hoursPerWeek" bson:"hoursPerWeek"`
 	VacationDays int       `json:"vacationDays" bson:"vacationDays"`
 }
 
@@ -72,17 +73,17 @@ type UserSignupResult struct {
 }
 
 type UserPayload struct {
-	Username         string             `json:"username" bson:"username"`
-	FirstName        string             `json:"firstname" bson:"firstname"`
-	LastName         string             `json:"lastname" bson:"lastname"`
-	Email            string             `json:"email" bson:"email"`
-	Team             string             `json:"team" bson:"team"`
-	Projects         []string           `json:"projects" bson:"projects"`
-	TotalWorkingDays float32            `json:"totalWorkingDays" bson:"totalWorkingDays"`
-	VacationDays     int                `json:"vacationDays" bson:"vacationDays"`
-	Group            string             `json:"group" bson:"group"`
-	ID               primitive.ObjectID `json:"id" bson:"_id"`
-	EntryTime        time.Time          `json:"entryTime" bson:"entryTime"`
+	Username     string             `json:"username" bson:"username"`
+	FirstName    string             `json:"firstname" bson:"firstname"`
+	LastName     string             `json:"lastname" bson:"lastname"`
+	Email        string             `json:"email" bson:"email"`
+	Team         string             `json:"team" bson:"team"`
+	Projects     []string           `json:"projects" bson:"projects"`
+	HoursPerWeek float64            `json:"hoursPerWeek" bson:"hoursPerWeek"`
+	VacationDays int                `json:"vacationDays" bson:"vacationDays"`
+	Group        string             `json:"group" bson:"group"`
+	ID           primitive.ObjectID `json:"id" bson:"_id"`
+	EntryTime    time.Time          `json:"entryTime" bson:"entryTime"`
 }
 
 type UserUpdateResult struct {
@@ -115,11 +116,11 @@ type TimeEntry struct {
 }
 
 type Proposal struct {
-	UserId    string `json:"userId" bson:"userId"`
-	StartDate string `json:"startDate" bson:"startDate"`
-	EndDate   string `json:"endDate" bson:"endDate"`
-	Status    string `json:"status" bson:"status"`
-	Type      string `json:"type" bson:"type"`
+	UserId    string    `json:"userId" bson:"userId"`
+	StartDate time.Time `json:"startDate" bson:"startDate"`
+	EndDate   time.Time `json:"endDate" bson:"endDate"`
+	Status    string    `json:"status" bson:"status"`
+	Type      string    `json:"type" bson:"type"`
 	//	ID         primitive.ObjectID `bson:"_id" json:"id,omitempty"`
 	TimeObject ProposalTimeObject `json:"timeObject" bson:"timeObject"`
 	Timestamp  time.Time          `json:"timestamp" bson:"timestamp"`
@@ -169,6 +170,11 @@ type Permission struct {
 }
 type PermissionList struct {
 	Permissions []Permission
+}
+type WorkingHoursPayload struct {
+	Projects map[string]float64 `json:"projects"`
+	Required float64            `json:"required"`
+	Actual   float64            `json:"actual"`
 }
 
 func (pl PermissionList) AddPermission(permission Permission) {

@@ -246,10 +246,10 @@ func (c Client) UpdateProposal(update model.Proposal, date string) (*mongo.Updat
 		return nil, errors.New(IdWrong)
 	}
 	var setElements bson.D
-	if update.StartDate != "" {
+	if update.StartDate.IsZero() {
 		setElements = append(setElements, bson.E{Key: "startDate", Value: update.StartDate})
 	}
-	if update.EndDate != "" {
+	if update.EndDate.IsZero() {
 		setElements = append(setElements, bson.E{Key: "endDate", Value: update.EndDate})
 	}
 	if update.Type != "" {
@@ -352,6 +352,24 @@ func (c Client) GetTimeEntryByID(id string) []model.TimeEntry {
 	}
 	return timeEntries
 }
+
+func (c Client) GetTimeEntriesByFilter(filter bson.M) ([]model.TimeEntry, error) {
+	var timeEntries []model.TimeEntry
+	courser, err := c.TimeEntries.Find(context.TODO(), filter)
+	if err != nil {
+		return timeEntries, err
+	}
+	for courser.Next(context.TODO()) {
+		var timeEntry model.TimeEntry
+		err := courser.Decode(&timeEntry)
+		if err != nil {
+			return timeEntries, err
+		}
+		timeEntries = append(timeEntries, timeEntry)
+	}
+	return timeEntries, nil
+}
+
 func (c Client) DeleteTimeEntryById(userId string, starttime time.Time) (interface{}, error) {
 
 	filter := bson.M{"userId": userId, "start": starttime}

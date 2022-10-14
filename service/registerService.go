@@ -27,6 +27,7 @@ type DatabaseInterface interface {
 	CreatTimeEntryById(te model.TimeEntry) (interface{}, error)
 	UpdateTimeEntryById(update model.TimeEntry) (*mongo.UpdateResult, error)
 	GetTimeEntryByID(id string) []model.TimeEntry
+	GetTimeEntriesByFilter(filter bson.M) ([]model.TimeEntry, error)
 	DeleteTimeEntryById(userId string, starttime time.Time) (interface{}, error)
 	GetAllTimeEntry() ([]model.TimeEntry, error)
 }

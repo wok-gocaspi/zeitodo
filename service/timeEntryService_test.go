@@ -6,6 +6,7 @@ import (
 	"example-project/model"
 	"example-project/service"
 	"example-project/service/servicefakes"
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -242,65 +243,90 @@ func TestUpdate_timeEntries_coll(t *testing.T) {
 	assert.Equal(t, &mongo.UpdateResult{UpsertedCount: 1}, nil)
 	assert.Nil(t, result)
 }*/
+func TestEmployeeService_CalculateTimeEntries(t *testing.T) {
 
-func TestCalcultimeEntry_err(t *testing.T) {
+	fakeHexId, _ := primitive.ObjectIDFromHex("6346c9d1b8489ecce7c010f8")
 
-	fakeDB := &servicefakes.FakeDatabaseInterface{}
-	servicefakes := service.NewEmployeeService(fakeDB)
-
-	fakeerr := errors.New("fakeDB err")
-	fakeDB.GetAllTimeEntryReturns(nil, fakeerr)
-	result, err := servicefakes.CalcultimeEntry("1")
-
-	assert.Equal(t, fakeerr, err)
-	assert.Nil(t, result)
-}
-
-func TestCalcultimeEntry(t *testing.T) {
-
-	fakeDB := &servicefakes.FakeDatabaseInterface{}
-	servicefakes := service.NewEmployeeService(fakeDB)
-
-	//fakeerr := errors.New("fakeDB err")
-	faketimeentries := []model.TimeEntry{
-		model.TimeEntry{
-			UserId: "123", Start: time.Time{}, End: time.Time{}, BreakStart: time.Time{}, BreakEnd: time.Time{}, Project: "135"},
+	timeEntryReturn := []model.TimeEntry{
+		model.TimeEntry{UserId: "1"},
 	}
-	fakeDB.GetAllTimeEntryReturns(faketimeentries, nil)
-	result, err := servicefakes.CalcultimeEntry("1")
-
-	assert.Equal(t, nil, err)
-	assert.NotNil(t, result)
-}
-func TestCalcultimeEntryend(t *testing.T) {
-
-	fakeDB := &servicefakes.FakeDatabaseInterface{}
-	servicefakes := service.NewEmployeeService(fakeDB)
-
-	//fakeerr := errors.New("fakeDB err")
-	faketimeentries := []model.TimeEntry{
-		model.TimeEntry{
-			UserId: "1", Start: time.Time{}, End: time.Time{}, BreakStart: time.Time{}, BreakEnd: time.Time{}, Project: "135"},
+	proposalReturn := []model.Proposal{
+		model.Proposal{UserId: "1"},
 	}
-	fakeDB.GetAllTimeEntryReturns(faketimeentries, nil)
-	result, err := servicefakes.CalcultimeEntry("1")
+	getUserReturn := model.UserPayload{ID: fakeHexId}
 
-	assert.Equal(t, nil, err)
-	assert.NotNil(t, result)
-}
-func TestCalcul_timeEntry_end(t *testing.T) {
-
-	fakeDB := &servicefakes.FakeDatabaseInterface{}
-	servicefakes := service.NewEmployeeService(fakeDB)
-
-	//fakeerr := errors.New("fakeDB err")
-	faketimeentries := []model.TimeEntry{
-		model.TimeEntry{
-			UserId: "1", Start: time.Time{}, End: time.Time{}, BreakStart: time.Time{}, BreakEnd: time.Time{}, Project: "135"},
+	var tests = []struct {
+		hasUserIdQuery          bool
+		hasUserIdFormatationErr bool
+		proposalReturn          []model.Proposal
+		hasProposalReturnErr    bool
+		proposalReturnErr       error
+		timeEntryReturn         []model.TimeEntry
+		hasTimeEntryReturnErr   bool
+		timeEntryReturnErr      error
+		getUserByIdReturn       model.UserPayload
+		hasUserReturnErr        bool
+		userByIdReturnErr       error
+	}{
+		{true, false, proposalReturn, false, nil, timeEntryReturn, false, nil, getUserReturn, false, nil},
+		{false, false, proposalReturn, false, nil, timeEntryReturn, false, nil, getUserReturn, false, nil},
+		{true, true, proposalReturn, false, nil, timeEntryReturn, false, nil, getUserReturn, false, nil},
+		{true, false, nil, true, errors.New("fakeProposalReturnErr"), timeEntryReturn, false, nil, getUserReturn, false, nil},
+		{true, false, proposalReturn, false, nil, timeEntryReturn, true, errors.New("fakeTimeEntryErr"), getUserReturn, false, nil},
 	}
-	fakeDB.GetAllTimeEntryReturns(faketimeentries, nil)
-	result, err := servicefakes.CalcultimeEntry("1")
+	for _, tt := range tests {
+		fakeDB := &servicefakes.FakeDatabaseInterface{}
+		serviceInstance := service.NewEmployeeService(fakeDB)
+		fakeDB.GetUserByIDReturns(tt.getUserByIdReturn, nil)
+		fakeDB.GetProposalsByFilterReturns(tt.proposalReturn, nil)
+		fakeDB.GetTimeEntriesByFilterReturns(tt.timeEntryReturn, nil)
+		if tt.hasUserIdQuery && !tt.hasUserIdFormatationErr {
+			responseRecoder := httptest.NewRecorder()
+			fakeContest, _ := gin.CreateTestContext(responseRecoder)
+			fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/user?userid=6346c9d1b8489ecce7c010f8", nil)
 
-	assert.Equal(t, nil, err)
-	assert.NotNil(t, result)
+			_, err := serviceInstance.CalculateTimeEntries(fakeContest)
+			assert.Equal(t, err, nil)
+		}
+
+		if !tt.hasUserIdQuery {
+			responseRecoder := httptest.NewRecorder()
+			fakeContest, _ := gin.CreateTestContext(responseRecoder)
+			fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/user", nil)
+			expectedErr := "no user id supplied"
+			_, err := serviceInstance.CalculateTimeEntries(fakeContest)
+			assert.Contains(t, err.Error(), expectedErr)
+		}
+
+		if tt.hasUserIdFormatationErr {
+			responseRecoder := httptest.NewRecorder()
+			fakeContest, _ := gin.CreateTestContext(responseRecoder)
+			fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/user?userid=1", nil)
+			expectedErr := "odd length hex string"
+			_, err := serviceInstance.CalculateTimeEntries(fakeContest)
+			assert.Contains(t, err.Error(), expectedErr)
+		}
+
+		if tt.hasProposalReturnErr {
+			fakeDB.GetProposalsByFilterReturns(tt.proposalReturn, tt.proposalReturnErr)
+			responseRecoder := httptest.NewRecorder()
+			fakeContest, _ := gin.CreateTestContext(responseRecoder)
+			fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/user?userid=6346c9d1b8489ecce7c010f8", nil)
+			expectedErr := "fakeProposalReturnErr"
+			_, err := serviceInstance.CalculateTimeEntries(fakeContest)
+			assert.Contains(t, err.Error(), expectedErr)
+		}
+
+		if tt.hasTimeEntryReturnErr {
+			fakeDB.GetTimeEntriesByFilterReturns(tt.timeEntryReturn, tt.timeEntryReturnErr)
+			responseRecoder := httptest.NewRecorder()
+			fakeContest, _ := gin.CreateTestContext(responseRecoder)
+			fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/user?userid=6346c9d1b8489ecce7c010f8", nil)
+			expectedErr := "fakeTimeEntryErr"
+			_, err := serviceInstance.CalculateTimeEntries(fakeContest)
+			assert.Contains(t, err.Error(), expectedErr)
+		}
+
+	}
+
 }
