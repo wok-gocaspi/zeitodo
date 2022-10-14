@@ -153,7 +153,6 @@ func (s EmployeeService) GetTotalAbsence(userid string) (model.AbsenceObject, er
 	}
 
 	for _, proposal := range proposals {
-		const layout = "2006-Jan-02"
 
 		days := utilities.GetWeekdaysBetween(proposal.StartDate, proposal.EndDate)
 		if proposal.Type == "sickness" {

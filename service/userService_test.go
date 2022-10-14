@@ -205,7 +205,7 @@ func TestUpdateUser_Service(t *testing.T) {
 				{callIteration: 1, userReturn: model.UserPayload{}, err: errors.New("some error")},
 			},
 		},
-		{[]model.UpdateUserPayload{{ID: fakeUserID, Username: "jochen1", FirstName: "jochen", LastName: "schweizer", Email: "j.schweizer@gmail.com", Team: "unkreativername", Projects: []string{"team1", "team2"}, TotalWorkingDays: 10, VacationDays: 20},
+		{[]model.UpdateUserPayload{{ID: fakeUserID, Username: "jochen1", FirstName: "jochen", LastName: "schweizer", Email: "j.schweizer@gmail.com", Team: "unkreativername", Projects: []string{"team1", "team2"}, VacationDays: 20},
 			{ID: fakeNexUserID, Username: "peter1", FirstName: "Peter", LastName: "Vogel", Email: "p.vogel@outlook.com", Team: "unkreativername", Projects: []string{"team1, team2"}, Group: "admin", Password: "1234567"}},
 			"admin", fakeUserID.Hex(), true, true, true, false, nil, &mongo.UpdateResult{}, []UserByIDCalls{
 				{callIteration: 0, userReturn: model.UserPayload{Username: "jochen1"}, err: nil},
@@ -219,14 +219,14 @@ func TestUpdateUser_Service(t *testing.T) {
 				{callIteration: 1, userReturn: model.UserPayload{Username: "peter1"}, err: nil},
 			},
 		},
-		{[]model.UpdateUserPayload{{ID: fakeUserID, Username: "jochen1", FirstName: "jochen", LastName: "schweizer", Email: "j.schweizer@gmail.com", Team: "unkreativername", Projects: []string{"team1", "team2"}, TotalWorkingDays: 10, VacationDays: 20},
+		{[]model.UpdateUserPayload{{ID: fakeUserID, Username: "jochen1", FirstName: "jochen", LastName: "schweizer", Email: "j.schweizer@gmail.com", Team: "unkreativername", Projects: []string{"team1", "team2"}, VacationDays: 20},
 			{ID: fakeNexUserID, Username: "peter1", FirstName: "Peter", LastName: "Vogel", Email: "p.vogel@outlook.com", Team: "unkreativername", Projects: []string{"team1, team2"}, Password: "1234567"}},
 			"user", fakeUserID.Hex(), true, false, true, false, nil, &mongo.UpdateResult{}, []UserByIDCalls{
 				{callIteration: 0, userReturn: model.UserPayload{Username: "jochen1"}, err: nil},
 				{callIteration: 1, userReturn: model.UserPayload{Username: "peter1"}, err: nil},
 			},
 		},
-		{[]model.UpdateUserPayload{{ID: fakeUserID, Username: "jochen1", FirstName: "jochen", LastName: "schweizer", Email: "j.schweizer@gmail.com", Team: "unkreativername", Projects: []string{"team1", "team2"}, TotalWorkingDays: 10, VacationDays: 20},
+		{[]model.UpdateUserPayload{{ID: fakeUserID, Username: "jochen1", FirstName: "jochen", LastName: "schweizer", Email: "j.schweizer@gmail.com", Team: "unkreativername", Projects: []string{"team1", "team2"}, VacationDays: 20},
 			{ID: fakeNexUserID, Username: "peter1", FirstName: "Peter", LastName: "Vogel", Email: "p.vogel@outlook.com", Team: "unkreativername", Projects: []string{"team1, team2"}, Group: "admin", Password: "1234567"}},
 			"admin", fakeUserID.Hex(), true, true, false, true, errors.New("some db error"), &mongo.UpdateResult{}, []UserByIDCalls{
 				{callIteration: 0, userReturn: model.UserPayload{Username: "jochen1"}, err: nil},

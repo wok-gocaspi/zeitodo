@@ -1187,7 +1187,6 @@ func Test_CreateTimeEntry(t *testing.T) {
 }
 
 func TestCreateTimeEntry(t *testing.T) {
-	//Return_invalid_500_invalid_json
 	var fakeJSONString = `
 		[
 			{
@@ -1225,10 +1224,10 @@ func Test_Calcul_TimeEntries(t *testing.T) {
 	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "id", Value: "1"})
 
 	fakeService := &handlerfakes.FakeServiceInterface{}
-	fakeService.CalcultimeEntryReturns(map[string]float64{}, errors.New("no Timeuser have been deleted, please check the id"))
+	fakeService.CalculateTimeEntriesReturns(model.WorkingHoursPayload{}, errors.New("no Timeuser have been deleted, please check the id"))
 
 	handlerInstance := handler.NewHandler(fakeService)
-	handlerInstance.CalcultimeEntry(fakeContest)
+	handlerInstance.CalculateTimeEntriesHandler(fakeContest)
 
 	assert.Equal(t, 400, responseRecoder.Code)
 
@@ -1240,10 +1239,10 @@ func Test_Calcul_TimeEntry(t *testing.T) {
 	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "MIL", Value: "1"})
 
 	fakeService := &handlerfakes.FakeServiceInterface{}
-	fakeService.CalcultimeEntryReturns(map[string]float64{}, errors.New("no Timeuser have been deleted, please check the id"))
+	fakeService.CalculateTimeEntriesReturns(model.WorkingHoursPayload{}, errors.New("no Timeuser have been deleted, please check the id"))
 
 	handlerInstance := handler.NewHandler(fakeService)
-	handlerInstance.CalcultimeEntry(fakeContest)
+	handlerInstance.CalculateTimeEntriesHandler(fakeContest)
 
 	assert.Equal(t, 400, responseRecoder.Code)
 
@@ -1375,6 +1374,7 @@ func TestHandler_ImplementrightManagementAdmin(t *testing.T) {
 */
 
 func TestGetAllProposalsHandler(t *testing.T) {
+	startDate := time.Now()
 	var tests = []struct {
 		result []model.ProposalsByUser
 		Error  error
@@ -1386,7 +1386,7 @@ func TestGetAllProposalsHandler(t *testing.T) {
 					Username: "Test1",
 					SicknessProposals: []model.Proposal{
 						{
-							StartDate: "2022-10-10",
+							StartDate: startDate,
 							UserId:    "123",
 						},
 					},

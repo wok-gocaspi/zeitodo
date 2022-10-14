@@ -364,34 +364,36 @@ func CalculateRequiredWorkingHours(user model.UserPayload, proposals []model.Pro
 			return 0, err
 		}
 	} else {
-		endTime = time.Now()
+		endTime = time.Now().UTC().Truncate(time.Hour * 24)
 	}
 	var totalHours = float64(GetWeekdaysBetween(startTime, endTime)+1) * hoursPerDay
-	totalHolidays, err := GetPublicHolidays(startTime, endTime)
+	totalHolidays, err := GetPublicHolidays(startTime, endTime, proposals)
 	if err != nil {
 		return 0, err
 	}
 	totalHours = totalHours - (float64(totalHolidays) * hoursPerDay)
+
 	for _, proposal := range proposals {
 		var proposalTotalDays float64 = 0
 		var proposalStartOffset float64 = 0
 		var proposalEndOffset float64 = 0
-		proposalTotalDays = float64(GetWeekdaysBetween(proposal.StartDate, proposal.EndDate))
+		proposalTotalDays = float64(GetWeekdaysBetween(proposal.StartDate, proposal.EndDate) + 1)
 		if proposal.StartDate.Before(startTime) {
-			proposalStartOffset = float64(GetWeekdaysBetween(proposal.StartDate, startTime))
-		} else if (proposal.StartDate.Equal(endTime) || proposal.EndDate.Equal(startTime)) && !proposal.StartDate.Before(startTime) {
-			proposalStartOffset += proposalTotalDays - 1
+			proposalStartOffset = float64(GetWeekdaysBetween(proposal.StartDate, startTime) + 1)
 		}
-		if proposal.EndDate.After(endTime) {
-			proposalEndOffset = float64(GetWeekdaysBetween(proposal.StartDate, endTime))
+		if proposal.StartDate.Equal(endTime) {
+			proposalTotalDays = 1
 		}
-		totalProposalDays = totalProposalDays + (proposalTotalDays - (proposalStartOffset + proposalEndOffset)) + 1
+		if proposal.EndDate.After(endTime) && !proposal.StartDate.Equal(endTime) {
+			proposalEndOffset = float64(GetWeekdaysBetween(proposal.EndDate, endTime) + 1)
+		}
+		totalProposalDays = totalProposalDays + (proposalTotalDays - (proposalStartOffset + proposalEndOffset))
 	}
 	var totalProposalHours = totalProposalDays * hoursPerDay
 	return totalHours - totalProposalHours, nil
 }
 
-func GetPublicHolidays(start, end time.Time) (int, error) {
+func GetPublicHolidays(start, end time.Time, proposals []model.Proposal) (int, error) {
 	var totalDays int = 0
 	year := time.Now().Year()
 	url := fmt.Sprintf("https://get.api-feiertage.de/?years=%v&states=hb", year)
@@ -407,13 +409,19 @@ func GetPublicHolidays(start, end time.Time) (int, error) {
 	var responseInterface map[string]interface{}
 	json.Unmarshal(rawData, &responseInterface)
 	holidays := responseInterface["feiertage"].([]interface{})
+timeLoop:
 	for _, hol := range holidays {
 		obj := hol.(map[string]interface{})
-		time, err := time.Parse("2006-01-02", fmt.Sprint(obj["date"]))
+		holiday, err := time.Parse("2006-01-02", fmt.Sprint(obj["date"]))
 		if err != nil {
 			return 0, err
 		}
-		if time.After(start) && time.Before(end) {
+		if holiday.After(start) && holiday.Before(end) {
+			for _, proposal := range proposals {
+				if (holiday.After(proposal.StartDate) || holiday.Equal(proposal.StartDate)) && (holiday.Before(proposal.EndDate) || holiday.Equal(proposal.EndDate)) {
+					continue timeLoop
+				}
+			}
 			totalDays++
 		}
 	}
