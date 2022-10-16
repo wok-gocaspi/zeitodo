@@ -214,7 +214,7 @@ func (c Client) SaveProposals(docs []interface{}) (interface{}, error) {
 	return results.InsertedIDs, nil
 }
 
-func (c Client) DeleteProposalByIdAndDate(id string, date string) (*mongo.DeleteResult, error) {
+func (c Client) DeleteProposalByIdAndDate(id string, date time.Time) (*mongo.DeleteResult, error) {
 
 	filter := bson.M{"startDate": date, "userId": id}
 

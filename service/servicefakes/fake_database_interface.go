@@ -38,11 +38,11 @@ type FakeDatabaseInterface struct {
 		result1 interface{}
 		result2 error
 	}
-	DeleteProposalByIdAndDateStub        func(string, string) (*mongo.DeleteResult, error)
+	DeleteProposalByIdAndDateStub        func(string, time.Time) (*mongo.DeleteResult, error)
 	deleteProposalByIdAndDateMutex       sync.RWMutex
 	deleteProposalByIdAndDateArgsForCall []struct {
 		arg1 string
-		arg2 string
+		arg2 time.Time
 	}
 	deleteProposalByIdAndDateReturns struct {
 		result1 *mongo.DeleteResult
@@ -392,12 +392,12 @@ func (fake *FakeDatabaseInterface) CreateUserReturnsOnCall(i int, result1 interf
 	}{result1, result2}
 }
 
-func (fake *FakeDatabaseInterface) DeleteProposalByIdAndDate(arg1 string, arg2 string) (*mongo.DeleteResult, error) {
+func (fake *FakeDatabaseInterface) DeleteProposalByIdAndDate(arg1 string, arg2 time.Time) (*mongo.DeleteResult, error) {
 	fake.deleteProposalByIdAndDateMutex.Lock()
 	ret, specificReturn := fake.deleteProposalByIdAndDateReturnsOnCall[len(fake.deleteProposalByIdAndDateArgsForCall)]
 	fake.deleteProposalByIdAndDateArgsForCall = append(fake.deleteProposalByIdAndDateArgsForCall, struct {
 		arg1 string
-		arg2 string
+		arg2 time.Time
 	}{arg1, arg2})
 	stub := fake.DeleteProposalByIdAndDateStub
 	fakeReturns := fake.deleteProposalByIdAndDateReturns
@@ -418,13 +418,13 @@ func (fake *FakeDatabaseInterface) DeleteProposalByIdAndDateCallCount() int {
 	return len(fake.deleteProposalByIdAndDateArgsForCall)
 }
 
-func (fake *FakeDatabaseInterface) DeleteProposalByIdAndDateCalls(stub func(string, string) (*mongo.DeleteResult, error)) {
+func (fake *FakeDatabaseInterface) DeleteProposalByIdAndDateCalls(stub func(string, time.Time) (*mongo.DeleteResult, error)) {
 	fake.deleteProposalByIdAndDateMutex.Lock()
 	defer fake.deleteProposalByIdAndDateMutex.Unlock()
 	fake.DeleteProposalByIdAndDateStub = stub
 }
 
-func (fake *FakeDatabaseInterface) DeleteProposalByIdAndDateArgsForCall(i int) (string, string) {
+func (fake *FakeDatabaseInterface) DeleteProposalByIdAndDateArgsForCall(i int) (string, time.Time) {
 	fake.deleteProposalByIdAndDateMutex.RLock()
 	defer fake.deleteProposalByIdAndDateMutex.RUnlock()
 	argsForCall := fake.deleteProposalByIdAndDateArgsForCall[i]

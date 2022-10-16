@@ -22,7 +22,7 @@ type DatabaseInterface interface {
 	GetProposalsByUserID(id string) ([]model.Proposal, error)
 	GetProposalsByFilter(filter bson.M, sort bson.D) ([]model.Proposal, error)
 	SaveProposals(docs []interface{}) (interface{}, error)
-	DeleteProposalByIdAndDate(id string, date string) (*mongo.DeleteResult, error)
+	DeleteProposalByIdAndDate(id string, date time.Time) (*mongo.DeleteResult, error)
 	UpdateProposal(update model.Proposal, date string) (*mongo.UpdateResult, error)
 	CreatTimeEntryById(te model.TimeEntry) (interface{}, error)
 	UpdateTimeEntryById(update model.TimeEntry) (*mongo.UpdateResult, error)

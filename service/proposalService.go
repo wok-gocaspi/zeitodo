@@ -4,6 +4,7 @@ import (
 	"errors"
 	"example-project/model"
 	"example-project/utilities"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -26,18 +27,19 @@ func (s EmployeeService) GetProposalsByID(id string) ([]model.Proposal, error) {
 }
 
 func (s EmployeeService) DeleteProposalsByID(id string, date string) error {
-
-	result, err := s.DbService.DeleteProposalByIdAndDate(id, date)
-
+	fmt.Println(date)
+	dateTime, err := time.Parse(time.RFC3339, date)
 	if err != nil {
 		return err
 	}
-
+	result, err := s.DbService.DeleteProposalByIdAndDate(id, dateTime)
+	if err != nil {
+		return err
+	}
 	if result.DeletedCount == 0 {
-		deleterror := errors.New("the Employee id is not existing")
+		deleterror := errors.New("the employee dosent exist")
 		return deleterror
 	}
-
 	return nil
 }
 

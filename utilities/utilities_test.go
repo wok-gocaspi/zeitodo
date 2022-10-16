@@ -258,6 +258,22 @@ func TestFormGetAllProposalsFilterDESC(t *testing.T) {
 	assert.Equal(t, sort, sort)
 }
 
+func TestFormGetAllProposalsFilterCalc(t *testing.T) {
+	fakeContext := gin.Context{}
+	fakeContext.Request = httptest.NewRequest("GET", "http://localhost:9090/proposals?sort=asce&type=vacation&status=approved&username=jack", nil)
+	filter, sort := FormGetAllProposalsFilterCalc(model.UserPayload{}, &fakeContext)
+	assert.Equal(t, filter, filter)
+	assert.Equal(t, sort, sort)
+}
+
+func TestFormGetAllProposalsFilterCalcDESC(t *testing.T) {
+	fakeContext := gin.Context{}
+	fakeContext.Request = httptest.NewRequest("GET", "http://localhost:9090/proposals?sort=desc&type=vacation&status=approved&username=jack", nil)
+	filter, sort := FormGetAllProposalsFilterCalc(model.UserPayload{}, &fakeContext)
+	assert.Equal(t, filter, filter)
+	assert.Equal(t, sort, sort)
+}
+
 func TestFormGetTimeEntryFilter(t *testing.T) {
 	invalidFakeStart := "2022-01-01"
 	invalidFakeEnd := "2022-01-02"
@@ -321,4 +337,47 @@ func TestFormGetTimeEntryFilter(t *testing.T) {
 			assert.Contains(t, err.Error(), expectedErr)
 		}
 	}
+}
+
+func TestCalculateTotalProposalHours(t *testing.T) {
+	mockStartDate := time.Now()
+	mockEndDate := time.Now().Add(time.Hour * 8760)
+	mockProposalEndDate := time.Now().Add(time.Hour * 8650)
+	mockProposals := []model.Proposal{
+		model.Proposal{StartDate: mockStartDate, EndDate: mockProposalEndDate},
+	}
+	actual := CalculateTotalProposalHours(mockStartDate, mockEndDate, 8, mockProposals)
+
+	assert.Equal(t, actual, float64(2056))
+}
+
+func TestGetPublicHolidays(t *testing.T) {
+	mockStartDate := time.Now()
+	mockEndDate := time.Now().Add(time.Hour * 8760)
+	mockProposalEndDate := time.Now().Add(time.Hour * 8650)
+	mockProposals := []model.Proposal{
+		model.Proposal{StartDate: mockStartDate, EndDate: mockProposalEndDate},
+	}
+	actual, _ := GetPublicHolidays(mockStartDate, mockEndDate, mockProposals)
+
+	assert.Equal(t, actual, 0)
+}
+
+func TestCalculateRequiredWorkingHours(t *testing.T) {
+	mockStartDate := time.Now().Add(-72 * time.Hour)
+	user := model.UserPayload{
+		HoursPerWeek: 40,
+		EntryTime:    mockStartDate,
+	}
+	fakeProposals := []model.Proposal{
+		{StartDate: time.Now().Add(time.Hour * 48), EndDate: time.Now().Add(time.Hour * 96)},
+	}
+	responseRecorder := httptest.NewRecorder()
+	fakeContest, _ := gin.CreateTestContext(responseRecorder)
+	fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/user", nil)
+
+	result, err := CalculateRequiredWorkingHours(user, fakeProposals, fakeContest)
+	assert.Equal(t, float64(32), result)
+	assert.Nil(t, err)
+
 }

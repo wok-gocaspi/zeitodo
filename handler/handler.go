@@ -223,7 +223,7 @@ func (handler Handler) GetAllUserHandler(c *gin.Context) {
 }
 
 func (handler Handler) GetTeamMemberHandler(c *gin.Context) {
-	idParam, idOK := c.GetQuery("id")
+	idParam, idOK := c.GetQuery("userid")
 	nameParam, nameOK := c.GetQuery("name")
 	if !idOK && !nameOK {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{

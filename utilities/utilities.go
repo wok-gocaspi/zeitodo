@@ -18,6 +18,7 @@ import (
 )
 
 func ProposalTimeIntersectsProposals(proposal model.Proposal, Arr []model.Proposal) bool {
+	fmt.Println(proposal)
 	for _, p := range Arr {
 		p.TimeObject, _ = CreateTimeObject(p.StartDate, p.EndDate)
 
@@ -426,9 +427,9 @@ timeLoop:
 		if err != nil {
 			return 0, err
 		}
-		if holiday.After(start) && holiday.Before(end) {
+		if CheckDateIntersection(holiday, start, end) {
 			for _, proposal := range proposals {
-				if (holiday.After(proposal.StartDate) || holiday.Equal(proposal.StartDate)) && (holiday.Before(proposal.EndDate) || holiday.Equal(proposal.EndDate)) {
+				if CheckProposalIntersect(holiday, proposal) {
 					continue timeLoop
 				}
 			}
@@ -437,6 +438,22 @@ timeLoop:
 	}
 	fmt.Println(totalDays)
 	return totalDays, nil
+}
+
+func CheckProposalIntersect(input time.Time, proposal model.Proposal) bool {
+	if (input.After(proposal.StartDate) || input.Equal(proposal.StartDate)) && (input.Before(proposal.EndDate) || input.Equal(proposal.EndDate)) {
+		return true
+	} else {
+		return false
+	}
+}
+
+func CheckDateIntersection(input, start, end time.Time) bool {
+	if (input.After(start) && input.Before(end)) || (input.Equal(start) || input.Equal(end)) {
+		return true
+	} else {
+		return false
+	}
 }
 
 func CalculateTotalProposalHours(startTime, endTime time.Time, hoursPerDay float64, proposals []model.Proposal) float64 {
@@ -448,9 +465,6 @@ func CalculateTotalProposalHours(startTime, endTime time.Time, hoursPerDay float
 		proposalTotalDays = float64(GetWeekdaysBetween(proposal.StartDate, proposal.EndDate) + 1)
 		if proposal.StartDate.Before(startTime) {
 			proposalStartOffset = float64(GetWeekdaysBetween(proposal.StartDate, startTime) + 1)
-		}
-		if proposal.StartDate.Equal(startTime) {
-			proposalTotalDays++
 		}
 		if proposal.EndDate.After(endTime) && !proposal.StartDate.Equal(endTime) {
 			proposalEndOffset = float64(GetWeekdaysBetween(endTime, proposal.EndDate) + 1)

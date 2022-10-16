@@ -5,6 +5,7 @@ import (
 	"example-project/model"
 	"example-project/service"
 	"example-project/service/servicefakes"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -123,7 +124,6 @@ func TestEmployeeService_CreateProposals(t *testing.T) {
 	}
 	GetByIdReturnOverlapp := []model.Proposal{
 		{UserId: "1", StartDate: mockStartDate, EndDate: mockEndDate},
-		{UserId: "1", StartDate: mockStartDate, EndDate: mockEndDate},
 	}
 
 	StartExceedsEndMsg := "The startdate must be before the enddate"
@@ -136,13 +136,14 @@ func TestEmployeeService_CreateProposals(t *testing.T) {
 		expectedError           string
 	}{
 		{StartExceedsEnd, GetByIdReturn, true, false, StartExceedsEndMsg},
-		{okPayload, GetByIdReturnOverlapp, false, true, overlappingErrorMsg},
+		{okPayload, GetByIdReturnOverlapp, false, false, overlappingErrorMsg},
 		{okPayload, GetByIdReturn, false, false, overlappingErrorMsg},
 	}
 
 	for _, tt := range tests {
 		fakeDb := &servicefakes.FakeDatabaseInterface{}
 		serviceInstance := service.NewEmployeeService(fakeDb)
+		fmt.Println(tt.overlappingErr)
 
 		if tt.startDateExceedsEndDate {
 			actual, err := serviceInstance.CreateProposals(tt.Payload, "2006-Nov-07")
@@ -154,6 +155,7 @@ func TestEmployeeService_CreateProposals(t *testing.T) {
 			fakeDb.GetProposalsByUserIDReturns(tt.GetProposalsReturn, nil)
 
 			actual, err := serviceInstance.CreateProposals(tt.Payload, "2006-Nov-07")
+			fmt.Println(err)
 			assert.Equal(t, nil, actual)
 			assert.Equal(t, errors.New(tt.expectedError), err)
 		}
@@ -169,6 +171,7 @@ func TestEmployeeService_CreateProposals(t *testing.T) {
 }
 
 func TestProposalService_DeleteProposalsByID(t *testing.T) {
+	mockTime := time.Now().String()
 	fakeDb := &servicefakes.FakeDatabaseInterface{}
 
 	fakeDeletedCount0 := mongo.DeleteResult{
@@ -189,10 +192,10 @@ func TestProposalService_DeleteProposalsByID(t *testing.T) {
 		deletedCount *mongo.DeleteResult
 		err          error
 	}{
-		{true, true, false, "1", "TODO", &fakeDeletedCount1, nil},
-		{false, false, true, "1", "TODO", &fakeDeletedCount0, fakeDBErr},
-		{true, true, true, "1", "TODO", &fakeDeletedCount1, fakeDBErr},
-		{false, true, false, "1", "TODO", &fakeDeletedCount0, nil},
+		{true, true, false, "1", mockTime, &fakeDeletedCount1, nil},
+		{false, false, true, "1", mockTime, &fakeDeletedCount0, fakeDBErr},
+		{true, true, true, "1", mockTime, &fakeDeletedCount1, fakeDBErr},
+		{false, true, false, "1", mockTime, &fakeDeletedCount0, nil},
 	}
 
 	for _, tt := range tests {
